@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "UI_HUD_Ability_Dpad_HUD",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 154,
+        "Y": 154
+      },
+      "LightingGuid": "7FEE5A33-4856CF00-7299ADBC-CC588F0C",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 154,
+    "SizeY": 154,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 94864,
+          "SizeOnDisk": 94864,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 154,
+        "SizeY": 154,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

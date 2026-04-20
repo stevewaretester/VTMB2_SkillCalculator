@@ -1,0 +1,106 @@
+[
+  {
+    "Type": "Material",
+    "Name": "M_UI_AbilityTree_AbilityUnderline",
+    "Class": "UScriptClass'Material'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "MaterialDomain": "EMaterialDomain::MD_UI",
+      "BlendMode": "EBlendMode::BLEND_Translucent",
+      "bCanMaskedBeAssumedOpaque": true,
+      "StateId": "7E59A238-441F67DA-8302DF8F-9576B4CF",
+      "bIncludedInBaseGame": true
+    },
+    "LoadedMaterialResources": [],
+    "CachedExpressionData": {
+      "RuntimeEntries": {
+        "ParameterInfoSet": [
+          {
+            "Name": "MaskSlider",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[1]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[2]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[3]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[4]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[5]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[6]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[7]": {
+        "ParameterInfoSet": []
+      },
+      "ScalarPrimitiveDataIndexValues": [
+        -1
+      ],
+      "VectorPrimitiveDataIndexValues": [],
+      "ScalarValues": [
+        1.2
+      ],
+      "StaticSwitchValues": [],
+      "DynamicSwitchValues": [],
+      "VectorValues": [],
+      "DoubleVectorValues": [],
+      "TextureValues": [],
+      "FontValues": [],
+      "FontPageValues": [],
+      "RuntimeVirtualTextureValues": [],
+      "SparseVolumeTextureValues": [],
+      "ReferencedTextures": [
+        {
+          "ObjectName": "Texture2D'T_AbilityTree_AbilityUnderline'",
+          "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/AbilityTree/Assets/T_AbilityTree_AbilityUnderline.0"
+        }
+      ],
+      "FunctionInfos": [
+        {
+          "StateId": "B7C71B91-4E2BB667-772D6CBE-2AB55665",
+          "Function": {
+            "ObjectName": "MaterialFunction'LinearGradient'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Gradient/LinearGradient.0"
+          }
+        }
+      ],
+      "FunctionInfosStateCRC": 533719000,
+      "ParameterCollectionInfos": [],
+      "GrassTypes": [],
+      "MaterialLayers": {
+        "Layers": [],
+        "Blends": []
+      },
+      "DynamicParameterNames": [],
+      "QualityLevelsUsed": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "bHasMaterialLayers": false,
+      "bHasRuntimeVirtualTextureOutput": false,
+      "bHasSceneColor": false,
+      "bHasPerInstanceCustomData": false,
+      "bHasPerInstanceRandom": false,
+      "bHasVertexInterpolator": false,
+      "PropertyConnectedMask": 35
+    },
+    "ReferencedTextures": [
+      {
+        "ObjectName": "Texture2D'T_AbilityTree_AbilityUnderline'",
+        "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/AbilityTree/Assets/T_AbilityTree_AbilityUnderline.0"
+      }
+    ]
+  }
+]

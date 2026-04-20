@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_DialogBGArrowRight",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 512,
+        "Y": 512
+      },
+      "LightingGuid": "90ADC670-4626B75D-FC8C4684-DF0D974D",
+      "CompressionSettings": "TextureCompressionSettings::TC_EditorIcon",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI"
+    },
+    "SizeX": 512,
+    "SizeY": 512,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 1048576,
+          "SizeOnDisk": 1048576,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 512,
+        "SizeY": 512,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

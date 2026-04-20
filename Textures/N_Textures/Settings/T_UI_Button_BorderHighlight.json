@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_Button_BorderHighlight",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 958,
+        "Y": 80
+      },
+      "LightingGuid": "CF3F5AB2-4157FA94-F5728ABA-B2A45CB9",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 958,
+    "SizeY": 80,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 306560,
+          "SizeOnDisk": 306560,
+          "OffsetInFile": "0x7B"
+        },
+        "SizeX": 958,
+        "SizeY": 80,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

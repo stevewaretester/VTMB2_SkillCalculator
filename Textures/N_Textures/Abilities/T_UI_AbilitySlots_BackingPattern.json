@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_AbilitySlots_BackingPattern",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 208,
+        "Y": 208
+      },
+      "LightingGuid": "F08C7643-4A0E6607-566A6296-590920EA",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 208,
+    "SizeY": 208,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 43264,
+          "SizeOnDisk": 43264,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 208,
+        "SizeY": 208,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

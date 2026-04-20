@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_ClanSelect_Divider",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 640,
+        "Y": 32
+      },
+      "LightingGuid": "F6FEA957-45B7F380-AEDEEFB7-51254139",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 640,
+    "SizeY": 32,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 20480,
+          "SizeOnDisk": 20480,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 640,
+        "SizeY": 32,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

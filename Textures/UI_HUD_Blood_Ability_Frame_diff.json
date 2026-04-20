@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "UI_HUD_Blood_Ability_Frame_diff",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 252,
+        "Y": 285
+      },
+      "LightingGuid": "00266AE5-42BFDC6C-2D946A9E-FD8034CB",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 252,
+    "SizeY": 285,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 287280,
+          "SizeOnDisk": 287280,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 252,
+        "SizeY": 285,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

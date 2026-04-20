@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_ActiveShine",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 80,
+        "Y": 256
+      },
+      "LightingGuid": "A1E10E1A-43BA51DF-007A00B7-8E0A53CA",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 80,
+    "SizeY": 256,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 20480,
+          "SizeOnDisk": 20480,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 80,
+        "SizeY": 256,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

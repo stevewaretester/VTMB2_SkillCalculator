@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_Slider_EndPattern",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 32,
+        "Y": 32
+      },
+      "LightingGuid": "E30C20AD-433F1702-B5225D95-83D77FF8",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI"
+    },
+    "SizeX": 32,
+    "SizeY": 32,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 1024,
+          "SizeOnDisk": 1024,
+          "OffsetInFile": "0x73"
+        },
+        "SizeX": 32,
+        "SizeY": 32,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

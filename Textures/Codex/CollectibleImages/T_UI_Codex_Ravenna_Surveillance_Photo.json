@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_Codex_Ravenna_Surveillance_Photo",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 2048,
+        "Y": 1024
+      },
+      "LightingGuid": "3C9FE9F9-472520E9-073C4DBF-A8DF6DC5",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "SRGB": false
+    },
+    "SizeX": 512,
+    "SizeY": 256,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 131072,
+          "SizeOnDisk": 131072,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 512,
+        "SizeY": 256,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

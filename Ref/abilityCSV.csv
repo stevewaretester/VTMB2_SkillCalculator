@@ -1,0 +1,34 @@
+C,,CLAN,,Brujah,,,Tremere,,,Banu Haqim,,,Ventrue,,,Lasombra,,,Toreador,
+AF,,Affinities,Potence,Celerity,Presence,Blood Sorcery,,Domination,Celerity,Blood Sorcery,Obfuscation,Domination,,Presence,Oblivion,Potence,Domination,Celerity,,Presence
+N,,"Clan Perk
+(3 - n/a - 6)",Spark of Rage,,,Blood of Potency,,,Unseen Passage,,,Resilience,,,Stygian Shroud,,,Fleetness,,
+D,,,Feed-Effect on kill †,,,More blood on feed †,,,Crawling quickly †,,,More health on feed,,,"I'm eating, no touch.†",,,Relocate Recharge,,
+AS,,,,,,,,,,,,,,,,,,,,
+N,,"Mastery
+(4 - 6 - 12)",Earthshock,,,Blood Salvo,,,Unseen Aura ,,,Mass Manipulation,,,Enter Oblivion,,,Blurred Momentum,,
+mta,,,Potence,,,Blood Sorcery,,,Obfuscate,,,Dominate,,,Oblivion,,,Celerity,,
+pip,,blood pips🩸, ▬ ▬ ▬ ▬ ▬,,, ▬ ▬ ▬ ▬ ▬,,, (▬ ▬ ▬ ▬ ▬),,, ▬ ▬ ▬ ▬,,, (▬ ▬ ▬ ▬),,,(▬ ▬ ▬ ▬ ▬),,
+BR,,950 Res total per ability,0,300,650,650,0,300,300,650,0,650,0,300,0,650,300,0,300,650
+N,,"Affect
+(3 - 3 - 6)",Taunt,,,Cauldron of Blood,,,Mute,,,Cloud Memory,,,Glimpse of Oblivion,,,Beckon,,
+mta,,,Presence,,,Blood Sorcery,,,Obfuscate,,,Dominate,,,Dominate,,,Presence,,
+pip,,blood pips🩸, ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬,,
+BR,,550 Res total per ability,400,150,0,400,0,150,150,400,0,0,150,400,0,150,400,400,150,0
+N,,"Relocate
+(2 - 4 - 8)",Charge,,,Recall,,,Split Second,,,Possession,,,Shadow Step,,,Blink,,
+mta,,,Celerity,,,Blood Sorcery,,,Celerity,,,Dominate,,,Oblivion,,,Celerity,,
+pip,,blood pips🩸, ▬ ▬,,, ▬ ▬ ▬,,,(▬ ▬),,, ▬ ▬ ▬,,, ▬ ▬,,, ▬,,
+BR,,350 Res total per ability.,0,100,250,250,100,0,100,0,250,0,100,250,0,250,100,0,100,250
+N,,"Strike
+(1† - 5 - 10)",Lightning Strike,,,Blood Curse,,,Bladed Hand,,,Terminal Decree ,,,Arms of Ahriman,,,Entrancing Kiss,,
+mta,,,Celerity,,,Blood Sorcery,,,Blood Sorcery,,,Dominate,,,Oblivion,,,Presence,,
+pip,,blood pips🩸,▬ ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬ ▬,,, ▬ ▬,,
+BR,,150 Res total per ability,50,0,100,100,50,0,100,50,0,0,50,100,100,50,0,50,0,100
+N,,"Clan Passive
+(1† + unique)",Brutality,,,Corrosive Touch,,,Silence of Death,,,Flesh of Marble,,,Shadow Cloak,,,Cat’s Grace,,
+R,,,On feed: Hit harder,,,On feed: Melt bodies,,,On feed: No noise,,,On feed: Resist pain,,,On feed: Hard to see,,,On feed: Move faster,,
+BR,RESONANCE,Blood Resonance,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho
+C,,CLAN,,Brujah,,,Tremere,,,Banu Haqim,,,Ventrue,,,Lasombra,,,Toreador,
+BR,,Totals (for clan),450,550,1000,1400,150,450,650,1100,250,650,300,1050,100,1100,800,450,550,1000
+BR,,Totals (cross-clan),3250,3200,3550,2300,3600,4100,3050,2650,4300,3050,3450,3500,3600,2650,3750,3250,3200,3550
+,AP,AP costs total by Clan,202,,,198,,,187,,,210,,,200,,,208,,

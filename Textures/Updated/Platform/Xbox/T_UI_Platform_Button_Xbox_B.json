@@ -1,0 +1,42 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_Platform_Button_Xbox_B",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 128,
+        "Y": 128
+      },
+      "LightingGuid": "9D19CC4B-4B7DB0FB-C246149A-777F8332",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "Downscale": {
+        "bCooked": true,
+        "Default": 2.0,
+        "PerPlatform": null,
+        "Value": 2.0
+      },
+      "NeverStream": true
+    },
+    "SizeX": 64,
+    "SizeY": 64,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 4096,
+          "SizeOnDisk": 4096,
+          "OffsetInFile": "0x7E"
+        },
+        "SizeX": 64,
+        "SizeY": 64,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+,,Partial Resonance Reactions,,,,,,,,,,,,Full Resonance,,,,
+,,Homeless,,,Biker,,,Streetwalker,,,Business Person,,,Pedestrians,,,,
+,,,,,,,,,,,,,,,,,,
+TYPE,,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,San,Mel,Cho,First convo option,Second convo option
+Grunge,1,,✅,✅,✅,,✅,❌,✅,,❌,✅,✅,,,,I would be your friend.,Give me all you have
+Strong,1,,✅,❌,✅,,❌,✅,✅,,✅,✅,❌,,,,You look fun.,You look weak.
+Priest,1,,❌,✅,❌,,✅,✅,❌,,✅,❌,✅,,,,Bless You.,Damn you.
+Wealthy,1,,✅,✅,❌,,✅,✅,✅,,✅,✅,✅,,,,You are just my type.,You are pathetic.
+Attractive,1,,❌,✅,✅,,✅,✅,❌,,✅,❌,✅,,,,Let us make something beautiful.,You will like how I hurt you.
+AFFECT,Beckon,,,,✅,,,✅,,,✅,,,,,,,
+,Glimpse of Oblivion,,✅,,,,,,✅,,,✅,,,,,,
+,Taunt,,,✅,,,✅,,,,,,✅,,,,,
+First Convo,Friendly,,,❌,❌,✅,,❌,✅,❌,,✅,❌,❌,,,,
+Second convo Option,Aggressive,,,✅,✅,❌,,✅,❌,✅,,❌,✅,✅,,,,
+BOTTOM,"Sage
+""You cannot match my wit""",,,❌,❌,❌,,❌,❌,✅,,❌,❌,❌,,,,
+,"Empath
+""I can see your heart""",,,❌,❌,✅,,❌,✅,❌,,✅,❌,❌,,,,
+,"Bully
+""I can destroy you""",,,✅,✅,❌,,✅,❌,✅,,❌,✅,✅,,,,

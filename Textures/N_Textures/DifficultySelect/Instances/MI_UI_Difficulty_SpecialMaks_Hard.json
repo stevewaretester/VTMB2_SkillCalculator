@@ -1,0 +1,66 @@
+[
+  {
+    "Type": "MaterialInstanceConstant",
+    "Name": "MI_UI_Difficulty_SpecialMaks_Hard",
+    "Class": "UScriptClass'MaterialInstanceConstant'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "Parent": {
+        "ObjectName": "Material'M_UI_Difficulty_SpecialMask'",
+        "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/DifficultySelect/M_UI_Difficulty_SpecialMask.0"
+      },
+      "ScalarParameterValues": [
+        {
+          "ParameterInfo": {
+            "Name": "RefractionDepthBias",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          "ParameterValue": 0.0,
+          "ExpressionGUID": "00000000-00000000-00000000-00000000"
+        }
+      ],
+      "VectorParameterValues": [
+        {
+          "ParameterInfo": {
+            "Name": "MaskSelector",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          "ParameterValue": {
+            "R": 0.0,
+            "G": 0.0,
+            "B": 1.0,
+            "A": 0.0,
+            "Hex": "0000FF"
+          },
+          "ExpressionGUID": "49C5B116-44AF57B2-C0BE6194-7588A77F"
+        }
+      ],
+      "TextureParameterValues": [
+        {
+          "ParameterInfo": {
+            "Name": "MaskTextures",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          "ParameterValue": {
+            "ObjectName": "Texture2D'T_UI_DifficultyMenu_SpecialMask_EMH'",
+            "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/DifficultySelect/T_UI_DifficultyMenu_SpecialMask_EMH.0"
+          },
+          "ExpressionGUID": "E2657D26-473A86D9-BD0BCA93-5DE3A4A6"
+        }
+      ],
+      "BasePropertyOverrides": {
+        "BlendMode": "EBlendMode::BLEND_Translucent",
+        "ShadingModel": "EMaterialShadingModel::MSM_Unlit",
+        "OpacityMaskClipValue": 0.3333
+      },
+      "bIncludedInBaseGame": true
+    },
+    "LoadedMaterialResources": [],
+    "CachedData": {
+      "ParentLayerIndexRemap": []
+    }
+  }
+]

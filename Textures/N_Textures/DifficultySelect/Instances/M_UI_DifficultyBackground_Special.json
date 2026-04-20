@@ -1,0 +1,234 @@
+[
+  {
+    "Type": "Material",
+    "Name": "M_UI_DifficultyBackground_Special",
+    "Class": "UScriptClass'Material'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "MaterialDomain": "EMaterialDomain::MD_UI",
+      "bCanMaskedBeAssumedOpaque": true,
+      "StateId": "48FC7725-4D55D6B1-D9DBC290-C9C4CBC3",
+      "bIncludedInBaseGame": true
+    },
+    "LoadedMaterialResources": [],
+    "CachedExpressionData": {
+      "RuntimeEntries": {
+        "ParameterInfoSet": [
+          {
+            "Name": "Min",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Max",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Density (S)",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Radius (S)",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "B",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "B_1",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Alpha",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "B_2",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Exp",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "B_3",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[1]": {
+        "ParameterInfoSet": [
+          {
+            "Name": "Param_1",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Param_2",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Param",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[2]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[3]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[4]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[5]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[6]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[7]": {
+        "ParameterInfoSet": []
+      },
+      "ScalarPrimitiveDataIndexValues": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "VectorPrimitiveDataIndexValues": [
+        -1,
+        -1,
+        -1
+      ],
+      "ScalarValues": [
+        0.248821,
+        1.135785,
+        3.062881,
+        0.462984,
+        0.859124,
+        0.092,
+        0.616,
+        0.25,
+        0.258103,
+        1.280697
+      ],
+      "StaticSwitchValues": [],
+      "DynamicSwitchValues": [],
+      "VectorValues": [
+        {
+          "R": 0.026241,
+          "G": 0.009134,
+          "B": 0.004025,
+          "A": 1.0,
+          "Hex": "2D180D"
+        },
+        {
+          "R": 0.004849008,
+          "G": 0.009124638,
+          "B": 0.012152989,
+          "A": 1.0,
+          "Hex": "0F181C"
+        },
+        {
+          "R": 0.0,
+          "G": 0.0,
+          "B": 0.0,
+          "A": 1.0,
+          "Hex": "000000"
+        }
+      ],
+      "DoubleVectorValues": [],
+      "TextureValues": [],
+      "FontValues": [],
+      "FontPageValues": [],
+      "RuntimeVirtualTextureValues": [],
+      "SparseVolumeTextureValues": [],
+      "ReferencedTextures": [],
+      "FunctionInfos": [
+        {
+          "StateId": "B7C71B91-4E2BB667-772D6CBE-2AB55665",
+          "Function": {
+            "ObjectName": "MaterialFunction'LinearGradient'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Gradient/LinearGradient.0"
+          }
+        },
+        {
+          "StateId": "42FB52C9-4B6E464D-2D6CB2B5-E6A65899",
+          "Function": {
+            "ObjectName": "MaterialFunction'ExponentialDensity'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Density/ExponentialDensity.0"
+          }
+        },
+        {
+          "StateId": "42FB52C9-4B6E464D-2D6CB2B5-E6A65899",
+          "Function": {
+            "ObjectName": "MaterialFunction'ExponentialDensity'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Density/ExponentialDensity.0"
+          }
+        },
+        {
+          "StateId": "235C8133-44D704CA-0297108A-59B9F710",
+          "Function": {
+            "ObjectName": "MaterialFunction'RadialGradientExponential'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Gradient/RadialGradientExponential.0"
+          }
+        },
+        {
+          "StateId": "2C1DDB6E-406BC9FC-1D4141A1-7C82122A",
+          "Function": {
+            "ObjectName": "MaterialFunction'BreakOutFloat2Components'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions02/Utility/BreakOutFloat2Components.0"
+          }
+        },
+        {
+          "StateId": "7560E2DA-4356343C-18E6818A-A015BAC5",
+          "Function": {
+            "ObjectName": "MaterialFunction'MakeFloat2'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions02/Utility/MakeFloat2.0"
+          }
+        }
+      ],
+      "FunctionInfosStateCRC": 2992377969,
+      "ParameterCollectionInfos": [],
+      "GrassTypes": [],
+      "MaterialLayers": {
+        "Layers": [],
+        "Blends": []
+      },
+      "DynamicParameterNames": [],
+      "QualityLevelsUsed": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "bHasMaterialLayers": false,
+      "bHasRuntimeVirtualTextureOutput": false,
+      "bHasSceneColor": false,
+      "bHasPerInstanceCustomData": false,
+      "bHasPerInstanceRandom": false,
+      "bHasVertexInterpolator": false,
+      "PropertyConnectedMask": 1
+    }
+  }
+]

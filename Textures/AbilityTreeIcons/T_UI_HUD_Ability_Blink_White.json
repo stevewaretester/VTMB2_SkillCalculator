@@ -1,0 +1,112 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_HUD_Ability_Blink_White",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 220,
+        "Y": 220
+      },
+      "LightingGuid": "9126890C-4332E8D2-DBC64694-940541BE",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 220,
+    "SizeY": 220,
+    "PackedData": 1,
+    "PixelFormat": "PF_DXT5",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 48400,
+          "SizeOnDisk": 48400,
+          "OffsetInFile": "0x74"
+        },
+        "SizeX": 220,
+        "SizeY": 220,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 12544,
+          "SizeOnDisk": 12544,
+          "OffsetInFile": "0xBD94"
+        },
+        "SizeX": 110,
+        "SizeY": 110,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 3136,
+          "SizeOnDisk": 3136,
+          "OffsetInFile": "0xEEA4"
+        },
+        "SizeX": 55,
+        "SizeY": 55,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 784,
+          "SizeOnDisk": 784,
+          "OffsetInFile": "0xFAF4"
+        },
+        "SizeX": 27,
+        "SizeY": 27,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 256,
+          "SizeOnDisk": 256,
+          "OffsetInFile": "0xFE14"
+        },
+        "SizeX": 13,
+        "SizeY": 13,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 64,
+          "SizeOnDisk": 64,
+          "OffsetInFile": "0xFF24"
+        },
+        "SizeX": 6,
+        "SizeY": 6,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 16,
+          "SizeOnDisk": 16,
+          "OffsetInFile": "0xFF74"
+        },
+        "SizeX": 3,
+        "SizeY": 3,
+        "SizeZ": 1
+      },
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 16,
+          "SizeOnDisk": 16,
+          "OffsetInFile": "0xFF94"
+        },
+        "SizeX": 1,
+        "SizeY": 1,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

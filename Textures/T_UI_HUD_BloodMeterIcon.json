@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_HUD_BloodMeterIcon",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 89,
+        "Y": 106
+      },
+      "LightingGuid": "ED18FC62-4881BF3E-38DF649A-50745089",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 89,
+    "SizeY": 106,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 37736,
+          "SizeOnDisk": 37736,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 89,
+        "SizeY": 106,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

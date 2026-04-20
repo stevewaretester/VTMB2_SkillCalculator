@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "UI_HUD_Masquerade_Level_00",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 201,
+        "Y": 201
+      },
+      "LightingGuid": "8E942460-44C64646-7125EEA1-EE3B1CD1",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 201,
+    "SizeY": 201,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 161604,
+          "SizeOnDisk": 161604,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 201,
+        "SizeY": 201,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

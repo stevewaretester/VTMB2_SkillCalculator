@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_AbilityTree_Perk_ButtonBg_Equipped_Hover",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 280,
+        "Y": 280
+      },
+      "LightingGuid": "10BDB4EB-4ADA4974-6B846493-8547852F",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 280,
+    "SizeY": 280,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 78400,
+          "SizeOnDisk": 78400,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 280,
+        "SizeY": 280,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

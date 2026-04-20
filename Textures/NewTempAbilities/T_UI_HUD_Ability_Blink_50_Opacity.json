@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_HUD_Ability_Blink_50_Opacity",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 220,
+        "Y": 220
+      },
+      "LightingGuid": "2BA8AE9D-42EBB137-2230F0A5-DAEF458A",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 220,
+    "SizeY": 220,
+    "PackedData": 1,
+    "PixelFormat": "PF_DXT5",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 48400,
+          "SizeOnDisk": 48400,
+          "OffsetInFile": "0x74"
+        },
+        "SizeX": 220,
+        "SizeY": 220,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

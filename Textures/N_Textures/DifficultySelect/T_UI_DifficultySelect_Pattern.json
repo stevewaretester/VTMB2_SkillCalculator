@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_DifficultySelect_Pattern",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 372,
+        "Y": 672
+      },
+      "LightingGuid": "326FEEF0-48BFEC2C-2B2AAE8D-DD4F385D",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 372,
+    "SizeY": 672,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 249984,
+          "SizeOnDisk": 249984,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 372,
+        "SizeY": 672,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VTMB2 Skill Calculator</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <img class="header__logo" src="Textures/UI_TITLE_VtM_01.png" alt="VtM">
+      <h1 class="header__title">Skill Calculator</h1>
+    </header>
+
+    <!-- Primary Tab Bar -->
+    <nav class="tab-bar tab-bar--primary">
+      <button class="tab-bar__tab active" data-tab="phyre">Phyre</button>
+      <button class="tab-bar__tab" data-tab="fabien">Fabien</button>
+      <button class="tab-bar__tab" data-tab="benny">Benny</button>
+      <button class="tab-bar__tab" data-tab="ysabelle">Ysabelle</button>
+    </nav>
+
+    <!-- Phyre Section -->
+    <div class="page" id="page-phyre">
+
+    <!-- Clan Selector (shared between Skill Tree & Outfits) -->
+    <section class="clan-selector" id="clan-selector">
+      <!-- Populated by JS -->
+    </section>
+    <button class="clan-selector-toggle" id="clan-selector-toggle" title="Toggle clan selector">&#9650; Hide Clan</button>
+
+      <!-- Sub Tab Bar -->
+      <nav class="tab-bar tab-bar--secondary">
+        <button class="tab-bar__tab active" data-subtab="skilltree">Skill Tree</button>
+        <button class="tab-bar__tab" data-subtab="outfits">Outfits</button>
+      </nav>
+
+    <!-- Sub-page: Skill Tree -->
+    <div class="subpage" id="subpage-skilltree">
+
+    <!-- Mods Expander -->
+    <details class="mods-expander">
+      <summary class="mods-expander__summary">Mods</summary>
+      <div class="mods-expander__content">
+        <label class="toggle-group">
+          <input type="checkbox" id="toggle-completion-talents" disabled>
+          <span>Clan Completion Talents (Coming Soon)</span>
+        </label>
+      </div>
+    </details>
+
+    <!-- Main Layout: Sidebar + Grid + Detail -->
+    <main class="main-layout">
+      <!-- Cost Tracker Sidebar -->
+      <aside class="sidebar">
+        <div class="ap-display">
+          <div class="ap-display__diamond">
+            <span class="ap-display__value" id="ap-total">0</span>
+          </div>
+          <div class="ap-display__label">Ability Points</div>
+        </div>
+        <div class="res-display">
+          <div class="res-row res-row--sanguine">
+            <img class="res-row__icon" src="Textures/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood1.png" alt="San">
+            <span class="res-row__value" id="res-san">0</span>
+          </div>
+          <div class="res-row res-row--melancholic">
+            <img class="res-row__icon" src="Textures/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood3.png" alt="Mel">
+            <span class="res-row__value" id="res-mel">0</span>
+          </div>
+          <div class="res-row res-row--choleric">
+            <img class="res-row__icon" src="Textures/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood2.png" alt="Cho">
+            <span class="res-row__value" id="res-cho">0</span>
+          </div>
+        </div>
+        <button class="reset-btn" id="reset-all">Reset All</button>
+      </aside>
+
+      <!-- Skill Grid -->
+      <div class="skill-grid-wrapper">
+        <div class="clan-pattern-bg" id="clan-pattern-bg"></div>
+        <div class="affinity-bar" id="affinity-bar"></div>
+        <div class="skill-grid" id="skill-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Detail Panel (right) -->
+      <aside class="detail-panel" id="detail-panel">
+        <div class="empty-state">Select an ability to view details</div>
+      </aside>
+    </main>
+    </div><!-- /subpage-skilltree -->
+
+    <!-- Sub-page: Outfits -->
+    <div class="subpage hidden" id="subpage-outfits">
+
+      <main class="outfit-layout">
+        <!-- Left: Outfit Grid -->
+        <div class="outfit-grid-wrapper">
+          <h2 class="outfit-panel-title">Selection</h2>
+          <div class="outfit-grid" id="outfit-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Right: Detail + Reactions -->
+        <div class="outfit-right-panel">
+          <h2 class="outfit-panel-title">Preview</h2>
+          <aside class="outfit-detail" id="outfit-detail">
+            <div class="empty-state">Select an outfit to view details</div>
+          </aside>
+
+          <section class="reactions-section" id="reactions-section">
+            <h2 class="reactions-section__title">NPC Reactions</h2>
+            <div class="reactions-tables" id="reactions-tables"></div>
+          </section>
+        </div>
+      </main>
+    </div><!-- /subpage-outfits -->
+    </div><!-- /page-phyre -->
+
+    <!-- Page: Fabien -->
+    <div class="page hidden" id="page-fabien">
+      <div class="placeholder-page">
+        <h2>Fabien</h2>
+        <p>Coming soon</p>
+      </div>
+    </div>
+
+    <!-- Page: Benny -->
+    <div class="page hidden" id="page-benny">
+      <div class="placeholder-page placeholder-page--dlc">
+        <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/add-ons/expansion-pass" target="_blank" rel="noopener noreferrer" class="dlc-link">
+          <img class="dlc-link__icon" src="Textures/T_UI_DLC_FrontEnd_Icon_LooseCannon.png" alt="Loose Cannon DLC">
+          <h2>Benny</h2>
+          <p>Coming Soon</p>
+          <span class="dlc-link__cta">Expansion Pass</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Page: Ysabelle -->
+    <div class="page hidden" id="page-ysabelle">
+      <div class="placeholder-page">
+        <h2>Ysabelle</h2>
+        <p>Coming soon</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/outfits.js"></script>
+</body>
+</html>

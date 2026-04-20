@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_Thumb_Bruhjan04",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 1301,
+        "Y": 1537
+      },
+      "LightingGuid": "0870C1CE-4B2E6803-E7F89B88-A0150731",
+      "CompressionSettings": "TextureCompressionSettings::TC_EditorIcon",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 162,
+    "SizeY": 192,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 124416,
+          "SizeOnDisk": 124416,
+          "OffsetInFile": "0x7B"
+        },
+        "SizeX": 162,
+        "SizeY": 192,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

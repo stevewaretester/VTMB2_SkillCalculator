@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_DividerLine_Ender",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 48,
+        "Y": 32
+      },
+      "LightingGuid": "A18F4AE2-4776EF6E-19A6AD96-1C0D8255",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 48,
+    "SizeY": 32,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 1536,
+          "SizeOnDisk": 1536,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 48,
+        "SizeY": 32,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_MAINMENU_SelectionBar_2002_",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 538,
+        "Y": 67
+      },
+      "LightingGuid": "312A623C-4C59E988-197CA2AA-BF4D069A",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 538,
+    "SizeY": 67,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 144184,
+          "SizeOnDisk": 144184,
+          "OffsetInFile": "0x78"
+        },
+        "SizeX": 538,
+        "SizeY": 67,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

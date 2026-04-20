@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_ClanTrainer_Pattern01",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 320,
+        "Y": 196
+      },
+      "LightingGuid": "1909C134-4EB2EC8E-60A6028E-E62861BD",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 320,
+    "SizeY": 196,
+    "PackedData": 1,
+    "PixelFormat": "PF_BC7",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 62720,
+          "SizeOnDisk": 62720,
+          "OffsetInFile": "0x76"
+        },
+        "SizeX": 320,
+        "SizeY": 196,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

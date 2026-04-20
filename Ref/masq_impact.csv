@@ -1,0 +1,62 @@
+Row, Category, Action, Ability Tag, Violent, InitialScore, ScorePerSec, NoiseRadius, NoticeRadius, Notes, Related ability
+Event_PlayerFound_ByAlertedPolice, World, Alerted Police Spots Player, Masquerade.Event.Witness.PoliceFoundPlayer, No,100,0,0,0,,
+Feed, Combat, Feed, Combat.Ability.Melee.Feed, Yes,60,9,0,0,,
+Punch_Hit, Combat, Punch (Hit), Combat.Ability.Melee.PunchHit, Yes,60,0,0,0,,
+Ability_BanuHaqim_BloodBlade_Hit, Banu Haquim, Blood Blade (Hit), Combat.Ability.Skill.BloodBlade.Hit, Yes,60,0,150,0,, Bladed Hand
+Ability_Brujah_EarthShock_Hit, Brujah, Earth Shock (Hit), Combat.Ability.Skill.EarthShock.Hits, Yes,60,0,500,0,,
+Ability_Brujah_Charge_Hit, Brujah, Charge (Hit), Combat.Ability.Skill.Charge.Hit, Yes,60,50,1000,500,, Charge
+Ability_Brujah_LightningStrikes, Brujah, Lightning Strikes, Combat.Ability.Skill.LightningStrike.Strike, Yes,60,3,0,0,, Lightning Strike
+Ability_Lasombra_ArmsOfAhriman, Lasombra, Arms of Ahriman, GameplayCue.Source.Ability.ArmsOfAhriman.Cast, Yes,60,3,0,0,, Arms of Ahriman
+Ability_Lasombra_EnterOblivion, Lasombra, Enter Oblivion, Combat.Status.InOblivion, Yes,60,0,0,0,, Enter Oblivion
+Ability_Lasombra_GlimpseOfOblivion, Lasombra, Glimpse of Oblivion, Combat.Ability.Skill.GlimpseOfOblivion, No,60,0,0,0,, Glimpse of Oblivion
+Ability_Tremere_BloodCurse, Tremere, Blood Curse, Combat.Ability.Skill.BloodCurse, Yes,60,0,500,0,, Blood Curse
+Ability_Tremere_Recall_Hit, Tremere, Recall (Hit), Masquerade.Recall.Hit, Yes,60,0,2000,0,, Recall-Kill
+Ability_Tremere_BloodSalvo_Hit, Tremere, Blood Salvo (Hit), Combat.Ability.Skill.BloodSalvo.Hit, Yes,60,0,250,0,, Blood Salvo
+Ability_Tremere_CauldronOfBlood, Tremere, Cauldron of Blood, Combat.Ability.Skill.CauldronOfBlood, Yes,60,3,500,0,, Cauldron of BLood
+Ability_Toreador_BlinkEnemyHit, Toreador, Blink (Hit Enemy), Masquerade.Blink.HitEnemy, Yes,60,0,0,0,, Blink
+Ability_Ventrue_TerminalDecree, Ventrue, Terminal Decree, GameplayCue.Source.Ability.TerminalDecree.Cast, Yes,60,0,250,0,, Terminal Decree
+Trespassing, World, Trespassing, InGame.Trespassing, No,40,6,0,0, Police override: +20 initial / +25 / s from Caution,
+VampireSprint, Movement, Vampire Sprint, Movement.Sprint.Vampire, No,35,9,550,300,,
+Perk_Prowl, Clan (Banu), Prowl, Movement.Prowl, No,35,9,550,300,, PROWL
+Telekinesis_Hold_DeadBody, TK, TK Hold Dead Body, Masquerade.Telekinesis.Hold.DeadBody, No,30,40,0,0,,
+Telekinesis_Throw_Item, TK, TK Throw Item, Masquerade.Telekinesis.Throw.Item, No,30,0,0,0,,
+Telekinesis_Hit_NPC, TK, TK Hit NPC, Masquerade.Telekinesis.HitNPC, Yes,30,0,0,0,,
+Ability_Brujah_EarthShock, Brujah, Earth Shock (Cast), GameplayCue.Source.Ability.EarthShock, Yes,30,0,500,0,, Earthshock
+Ability_Lasombra_ShadowStep, Lasombra, Shadow Step, GameplayCue.Target.Ability.ShadowStep, No,30,0,0,0,, Shadowstep
+Ability_Tremere_BloodSalvo_Shoot, Tremere, Blood Salvo (Shoot), Combat.Ability.Skill.BloodSalvo.Shoot, Yes,30,0,100,0,, Blood Salvo
+Ability_Tremere_BloodSalvo_Idle, Tremere, Blood Salvo (Hold), Combat.Ability.Skill.BloodSalvo, No,30,3,0,0,, Blood Salvo
+Ability_Toreador_Blink, Toreador, Blink (No Hit), Masquerade.Blink, No,30,0,0,0,, Blink
+Ability_Toreador_EntrancingKiss, Toreador, Entrancing Kiss, GameplayCue.Source.Ability.EntrancingKiss, No,30,0,0,0,, Entancing Kiss
+Ability_Ventrue_Beckon, Ventrue, Beckon, GameplayCue.Source.Ability.Beckon.Cast, No,30,0,0,0,, Beckon
+Dash, Movement, Evade (Dash), Combat.Ability.Evade, No,20,0,0,0,,
+DoubleJump, Movement, Double Jump, Movement.Jump.DoubleJump, No,20,0,0,0,,
+Telekinesis_Hold_Item, TK, TK Hold Item, Masquerade.Telekinesis.Hold.Item, No,20,20,0,0,,
+Telekinesis_Hold_Interactable, TK, TK Hold Interactable, Masquerade.Telekinesis.Hold.Interactable, No,20,20,0,0,,
+Ability_BanuHaqim_BloodBlade_NoHit, Banu Haquim, Blood Blade (Miss), Combat.Ability.Skill.BloodBlade.NoHIt, No,20,0,100,0,,
+Glide, Movement, Glide, Movement.Glide, No,15,7,400,0,,
+WallClimb, Movement, Wall Climb, Movement.WallClimb.Active, No,15,0,0,0,,
+FireEscapeClimb, Movement, Fire Escape Climb, Movement.Attach.Hang.Ledge.NoLeg, No,15,1,0,0,,
+PipeClimb, Movement, Pipe Climb, GameplayCue.Source.Movement.Climbing.Slide, No,15,1,0,0,,
+Telekinesis_Pull_NPC, TK, TK Pull NPC, Masquerade.Telekinesis.PullNPC, No,15,30,0,0,,
+Event_Telekinesis_PullNPC, TK, TK Pull NPC (Event), Masquerade.Event.Telekinesis.PullNPC, No,15,0,0,0,,
+Ability_BanuHaqim_SplitSecond, Banu Haquim, Split Second, GameplayCue.Source.Ability.SplitSecond, No,15,0,0,0,, Split Second
+Ability_BanuHaqim_UnseenAura, Banu Haquim, Unseen Aura (Cast), Combat.Ability.Skill.UnseenAura, No,15,0,0,0,, Unseen Aura
+Ability_Brujah_Taunt, Brujah, Taunt, Combat.Ability.Skill.Taunt, No,15,0,100,0,, Taunt
+Ability_Tremere_Recall_Teleport, Tremere, Recall (Teleport), Masquerade.Recall.Teleport, Yes,15,10,0,0,, Recall
+HeavyLand, Movement, Heavy Land, Movement.HeavyLand, No,10,0,400,200,,
+Ability_Brujah_Charge, Brujah, Charge (Active), Combat.Ability.Skill.Charge, No,10,20,250,0,, Charge
+Ability_Tremere_Recall_SpawnPoint, Tremere, Recall (Place Marker), Combat.Ability.Skill.Recall, No,10,0,0,0,, Recall
+Ability_Ventrue_MassManipulation, Ventrue, Mass Manipulation, Combat.Ability.Skill.MassManipulation, No,10,0,0,0,, Mass Manipulation
+Event_DeadBodyFound_ByPolice, World, Dead Body (Police finds), Masquerade.Event.DeadBodyFound.Police, No,10,1,0,0,,
+Event_PlayerKilled_Police, World, Player Kills Police, Masquerade.Event.Killed.Police, No,10,0,0,0, CanAffectEngagedState = true,
+Punch_NoHit, Combat, Punch (Miss), Combat.Ability.Melee.PunchNoHit, No,5,0,0,300,,
+BackKick_NoHit, Combat, Back Kick (Miss), Combat.Ability.Melee.Kick.Back, No,5,0,0,0,,
+FrontKick_NoHit, Combat, Front Kick (Miss), Combat.Ability.Melee.Kick.Front, No,5,0,0,0,,
+SideKick_NoHit, Combat, Side Kick (Miss), Combat.Ability.Melee.Kick.Side, No,5,0,0,0,,
+Ability_BanuHaqim_UnseenAura_Ending, Banu Haquim, Unseen Aura (Drop), Masquerade.UnseenAura.Ending, No,0,20,0,0, Noticeability = 100(always seen),
+Ability_BanuHaqim_Mute, Banu Haquim, Mute, Combat.Ability.Skill.Mute, No,0,0,0,0,, Mute
+Ability_Toreador_BlurredMomentum, Toreador, Blurred Momentum, GameplayCue.Source.Ability.BlurredMomentum.Player, No,0,2,0,0,0% react chance — invisible to pedestrians, Blurred Momentum
+Ability_Ventrue_CloudMemory, Ventrue, Cloud Memory, Combat.Ability.Skill.CloudMemory, No,0,0,0,0,, Cloud Memory
+Event_DeadBodyFound_ByPedestrian, World, Dead Body (Pedestrian finds), Masquerade.Event.DeadBodyFound.Pedestrian, No,0,0,0,0,,
+Event_Witness_PoliceInformed, World, Witness Calls Police, Masquerade.Event.Witness.PoliceInformed, No,0,0,0,0, CanAffectEngagedState = true,
+Event_PlayerKilled_Pedestrian, World, Player Kills Pedestrian, Masquerade.Event.Killed.Pedestrian, No,0,0,0,0, Score = 0; only triggers narrative bark,

@@ -1,0 +1,36 @@
+[
+  {
+    "Type": "Texture2D",
+    "Name": "T_UI_DLC_FrontEnd_Background",
+    "Class": "UScriptClass'Texture2D'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "ImportedSize": {
+        "X": 925,
+        "Y": 612
+      },
+      "LightingGuid": "F9E2D04D-4C3B48EC-3AA3F99F-7A5D9260",
+      "CompressionSettings": "TextureCompressionSettings::TC_BC7",
+      "LODGroup": "TextureGroup::TEXTUREGROUP_UI",
+      "NeverStream": true
+    },
+    "SizeX": 925,
+    "SizeY": 612,
+    "PackedData": 1,
+    "PixelFormat": "PF_B8G8R8A8",
+    "FirstMipToSerialize": 0,
+    "Mips": [
+      {
+        "BulkData": {
+          "BulkDataFlags": "BULKDATA_SingleUse | BULKDATA_ForceInlinePayload",
+          "ElementCount": 2264400,
+          "SizeOnDisk": 2264400,
+          "OffsetInFile": "0x7B"
+        },
+        "SizeX": 925,
+        "SizeY": 612,
+        "SizeZ": 1
+      }
+    ]
+  }
+]

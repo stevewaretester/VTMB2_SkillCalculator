@@ -1,0 +1,182 @@
+[
+  {
+    "Type": "Material",
+    "Name": "M_UI_Difficulty_SpecialMask",
+    "Class": "UScriptClass'Material'",
+    "Flags": "RF_Public | RF_Standalone | RF_Transactional | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "MaterialDomain": "EMaterialDomain::MD_UI",
+      "BlendMode": "EBlendMode::BLEND_Translucent",
+      "bCanMaskedBeAssumedOpaque": true,
+      "StateId": "5D62E3FA-44977153-1A1364AF-3A011E2D",
+      "bIncludedInBaseGame": true
+    },
+    "LoadedMaterialResources": [],
+    "CachedExpressionData": {
+      "RuntimeEntries": {
+        "ParameterInfoSet": [
+          {
+            "Name": "B",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[1]": {
+        "ParameterInfoSet": [
+          {
+            "Name": "Param",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "Param_1",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          },
+          {
+            "Name": "MaskSelector",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[2]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[3]": {
+        "ParameterInfoSet": [
+          {
+            "Name": "MaskTextures",
+            "Association": "EMaterialParameterAssociation::GlobalParameter",
+            "Index": -1
+          }
+        ]
+      },
+      "RuntimeEntries[4]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[5]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[6]": {
+        "ParameterInfoSet": []
+      },
+      "RuntimeEntries[7]": {
+        "ParameterInfoSet": []
+      },
+      "ScalarPrimitiveDataIndexValues": [
+        -1
+      ],
+      "VectorPrimitiveDataIndexValues": [
+        -1,
+        -1,
+        -1
+      ],
+      "ScalarValues": [
+        4.0
+      ],
+      "StaticSwitchValues": [],
+      "DynamicSwitchValues": [],
+      "VectorValues": [
+        {
+          "R": 0.958,
+          "G": 0.161711,
+          "B": 0.032432,
+          "A": 1.0,
+          "Hex": "FB7032"
+        },
+        {
+          "R": 1.0,
+          "G": 0.083333,
+          "B": 0.0,
+          "A": 1.0,
+          "Hex": "FF5100"
+        },
+        {
+          "R": 1.0,
+          "G": 0.0,
+          "B": 0.0,
+          "A": 0.0,
+          "Hex": "FF0000"
+        }
+      ],
+      "DoubleVectorValues": [],
+      "TextureValues": [
+        {
+          "AssetPathName": "/Game/WrestlerCore/UI/Textures/N_Textures/DifficultySelect/T_UI_DifficultyMenu_SpecialMask_OC.T_UI_DifficultyMenu_SpecialMask_OC",
+          "SubPathString": ""
+        }
+      ],
+      "FontValues": [],
+      "FontPageValues": [],
+      "RuntimeVirtualTextureValues": [],
+      "SparseVolumeTextureValues": [],
+      "ReferencedTextures": [
+        {
+          "ObjectName": "Texture2D'BlendFunc_DefBlend'",
+          "ObjectPath": "/Engine/EngineMaterials/BlendFunc_DefBlend.0"
+        },
+        {
+          "ObjectName": "Texture2D'BlendFunc_DefBase'",
+          "ObjectPath": "/Engine/EngineMaterials/BlendFunc_DefBase.0"
+        },
+        {
+          "ObjectName": "Texture2D'T_UI_DifficultyMenu_SpecialMask_OC'",
+          "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/DifficultySelect/T_UI_DifficultyMenu_SpecialMask_OC.0"
+        }
+      ],
+      "FunctionInfos": [
+        {
+          "StateId": "12B6F73F-4D5D4FF9-D2FBF18B-43945D5B",
+          "Function": {
+            "ObjectName": "MaterialFunction'Blend_Overlay'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions03/Blends/Blend_Overlay.0"
+          }
+        },
+        {
+          "StateId": "B7C71B91-4E2BB667-772D6CBE-2AB55665",
+          "Function": {
+            "ObjectName": "MaterialFunction'LinearGradient'",
+            "ObjectPath": "/Engine/Functions/Engine_MaterialFunctions01/Gradient/LinearGradient.0"
+          }
+        }
+      ],
+      "FunctionInfosStateCRC": 3595490974,
+      "ParameterCollectionInfos": [],
+      "GrassTypes": [],
+      "MaterialLayers": {
+        "Layers": [],
+        "Blends": []
+      },
+      "DynamicParameterNames": [],
+      "QualityLevelsUsed": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "bHasMaterialLayers": false,
+      "bHasRuntimeVirtualTextureOutput": false,
+      "bHasSceneColor": false,
+      "bHasPerInstanceCustomData": false,
+      "bHasPerInstanceRandom": false,
+      "bHasVertexInterpolator": false,
+      "PropertyConnectedMask": 3
+    },
+    "ReferencedTextures": [
+      {
+        "ObjectName": "Texture2D'BlendFunc_DefBase'",
+        "ObjectPath": "/Engine/EngineMaterials/BlendFunc_DefBase.0"
+      },
+      {
+        "ObjectName": "Texture2D'BlendFunc_DefBlend'",
+        "ObjectPath": "/Engine/EngineMaterials/BlendFunc_DefBlend.0"
+      },
+      {
+        "ObjectName": "Texture2D'T_UI_DifficultyMenu_SpecialMask_OC'",
+        "ObjectPath": "/Game/WrestlerCore/UI/Textures/N_Textures/DifficultySelect/T_UI_DifficultyMenu_SpecialMask_OC.0"
+      }
+    ]
+  }
+]
