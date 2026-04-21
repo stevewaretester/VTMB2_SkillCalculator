@@ -555,15 +555,18 @@ body {
     letter-spacing: 1px;
 }
 
-.tab-bar__tab--aside {
+.tab-bar__aside-group {
     position: absolute;
+    right: 0;
     top: 0;
     height: 100%;
-    opacity: 0.7;
+    display: flex;
+    align-items: stretch;
 }
 
-.tab-bar__tab--aside:nth-last-of-type(1) { right: 0; }
-.tab-bar__tab--aside:nth-last-of-type(2) { right: 75px; }
+.tab-bar__tab--aside {
+    opacity: 0.7;
+}
 
 /* ── Pages ────────────────────────────────────────────────── */
 .page.hidden,

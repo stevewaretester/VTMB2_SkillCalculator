@@ -42,8 +42,10 @@
         <button class="tab-bar__tab" data-subtab="outfits">Outfits</button>
         <button class="tab-bar__tab active" data-subtab="skilltree">Skill Tree</button>
         <button class="tab-bar__tab" data-subtab="combos">Combos</button>
-        <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="consumables">Consumables</button>
-        <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map</button>
+        <div class="tab-bar__aside-group">
+          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="consumables">Consumables</button>
+          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map</button>
+        </div>
       </nav>
 
     <!-- Sub-page: Skill Tree -->
@@ -170,7 +172,9 @@
     <div class="page hidden" id="page-fabien">
       <nav class="tab-bar tab-bar--secondary tab-bar--fabien">
         <button class="tab-bar__tab active" data-fabtab="skills">Skills</button>
-        <button class="tab-bar__tab tab-bar__tab--aside" data-fabtab="map">Map</button>
+        <div class="tab-bar__aside-group">
+          <button class="tab-bar__tab tab-bar__tab--aside" data-fabtab="map">Map</button>
+        </div>
       </nav>
       <div class="fabien-subpage" id="fabien-subpage-skills">
         <main class="fabien-layout">
