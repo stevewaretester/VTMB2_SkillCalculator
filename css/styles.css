@@ -1952,6 +1952,8 @@ body {
 .detail-panel__video {
     width: 100%;
     aspect-ratio: 16/9;
+    flex-shrink: 0;
+    position: relative;
     background: var(--bg-cell);
     border: 1px solid var(--border-dim);
     border-radius: 4px;
@@ -1970,10 +1972,6 @@ body {
 .detail-panel__video-placeholder {
     color: var(--text-dim);
     font-size: 12px;
-}
-
-.detail-panel__video {
-    position: relative;
 }
 
 .detail-panel__video-expand {
