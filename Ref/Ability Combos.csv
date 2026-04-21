@@ -1,0 +1,61 @@
+"Ability Combos
+Some abilities are far more powerful when used in combination, this is an attempt to codefy them and rate them","Reference
+(e.g. where did I get the name?)",Abilities,Explanation
+Overclocked,Heating up and moving fast,Cauldron of Blood + Split Second,"Regenerating Blood pips and timestop - hit a target with cauldron of blood and feed off them in order to start regenning blood pips, pop Split Second to stop taking the damage and freeze time - Split second will regen during its own timestop making the timestop functionally infinite unless you're out of the CoB buff.
+Only time you're vulnerable is when you're feeding, and Lasombra's perk, Banu's Mastery - or a decent healthbar can help with that."
+"Banish
+(Lasombra Sig.combo)",https://youtu.be/zEytZO4tIYU,Enter Oblivion + Arms of Ahriman,"Target with Enter Oblivion, then hit with Arms of Ahriman, then end ""Enter oblivion"" - any targets still in arms will immediately be banished, leaving no corpse.
+Fastest way to kill multiple heavies."
+"Fist of Cain
+(Brujah's signature combo)",A potence power in V5,Taunt + Lightning Strike,Highest single target damage you can do quickly - taunt increases the damage the target takes and lighnting strike hits them hard - good for bosses.
+Unerring Aim,Celerity power in V5,Split Second + Blood Salvo,"The main issue with Split Second is it paints the world in grey and white - and you can't rely on your vampire senses. This can make pinpointing enemies a little more difficulty. BUT Blood Salvo highlights enemies with the sticky crosshair, daggers thrown also only travel to the target once split second is done - which has its own usefulness as you can perfoorm a multi-pronged stealth attack by lining up daggers first - not even giving them a chance to dodge (or teleport away in the case of some bosses/heavies)."
+Purge,Thaumaturgy 2 dot ability in VTMB1,Mass Manipulation + Cauldron of Blood,"This stuns all enemies in the viewable area with the cauldron of blood affect - can let you move through a group feeding without fear of repercussion - also does a little damage to them - can be looped infinitely until you're down to the last enemy - as you'll always regen Mass Manip before it ends on the targets.
+A little boring but gets the job done."
+Blood Shield,Thaumaturgy 3 dot ability in VTMB1,Cauldron of Blood + Blurred Momentum,"PATCHED with winter update - but still decent
+
+If you feed on a target with COB, you regen blood pips. If you activate Blurred Momentum you'll be immune to all other damage (though you'll still take a little bit of damage from the COB dot) - but this is fine - because it'll let you regen blurred momentum and/or COB to continue doing this combo - so basically it's god mode.
+Pickup the Ventrue Perk and you'll always heal back the damage it deals.
+
+Similar to overclocked, you're immune to the DOT from CoB, but you're also immune to all other damage - timing wise the Blurred momentum tends to end earlier than CoB's DOT, but it should be active again at this point opening up some options."
+Over-Overclocked,,Split Second + Blurred Momentum + Cauldron of blood,"PATCHED with winter update, this is now too expensive at 3 abilities to be worth using, but it's still good, just a bit overkill
+
+This is the ""god mode"" combo, combining ""Overclock"" with ""Blood shield"" - it's disgustingly safe to use as well, if you execute it in the correct order.
+1. Spot a blood-filled enemy.
+2. Activate split second and get close.
+3. Target with cauldron of blood.
+4. Activate Blurred momentum - you now cannot be attacked during the feeding.
+5. Feed
+6. CONTINUOUSLY activate blurred momentum - this will stop you taking damage and keep everything time-stopped around you.
+7. When you slow down on blood regen, repeat from step 1.
+
+Throw in some bladed hands during steps 6 and 7 and all enemies (other than hoards of bloodless) will fall.
+
+The downside is that it's eating 3 of your abilities, and makes the game less interesting, so I'd recommend using only one of the constituent parts."
+"Entrancement
+(Toreador's Signature Combo)",A presence power in V5,Entrancing Kiss + Beckon,"This can two-shot heavies, use beckon + assassinate and then Entrancing Kiss + feed - also replenishes their blood cost.
+Good for Toreador, but I think it's a little AP-expensive for others."
+Mass Suicide,Dominate 5 dot ability in VTMB1,Mass Manipulation + Terminal Decree,This is the fastest way to eliminate groups of small enemies - and can completely shut down some encounters - doesn't kill heavies but does disarm them making them easier to deal with and let you get a free assassination/feed on them.
+Shadow and Silk,The cancelled day 1 DLC that would have paywalled Lasombra and Toreador.,"Shadowstep, then Beckon a second target.","Shadowstep and Beckon both make the target feedable, and both only cost 2 pips. This means they can be used infinitely."
+"Unseen Strike
+(Banu Signature combo)",A Celerity/Obfuscate power in V5,Split Second + Bladed Hand,"Bladed hand can be used while Split second is active, allowing for precision elination against groups of minis, but its real strength shines against heavies where you can Bladed them down to half health, and then feed during split second to immediately eliminate them."
+"Mass Berserk
+(Ventrue signature Combo)",Dementation 4 dot ability in VTMB1,Mass Manipulation + Possession,"Sends all enemies into an attacking frenzy, which takes a lot of the pressure off yourself as they'll be more focussed on each other - works on every enemy in the game, but obviously fails against single targets."
+Blood Bank,,Blood Salvo + Mass manipulation/Enter Oblivion,"You can't use these abilities in Combo, but you CAN swap off blood salvo to mass manipulation for free - even if you have the daggers out - provided you have at least a number of blood pips + Daggers = 4 (or 5 for other masteries)
+This gives a fair bit of flexibility and safety, in case you turn the corner and there's 30 enemies you can always swap off Blood Salvo to Mass Manipulation for a combo with either Cauldron of Blood (Purge) or Terminal Decree (Mass Suicide)"
+Mass Brawl,,Mass Manipulation + Taunt,"This disarms all enemies and makes them take more damage, but also makes them all target you - this does give you an advantage as a melee brawler (and they take more damage), and you can feed on them easier as they're doing less damage."
+Crash Down,Potence ability in V5,Blink + Earthshock,Blink above an encounter then drop down and Earthshock to increase the radius of the blast - this will kill most small enemies immediately.
+Mass Fear,,Mass Manipulation + Glimpse of Oblivion,"This fears all enemies it hits, sending them into a scrambling panic away from you - can be useful in combat situations where you need space, as you can chase down and focus down individuals."
+Fulminating Vitae,A Blood Sorcery power in V5 (tenuous),Blood Curse + Cauldron of Blood,"Instantly detonates an enemy that's previously been Blood Cursed, instead of the lengthy ""wind up"" - can sometimes be triggered the other way (aka blood boil below)"
+"Blood Boil
+(Tremere Signature combo)",Thaumaturgy 5 dot ability in VTMB1,Cauldron of blood + Blood Curse (if done quickly enough),"Functioning similar to the capstone of Thaum from BL1 - This groups enemies up around the cauldroned enemy, and then causes them to explode thanks to blood curse.
+ONLY worth using from stealth, unless you're targetting a single heavy enemy, where it's a waste of blood."
+Suicide Bomber,,Blood curse + possession,"Curse a target, then possess them to attack their allies - when they're hit they'll explode - not a huge amount of utility but fun."
+Inevitable destruction,Anime trope of someone dying if a really strong move either landed earlier or is completed,Blurred Momentum + Blood Curse,"Blood curses biggest weakness is that it takes time and you can be knocked out of it - well now you're invulnerable so can't be knocked out - safest way to kill bosses as the Tremere, try to get off a blood boil to regen your pips as well."
+Vision of Death,Dementation 3 dot ability (tenuous),"Against a Heavy Target: 
+Terminal Decree + Modify Memory","This is how ventrue kills heavies - Terminal decree to disarm and allow you to get off a feed - attack them until they're half health, then modify memory to feed again performing an assassination.
+Can be started with Mass Suicide to kill minis as well."
+A Thousand Cuts,A Celerity power in V5,Blink + Lightning Strike,"Lightning strike has a deceptively short range, but this matters less when you can close the distance with blink -  So blink-kick and then lightning strike, will eliminate most enemies and is a great opener to bosses."
+Mass Majesty,Presence power in V5,Mass Manipulation + Beckon,"This one puts all enemies in the trance where they walk towards you - the problem is the beckon pops when they get close to you, meaning this has very little utility.
+The one use case is when farming sanguine resonance, as it can ""setup"" a group for feeding."
+Brain Wipe,Dominate 2 dot ability in VTMB1,Mass Manipulation + Mind Wipe,"This basically makes a group forget you exist, which sadly has low utility in the game, can allow returning to stealth, but it's very niche."
+Shroud Of Silence,Blood Sorcery ritual in V5,Mass Manipulation + Mute,"Silences a bunch of enemies - Given how encounters rarely involve more than one group across a given area, this has very VERY low utility."

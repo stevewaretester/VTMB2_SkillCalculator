@@ -9,3 +9,7 @@ desktop.ini
 
 # Logs
 *.log
+
+# Game asset dumps — not our work, not committed
+Textures/
+AbilityTree_vids/

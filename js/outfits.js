@@ -110,15 +110,13 @@ function renderOutfitGrid() {
           <div class="outfit-cell__name">${outfit.name}</div>`;
       }
 
-      if (isUnlocked) {
-        cell.style.cursor = "pointer";
-        cell.addEventListener("click", () => {
-          outfitState.focusedOutfit = { clanId, index: tierIdx };
-          renderOutfitGrid();
-          renderOutfitDetail();
-          renderReactionsTable();
-        });
-      }
+      cell.style.cursor = "pointer";
+      cell.addEventListener("click", () => {
+        outfitState.focusedOutfit = { clanId, index: tierIdx };
+        renderOutfitGrid();
+        renderOutfitDetail();
+        renderReactionsTable();
+      });
 
       grid.appendChild(cell);
     }
@@ -156,24 +154,25 @@ function renderOutfitDetail() {
   let html = "";
 
   // Full-size outfit image
+  const LOCKED_PLACEHOLDER = {
+    F: `assets/N_Textures/Outfit/Silhouettes/T_UI_Thumb_Bruhjan04.png`,
+    M: `assets/N_Textures/Outfit/Silhouettes/T_UI_Thumb_Bruhjan_M_04.png`,
+  };
+
   html += `<div class="outfit-detail__thumb-wrap">`;
   if (isUnlocked) {
     const fullImg = getOutfitFullImage(clanId, outfit.thumb, outfitState.previewGender);
     html += `<img class="outfit-detail__thumb" src="${fullImg}" alt="${outfit.name}">`;
   } else {
-    html += `<div class="outfit-detail__thumb-locked">
-      <img src="${UI.blockedPadlock}" alt="Locked">
-    </div>`;
+    html += `<img class="outfit-detail__thumb outfit-detail__thumb--locked" src="${LOCKED_PLACEHOLDER[outfitState.previewGender]}" alt="Locked">`;
   }
   html += `</div>`;
 
-  // M/F toggle
-  if (isUnlocked) {
-    html += `<div class="outfit-detail__gender-toggle">
-      <button class="gender-btn${outfitState.previewGender === 'F' ? ' active' : ''}" data-gender="F">F</button>
-      <button class="gender-btn${outfitState.previewGender === 'M' ? ' active' : ''}" data-gender="M">M</button>
-    </div>`;
-  }
+  // M/F toggle (always shown)
+  html += `<div class="outfit-detail__gender-toggle">
+    <button class="gender-btn${outfitState.previewGender === 'F' ? ' active' : ''}" data-gender="F">F</button>
+    <button class="gender-btn${outfitState.previewGender === 'M' ? ' active' : ''}" data-gender="M">M</button>
+  </div>`;
 
   // Name
   html += `<div class="outfit-detail__name">${outfit.name}</div>`;

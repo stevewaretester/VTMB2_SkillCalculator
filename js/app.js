@@ -1,11 +1,17 @@
 // VTMB2 Skill Calculator - Application Logic
 // =============================================
 
+// ── Shared Tooltip ─────────────────────────────────────────
+const sharedTooltip = document.createElement('div');
+sharedTooltip.className = 'tooltip';
+document.addEventListener('DOMContentLoaded', () => document.body.appendChild(sharedTooltip));
+
 // ── State ────────────────────────────────────────────────────
 const state = {
   selectedClan: null,
   completedClans: new Set(),
   completionTalents: false,
+  modFabienPhlegmatic: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
   abilities: {},
@@ -55,6 +61,9 @@ function bindTabs() {
       if (tab.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") {
         refreshOutfitsPage();
       }
+      if (tab.dataset.subtab === "combos" && typeof renderCombosPage === "function") {
+        renderCombosPage();
+      }
     });
   });
 }
@@ -83,8 +92,10 @@ function renderClanSelector() {
 
     card.querySelector(".clan-card__complete-btn").addEventListener("click", (e) => {
       e.stopPropagation();
+      // Ensure a clan is selected so the grid initialises
+      if (!state.selectedClan) selectClan(clanId);
       if (e.shiftKey) {
-        // Shift+click: toggle ALL clans at once
+        // Shift+click: toggle ALL clans completed at once
         const allCompleted = CLAN_ORDER.every(id => state.completedClans.has(id));
         if (allCompleted) {
           state.completedClans.clear();
@@ -100,6 +111,7 @@ function renderClanSelector() {
       }
       renderClanSelector();
       renderGrid();
+      if (typeof renderFabienTree === "function") renderFabienTree();
     });
 
     card.addEventListener("click", () => selectClan(clanId));
@@ -185,6 +197,29 @@ function bindToggles() {
     renderGrid();
   });
 
+  document.getElementById("toggle-fabien-phlegmatic").addEventListener("change", (e) => {
+    state.modFabienPhlegmatic = e.target.checked;
+    document.getElementById("goto-fabien-phlegmatic").classList.toggle("hidden", !e.target.checked);
+    if (typeof renderFabienTree === "function") renderFabienTree();
+  });
+
+  document.getElementById("goto-fabien-phlegmatic").addEventListener("click", () => {
+    // Close modal
+    document.getElementById("mods-modal").classList.add("hidden");
+    // Switch to Fabien tab
+    document.querySelectorAll(".tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+    const fabienTab = document.querySelector('.tab-bar__tab[data-tab="fabien"]');
+    if (fabienTab) fabienTab.classList.add("active");
+    document.getElementById("page-fabien").classList.remove("hidden");
+    // Focus the passive ability (Fast Forward) — last in array = index 4
+    if (typeof fabienState !== "undefined" && typeof renderFabienDetail === "function") {
+      const passiveIndex = FABIEN_ABILITIES.findIndex(a => a.tier === "passive");
+      fabienState.focusedIndex = passiveIndex;
+      renderFabienTree();
+    }
+  });
+
   document.getElementById("reset-all").addEventListener("click", resetAll);
 }
 
@@ -246,14 +281,11 @@ function resetClanAbilities(clanId) {
   updateCosts();
 }
 
-function unlockEverything() {
-  const tiers = ["strike", "relocate", "affect", "mastery", "perk"];
-  for (const clanId of CLAN_ORDER) {
-    state.abilities[`${clanId}:passive`] = "unlocked";
-    for (const t of tiers) {
-      state.abilities[`${clanId}:${t}`] = "unlocked";
-    }
-    state.completedClans.add(clanId);
+function unlockClanAbilities(clanId) {
+  if (!state.selectedClan) selectClan(clanId);
+  const tiers = ["passive", "strike", "relocate", "affect", "mastery", "perk"];
+  for (const id of CLAN_ORDER) {
+    tiers.forEach(t => { state.abilities[`${id}:${t}`] = "unlocked"; });
   }
   renderClanSelector();
   renderGrid();
@@ -296,10 +328,10 @@ function renderGrid() {
       <div class="clan-col-header__name">${clan.name}</div>
     `;
     header.style.cursor = "pointer";
-    header.title = "Left-click: purchase all | Shift+click: unlock everything | Right-click: reset";
+    header.title = "Left-click: purchase all | Shift+click: unlock all skills | Right-click: reset";
     header.addEventListener("click", (e) => {
       if (e.shiftKey) {
-        unlockEverything();
+        unlockClanAbilities(clanId);
       } else {
         purchaseClanAbilities(clanId);
       }
@@ -389,7 +421,7 @@ function createAbilityCell(clanId, tier) {
     html += `<img class="ability-cell__icon" src="${iconSrc}" alt="${ability.name}">`;
   } else if (abilityState === "awakened" && !canUnlock(clanId, tier)) {
     // Awakened but can't purchase yet: show padlock instead of icon
-    html += `<img class="ability-cell__phyre" src="Textures/N_Textures/General/T_UI_Icon_Lock.png" alt="Cannot unlock">`;
+    html += `<img class="ability-cell__phyre" src="assets/N_Textures/General/T_UI_Icon_Lock.png" alt="Cannot unlock">`;
     html += `<img class="ability-cell__icon" src="${iconSrc}" alt="${ability.name}">`;
   } else {
     html += `<img class="ability-cell__icon" src="${iconSrc}" alt="${ability.name}">`;
@@ -436,9 +468,6 @@ function createAbilityCell(clanId, tier) {
     }
   }
 
-  // Tooltip
-  html += buildTooltip(clanId, tier, ability, abilityState);
-
   cell.innerHTML = html;
 
   // Click handler
@@ -452,6 +481,18 @@ function createAbilityCell(clanId, tier) {
     const el = document.querySelector(`.ability-cell[data-key="${key2}"]`);
     if (el) el.classList.add("selected-ability");
     renderDetailPanel();
+  });
+
+  // Tooltip
+  const tooltipContent = buildTooltipContent(clanId, tier, ability, abilityState);
+  cell.addEventListener('mouseenter', (e) => {
+    sharedTooltip.innerHTML = tooltipContent;
+    sharedTooltip.classList.add('tooltip--visible');
+    positionTooltip(e);
+  });
+  cell.addEventListener('mousemove', positionTooltip);
+  cell.addEventListener('mouseleave', () => {
+    sharedTooltip.classList.remove('tooltip--visible');
   });
 
   // Right-click to undo
@@ -478,11 +519,26 @@ function getButtonBg(tier, abilityState, isPerk) {
   }
 }
 
-function buildTooltip(clanId, tier, ability, abilityState) {
+function positionTooltip(e) {
+  const tip = sharedTooltip;
+  const margin = 12;
+  const tw = tip.offsetWidth;
+  const th = tip.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let x = e.clientX + margin;
+  let y = e.clientY - th - margin;
+  if (x + tw > vw - margin) x = e.clientX - tw - margin;
+  if (y < margin) y = e.clientY + margin;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+
+function buildTooltipContent(clanId, tier, ability, abilityState) {
   const isOwnClan = clanId === state.selectedClan;
   const isPassive = tier === "passive";
 
-  let html = `<div class="tooltip">`;
+  let html = ``;
   html += `<div class="tooltip__name">${ability.name}</div>`;
   html += `<div class="tooltip__tier">${TIERS[tier].label}</div>`;
 
@@ -523,14 +579,17 @@ function buildTooltip(clanId, tier, ability, abilityState) {
     </div>`;
   }
 
-  // Masquerade impact
-  if (tier !== "passive" && MASQUERADE[clanId]) {
-    const masqEvents = MASQUERADE[clanId][tier];
-    if (masqEvents && masqEvents.length > 0) {
+  // Masquerade impact + resonance grant/cleanse — all on one row of small icons
+  const resGrant = RESONANCE_GRANT[ability.name];
+  const resCleanse = RESONANCE_CLEANSE.has(ability.name);
+  const hasMasq = tier !== "passive" && MASQUERADE[clanId] && MASQUERADE[clanId][tier]?.length > 0;
+  if (hasMasq || resGrant || resCleanse) {
+    html += `<div class="tooltip__masq-row">`;
+    if (hasMasq) {
+      const masqEvents = MASQUERADE[clanId][tier];
       const isViolent = masqEvents.some(e => e.violent);
       const masqTierKey = getMasqBadgeTier(masqEvents);
       const masqData = MASQ_TIERS[masqTierKey];
-      html += `<div class="tooltip__masq-row">`;
       html += `<div class="tooltip__masq ${masqData.glow}">
         <img src="${masqData.icon}" alt="${masqData.label}" title="${masqData.label}">
       </div>`;
@@ -539,28 +598,38 @@ function buildTooltip(clanId, tier, ability, abilityState) {
           <img src="${SKULL_ICON}" alt="Violent" title="Violent">
         </div>`;
       }
-      html += `</div>`;
     }
+    if (resGrant) {
+      const resLabel = resGrant.charAt(0).toUpperCase() + resGrant.slice(1);
+      html += `<div class="tooltip__masq tooltip__res-effect tooltip__res-${resGrant}">
+        <img src="${RES_ICONS[resGrant]}" alt="Applies ${resLabel}" title="Applies ${resLabel}">
+      </div>`;
+    }
+    if (resCleanse) {
+      html += `<div class="tooltip__masq tooltip__res-effect tooltip__res-cleanse">
+        <img src="${RES_CLEANSE_ICON}" alt="Cleanses Resonance" title="Cleanses Resonance">
+      </div>`;
+    }
+    if (FEEDABLE.has(ability.name)) {
+      html += `<div class="tooltip__masq tooltip__feedable">
+        <img src="${FEED_ICON}" alt="Makes Feedable" title="Makes Feedable">
+      </div>`;
+    }
+    if (CONVO_ABILITIES.has(ability.name)) {
+      const resKey = RESONANCE_GRANT[ability.name];
+      html += `<div class="tooltip__masq tooltip__convo tooltip__convo--${resKey}">
+        <img src="${CONVO_ICON}" alt="Conversation Ability" title="Conversation Ability">
+      </div>`;
+    }
+    if (CANCELLABLE.has(ability.name)) {
+      html += `<div class="tooltip__masq tooltip__cancellable">
+        <img src="${CANCEL_ICON}" alt="Can be cancelled" title="Can be cancelled early">
+      </div>`;
+    }
+    html += `</div>`;
   }
 
-  // Resonance grant / cleanse
-  const resGrant = RESONANCE_GRANT[ability.name];
-  const resCleanse = RESONANCE_CLEANSE.has(ability.name);
-  if (resGrant) {
-    const resLabel = resGrant.charAt(0).toUpperCase() + resGrant.slice(1);
-    html += `<div class="tooltip__res-effect tooltip__res-${resGrant}">
-      <img src="${RES_ICONS[resGrant]}" alt="${resLabel}">
-      <span>Applies ${resLabel}</span>
-    </div>`;
-  }
-  if (resCleanse) {
-    html += `<div class="tooltip__res-effect tooltip__res-cleanse">
-      <img src="${RES_CLEANSE_ICON}" alt="Cleanses Resonance">
-      <span>Cleanses Resonance</span>
-    </div>`;
-  }
-
-  html += `</div></div>`;
+  html += `</div>`;
   return html;
 }
 
@@ -823,6 +892,8 @@ function updateCosts() {
   document.getElementById("res-san").textContent = totalSan.toLocaleString();
   document.getElementById("res-mel").textContent = totalMel.toLocaleString();
   document.getElementById("res-cho").textContent = totalCho.toLocaleString();
+
+  if (typeof refreshCombosIfVisible === "function") refreshCombosIfVisible();
 }
 
 // ── Detail Panel ─────────────────────────────────────────────
@@ -979,6 +1050,57 @@ function renderDetailPanel() {
       <span>Cleanses resonance from target</span>
     </div>`;
   }
+  if (FEEDABLE.has(ability.name)) {
+    html += `<div class="detail-panel__res-effect detail-panel__feedable">
+      <img src="${FEED_ICON}" alt="Makes Feedable">
+      <span>Makes Feedable</span>
+    </div>`;
+  }
+  if (CONVO_ABILITIES.has(ability.name)) {
+    const resKey = RESONANCE_GRANT[ability.name];
+    html += `<div class="detail-panel__res-effect detail-panel__convo detail-panel__convo--${resKey}">
+      <img src="${CONVO_ICON}" alt="Conversation Ability">
+      <span>Conversation Ability</span>
+    </div>`;
+  }
+  if (CANCELLABLE.has(ability.name)) {
+    const cancelNote = CANCEL_NOTES[ability.name];
+    if (cancelNote) {
+      html += `<details class="detail-panel__res-effect detail-panel__cancellable detail-panel__cancellable--dropdown">
+        <summary>
+          <img src="${CANCEL_ICON}" alt="Can be cancelled">
+          <span>Can be cancelled early</span>
+        </summary>
+        <p class="detail-panel__cancel-note">${cancelNote}</p>
+      </details>`;
+    } else {
+      html += `<div class="detail-panel__res-effect detail-panel__cancellable">
+        <img src="${CANCEL_ICON}" alt="Can be cancelled">
+        <span>Can be cancelled early</span>
+      </div>`;
+    }
+  }
+
+  // Combos
+  const comboIds = (typeof ABILITY_TO_COMBOS !== "undefined" && ABILITY_TO_COMBOS[ability.name]) || [];
+  if (comboIds.length > 0) {
+    const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id));
+    html += `<details class="detail-panel__res-effect detail-panel__combos">
+      <summary>
+        <img src="${COMBO_ICON}" alt="Combos">
+        <span>Combos (${matchedCombos.length})</span>
+      </summary>
+      <ul class="detail-panel__combos-list">`;
+    for (const c of matchedCombos) {
+      html += `<li>
+        <button class="detail-panel__combo-link" data-combo-id="${c.id}">
+          <span class="detail-panel__combo-name">${c.name}</span>
+          <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
+        </button>
+      </li>`;
+    }
+    html += `</ul></details>`;
+  }
 
   // Costs
   html += `<div class="detail-panel__costs">`;
@@ -1019,9 +1141,10 @@ function renderDetailPanel() {
 
   // Blood pips
   if (ability.bloodPips > 0) {
+    const filled = abilityState === "unlocked";
     html += `<div style="display:flex; gap:3px; margin-top:8px;">`;
     for (let i = 0; i < ability.bloodPips; i++) {
-      html += `<div class="blood-pip${ability.channeled ? ' channeled' : ''}" style="width:14px; height:6px;"></div>`;
+      html += `<div class="blood-pip${ability.channeled ? ' channeled' : ''}${filled ? ' filled' : ''}" style="width:14px; height:6px;"></div>`;
     }
     html += `</div>`;
   }
@@ -1066,6 +1189,13 @@ function renderDetailPanel() {
       navigateToOutfit(outfitBtn.dataset.clan, parseInt(outfitBtn.dataset.idx));
     });
   }
+
+  // Bind combo link buttons
+  panel.querySelectorAll(".detail-panel__combo-link").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (typeof navigateToCombos === "function") navigateToCombos(btn.dataset.comboId);
+    });
+  });
 }
 
 function openVideoLightbox(src) {
@@ -1126,3 +1256,52 @@ function navigateToAbility(clanId, tier) {
 
 // ── Start ────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", init);
+
+// ── About Modal ────────────────────────────────────────────
+(function () {
+  const overlay = document.getElementById('about-modal');
+  const openBtn = document.getElementById('about-open-btn');
+  const closeBtn = document.getElementById('about-close-btn');
+
+  function openModal() {
+    overlay.classList.remove('hidden');
+    overlay.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+  });
+}());
+
+// ── Mods Modal ─────────────────────────────────────────────
+(function () {
+  const overlay = document.getElementById('mods-modal');
+  const openBtn = document.getElementById('mods-open-btn');
+  const closeBtn = document.getElementById('mods-close-btn');
+
+  function openModal() {
+    overlay.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+  });
+}());

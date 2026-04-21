@@ -1,7 +1,7 @@
 // VTMB2 Skill Calculator - Game Data
 // ====================================
 
-const TEX = "Textures";
+const TEX = "assets";
 const ICONS = `${TEX}/N_Textures/AbilityTree/AbilitiesIcons`;
 const CLAN_LOGOS = `${ICONS}/ClanLogos`;
 const ASSETS = `${TEX}/N_Textures/AbilityTree/Assets`;
@@ -10,7 +10,7 @@ const COLUMNS = `${TEX}/AbilityTreeIcons/ClanColumns`;
 const AFFINITY_UI = `${TEX}/ClanAffinityUI`;
 const CLAN_SEL = `${TEX}/N_Textures/ClanSelection`;
 const TRAINER = `${TEX}/N_Textures/ClanTrainer`;
-const VIDS = "AbilityTree_vids";
+const VIDS = "assets/vids";
 
 // ── Disciplines ──────────────────────────────────────────────
 const DISCIPLINES = {
@@ -114,6 +114,21 @@ const RESONANCE_GRANT = {
   "Enter Oblivion":      "melancholic",
 };
 const RESONANCE_CLEANSE = new Set(["Cloud Memory", "Mind Wipe", "Entrancing Kiss"]);
+const CONVO_ABILITIES = new Set(["Beckon", "Taunt", "Glimpse of Oblivion"]);
+const CONVO_ICON = `${TEX}/T_UI_Icons_Codex_ConversationAvailable.png`;
+const FEEDABLE = new Set([
+  "Earthshock", "Unseen Aura", "Enter Oblivion", "Cauldron of Blood",
+  "Cloud Memory", "Beckon", "Split Second", "Possession",
+  "Shadow Step", "Terminal Decree", "Arms of Ahriman", "Entrancing Kiss",
+]);
+const FEED_ICON = `${TEX}/T_UI_BossFeedPlaceholder.png`;
+const CANCELLABLE = new Set(["Blood Salvo", "Enter Oblivion", "Possession", "Recall", "Blink"]);
+const CANCEL_ICON = "assets/N_Textures/General/T_UI_HUD_LightingStrike_Target.png";
+const CANCEL_NOTES = {
+  "Blood Salvo":    "Cancelling restores 1 blood pip per remaining blade.",
+  "Enter Oblivion": "Cancelling will kill any enemies held by Arms of Ahriman.",
+  "Recall":         "Cancelling will return the sigil to be placed somewhere else.",
+};
 
 // ── Masquerade Impact ────────────────────────────────────────
 // Activation-only impact scores per clan/tier (from masq_impact data).
@@ -839,3 +854,267 @@ const DISPOSITIONS = {
   empath: { quote: "I can see your heart",     homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: false }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: false, mel: false, cho: false } },
   bully:  { quote: "I can destroy you",        homeless: { san: true,  mel: true,  cho: false }, biker: { san: true,  mel: false, cho: false }, streetwalker: { san: true,  mel: false, cho: false }, business: { san: true,  mel: true,  cho: true } },
 };
+
+// ── Ability Name → Location Lookup ──────────────────────────
+const ABILITY_LOCATION = (() => {
+  const map = {};
+  for (const [clan, tiers] of Object.entries(ABILITIES)) {
+    for (const [tier, ability] of Object.entries(tiers)) {
+      if (ability.name) map[ability.name] = { clan, tier };
+    }
+  }
+  // CSV name aliases
+  map["Modify Memory"] = map["Cloud Memory"];
+  map["Mind Wipe"]     = map["Cloud Memory"];
+  return map;
+})();
+
+// ── Combos ───────────────────────────────────────────────────
+const COMBO_ICON = "assets/N_Textures/General/T_UI_FistOfCaine_Hover.png";
+
+const COMBOS = [
+  {
+    id: "overclocked",
+    name: "Overclocked",
+    reference: "Heating up and moving fast",
+    referenceUrl: null,
+    abilities: ["Cauldron of Blood", "Split Second"],
+    explanation: "Hit a target with Cauldron of Blood and feed off them to start regenerating blood pips, then pop Split Second to stop taking damage and freeze time. Split Second will regen during its own timestop making the timestop functionally infinite unless you're out of the CoB buff.\n\nOnly time you're vulnerable is when you're feeding. Lasombra's perk, Banu's Mastery — or a decent health bar — can help with that.",
+    rank: "S+", patched: false,
+  },
+  {
+    id: "banish",
+    name: "Banish",
+    subtitle: "Lasombra Sig. Combo",
+    reference: "YouTube",
+    referenceUrl: "https://youtu.be/zEytZO4tIYU",
+    abilities: ["Enter Oblivion", "Arms of Ahriman"],
+    explanation: "Target with Enter Oblivion, then hit with Arms of Ahriman, then end Enter Oblivion — any targets still in Arms will immediately be banished, leaving no corpse.\n\nFastest way to kill multiple heavies.",
+    rank: "S", patched: false,
+  },
+  {
+    id: "fist-of-cain",
+    name: "Fist of Cain",
+    subtitle: "Brujah's Signature Combo",
+    reference: "A Potence power in V5",
+    referenceUrl: null,
+    abilities: ["Taunt", "Lightning Strike"],
+    explanation: "Highest single target damage you can do quickly — Taunt increases the damage the target takes and Lightning Strike hits them hard. Good for bosses.",
+    rank: "S", patched: false,
+  },
+  {
+    id: "unerring-aim",
+    name: "Unerring Aim",
+    reference: "Celerity power in V5",
+    referenceUrl: null,
+    abilities: ["Split Second", "Blood Salvo"],
+    explanation: "The main issue with Split Second is it paints the world grey — you can't rely on vampire senses. Blood Salvo highlights enemies with a sticky crosshair, and daggers thrown only travel to the target once Split Second ends. This lets you perform a multi-pronged stealth attack by lining up daggers first — not even giving enemies a chance to dodge.",
+    rank: "A+", patched: false,
+  },
+  {
+    id: "purge",
+    name: "Purge",
+    reference: "Thaumaturgy 2-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Cauldron of Blood"],
+    explanation: "Stuns all enemies in the viewable area with the Cauldron of Blood effect — lets you move through a group feeding without fear of repercussion, and does a little damage. Can be looped infinitely until you're down to the last enemy, as you'll always regen Mass Manipulation before it ends on the targets.",
+    rank: "A+", patched: false,
+  },
+  {
+    id: "blood-shield",
+    name: "Blood Shield",
+    reference: "Thaumaturgy 3-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Cauldron of Blood", "Blurred Momentum"],
+    explanation: "Feed on a target with CoB to regen blood pips. Activate Blurred Momentum to become immune to all other damage (you'll still take a little from CoB's DoT — but this lets you regen Blurred Momentum and/or CoB to continue). Basically god mode. Pick up the Ventrue Perk and you'll always heal back the damage it deals.",
+    rank: "A+", patched: true,
+  },
+  {
+    id: "over-overclocked",
+    name: "Over-Overclocked",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Split Second", "Blurred Momentum", "Cauldron of Blood"],
+    explanation: "The \"god mode\" combo combining Overclocked with Blood Shield. Now too expensive at 3 abilities to be worth using — but still good, just overkill.\n\n1. Spot a blood-filled enemy.\n2. Activate Split Second and get close.\n3. Target with Cauldron of Blood.\n4. Activate Blurred Momentum — you cannot be attacked during feeding.\n5. Feed.\n6. Continuously activate Blurred Momentum to stay time-stopped.\n7. When blood regen slows, repeat from step 1.\n\nThrow in Bladed Hands and most enemies will fall. The downside is eating 3 ability slots.",
+    rank: "A", patched: true,
+  },
+  {
+    id: "entrancement",
+    name: "Entrancement",
+    subtitle: "Toreador's Signature Combo",
+    reference: "A Presence power in V5",
+    referenceUrl: null,
+    abilities: ["Entrancing Kiss", "Beckon"],
+    explanation: "Can two-shot heavies — use Beckon then assassinate, then Entrancing Kiss then feed, which also replenishes blood cost.\n\nGood for Toreador, but a little AP-expensive for others.",
+    rank: "A", patched: false,
+  },
+  {
+    id: "mass-suicide",
+    name: "Mass Suicide",
+    reference: "Dominate 5-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Terminal Decree"],
+    explanation: "Fastest way to eliminate groups of small enemies — can completely shut down some encounters. Doesn't kill heavies but disarms them, making them easier to deal with and letting you get a free assassination or feed.",
+    rank: "A", patched: false,
+  },
+  {
+    id: "shadow-and-silk",
+    name: "Shadow and Silk",
+    reference: "The cancelled Day 1 DLC that would have paywalled Lasombra and Toreador",
+    referenceUrl: null,
+    abilities: ["Shadow Step", "Beckon"],
+    explanation: "Shadow Step and Beckon both make the target feedable and both only cost 2 pips — meaning they can be used infinitely.",
+    rank: "A", patched: false,
+  },
+  {
+    id: "unseen-strike",
+    name: "Unseen Strike",
+    subtitle: "Banu Signature Combo",
+    reference: "A Celerity/Obfuscate power in V5",
+    referenceUrl: null,
+    abilities: ["Split Second", "Bladed Hand"],
+    explanation: "Bladed Hand can be used while Split Second is active, allowing precision elimination against groups of minis. Its real strength shines against heavies — blade them to half health, then feed during Split Second to immediately eliminate them.",
+    rank: "A", patched: false,
+  },
+  {
+    id: "mass-berserk",
+    name: "Mass Berserk",
+    subtitle: "Ventrue Signature Combo",
+    reference: "Dementation 4-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Possession"],
+    explanation: "Sends all enemies into an attacking frenzy, taking a lot of pressure off yourself as they'll be focused on each other. Works on every enemy in the game, but obviously fails against single targets.",
+    rank: "B+", patched: false,
+  },
+  {
+    id: "blood-bank",
+    name: "Blood Bank",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Blood Salvo", "Mass Manipulation", "Enter Oblivion"],
+    explanation: "You can't use these in combo, but you CAN swap off Blood Salvo to Mass Manipulation for free — even if you have daggers out — provided you have at least (blood pips + daggers) = 4 (or 5 for other masteries).\n\nIf you turn a corner with 30 enemies, swap off Blood Salvo to Mass Manipulation for Purge or Mass Suicide.",
+    rank: "B", patched: false,
+  },
+  {
+    id: "mass-brawl",
+    name: "Mass Brawl",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Taunt"],
+    explanation: "Disarms all enemies and makes them take more damage, but makes them all target you — advantage as a melee brawler (they take more damage and you can feed easier as they deal less).",
+    rank: "B", patched: false,
+  },
+  {
+    id: "crash-down",
+    name: "Crash Down",
+    reference: "Potence ability in V5",
+    referenceUrl: null,
+    abilities: ["Blink", "Earthshock"],
+    explanation: "Blink above an encounter then drop down and Earthshock to increase the radius of the blast — kills most small enemies immediately.",
+    rank: "B", patched: false,
+  },
+  {
+    id: "mass-fear",
+    name: "Mass Fear",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Glimpse of Oblivion"],
+    explanation: "Fears all enemies it hits, sending them into a scrambling panic away from you — useful in combat where you need space, as you can chase down and focus individuals.",
+    rank: "B-", patched: false,
+  },
+  {
+    id: "fulminating-vitae",
+    name: "Fulminating Vitae",
+    reference: "A Blood Sorcery power in V5 (tenuous)",
+    referenceUrl: null,
+    abilities: ["Blood Curse", "Cauldron of Blood"],
+    explanation: "Instantly detonates an enemy previously Blood Cursed, instead of the lengthy wind-up. Can sometimes be triggered the other way — see Blood Boil.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "blood-boil",
+    name: "Blood Boil",
+    subtitle: "Tremere Signature Combo",
+    reference: "Thaumaturgy 5-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Cauldron of Blood", "Blood Curse"],
+    explanation: "Groups enemies around the cauldron target, then causes them to explode thanks to Blood Curse. ONLY worth using from stealth unless targeting a single heavy enemy, where it's a waste of blood.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "suicide-bomber",
+    name: "Suicide Bomber",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Blood Curse", "Possession"],
+    explanation: "Curse a target, then possess them to attack their allies — when they're hit they'll explode. Not a huge amount of utility, but fun.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "inevitable-destruction",
+    name: "Inevitable Destruction",
+    reference: "Anime trope — someone dying because a powerful move either landed earlier or will be completed",
+    referenceUrl: null,
+    abilities: ["Blurred Momentum", "Blood Curse"],
+    explanation: "Blood Curse's biggest weakness is that it takes time and you can be knocked out of it — well, now you're invulnerable so you can't be knocked out. Safest way to kill bosses as the Tremere. Try to get off a Blood Boil to regen your pips as well.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "vision-of-death",
+    name: "Vision of Death",
+    reference: "Dementation 3-dot ability (tenuous)",
+    referenceUrl: null,
+    abilities: ["Terminal Decree", "Cloud Memory"],
+    explanation: "How Ventrue kills heavies — Terminal Decree to disarm and get off a feed, attack until half health, then Cloud Memory to feed again performing an assassination.\n\nCan be started with Mass Suicide to kill minis first.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "a-thousand-cuts",
+    name: "A Thousand Cuts",
+    reference: "A Celerity power in V5",
+    referenceUrl: null,
+    abilities: ["Blink", "Lightning Strike"],
+    explanation: "Lightning Strike has a deceptively short range, but this matters less when you can close the distance with Blink — blink-kick then Lightning Strike eliminates most enemies and is a great opener against bosses.",
+    rank: "C", patched: false,
+  },
+  {
+    id: "mass-majesty",
+    name: "Mass Majesty",
+    reference: "Presence power in V5",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Beckon"],
+    explanation: "Puts all enemies in a trance where they walk towards you — the problem is Beckon pops when they get close, so this has very little utility.\n\nOne use case: farming Sanguine resonance by setting up a group for feeding.",
+    rank: "D", patched: false,
+  },
+  {
+    id: "brain-wipe",
+    name: "Brain Wipe",
+    reference: "Dominate 2-dot ability in VTMB1",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Cloud Memory"],
+    explanation: "Makes a group forget you exist. Very low utility in-game — can allow returning to stealth, but it's very niche.",
+    rank: "F", patched: false,
+  },
+  {
+    id: "shroud-of-silence",
+    name: "Shroud of Silence",
+    reference: "Blood Sorcery ritual in V5",
+    referenceUrl: null,
+    abilities: ["Mass Manipulation", "Mute"],
+    explanation: "Silences a group of enemies — given how encounters rarely involve more than one group across a given area, this has very, very low utility.",
+    rank: "F", patched: false,
+  },
+];
+
+// ── Ability → Combo reverse index ────────────────────────────
+const ABILITY_TO_COMBOS = (() => {
+  const map = {};
+  for (const combo of COMBOS) {
+    for (const abilityName of combo.abilities) {
+      if (!map[abilityName]) map[abilityName] = [];
+      map[abilityName].push(combo.id);
+    }
+  }
+  return map;
+})();
+

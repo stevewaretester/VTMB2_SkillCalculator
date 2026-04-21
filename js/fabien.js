@@ -19,10 +19,13 @@ function renderFabienTree() {
 
   grid.innerHTML = "";
 
-  // Malkavian clan logo at top
+  // Malkavian clan logo at top — completed if any Phyre clan is completed
+  const anyCompleted = state.completedClans.size > 0;
   const logo = document.createElement("img");
   logo.className = "fabien-tree__clan-logo";
-  logo.src = `${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian.png`;
+  logo.src = anyCompleted
+    ? `${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian_COMPLETED.png`
+    : `${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian.png`;
   logo.alt = "Malkavian";
   grid.appendChild(logo);
 
@@ -52,7 +55,7 @@ function renderFabienTree() {
 
     const bg = document.createElement("img");
     bg.className = "fabien-cell__btn-bg";
-    bg.src = UI.btnUnlocked;
+    bg.src = UI.btnEquipped;
     btn.appendChild(bg);
 
     if (ability.icon) {
@@ -98,11 +101,25 @@ function renderFabienDetail(panel) {
   // Tier label
   const tierLabel = TIERS[ability.tier] ? TIERS[ability.tier].label : ability.tier;
   html += `<div class="detail-panel__tier">${tierLabel}</div>`;
-  html += `<div class="detail-panel__name">${ability.name}</div>`;
+
+  // Icon + Name row
+  if (ability.icon) {
+    html += `<div class="detail-panel__name-row">`;
+    html += `<img class="detail-panel__ability-icon" src="${ability.icon}" alt="${ability.name}">`;
+    html += `<div class="detail-panel__name">${ability.name}</div>`;
+    html += `</div>`;
+  } else {
+    html += `<div class="detail-panel__name">${ability.name}</div>`;
+  }
 
   // Description
   if (ability.description) {
     html += `<div class="detail-panel__desc">${ability.description}</div>`;
+  }
+
+  // Mod: Fabien Phlegmatic Fast Travel — shown below description, above pips
+  if (ability.tier === "passive" && state.modFabienPhlegmatic) {
+    html += `<div class="fabien-mod-line">Fast travel from the overworld to Phlegmatic Resonant Targets by selecting them on the map</div>`;
   }
 
   // Discipline
@@ -118,15 +135,54 @@ function renderFabienDetail(panel) {
   if (ability.bloodPips > 0) {
     html += `<div style="display:flex; gap:3px; margin-top:8px;">`;
     for (let i = 0; i < ability.bloodPips; i++) {
-      html += `<div class="blood-pip" style="width:14px; height:6px;"></div>`;
+      html += `<div class="blood-pip filled" style="width:14px; height:6px;"></div>`;
     }
     html += `</div>`;
   }
 
-  // Always unlocked
-  html += `<div style="margin-top:12px; font-size:11px; color:var(--text-dim);">Status: Unlocked</div>`;
+  // Mod video
+  if (ability.tier === "passive" && state.modFabienPhlegmatic) {
+    const vidSrc = [
+      "assets/vids",
+      "malk_",
+      "FabienPhlegmaticFastTravel.mp4"
+    ].join("/");
+    html += `<div class="detail-panel__video">`;
+    html += `<video src="${vidSrc}" autoplay loop muted data-video-src="${vidSrc}"></video>`;
+    html += `<div class="detail-panel__video-expand" title="Click to enlarge">&#x26F6;</div>`;
+    html += `</div>`;
+  }
 
   panel.innerHTML = html;
+
+  // Bind video lightbox for mod video
+  const videoWrap = panel.querySelector(".detail-panel__video");
+  const videoEl = videoWrap && videoWrap.querySelector("video");
+  if (videoEl) {
+    const openLightbox = () => openVideoLightbox(videoEl.dataset.videoSrc);
+    videoEl.style.cursor = "pointer";
+    videoEl.addEventListener("click", openLightbox);
+    const expandBtn = videoWrap.querySelector(".detail-panel__video-expand");
+    if (expandBtn) expandBtn.addEventListener("click", openLightbox);
+  }
 }
 
-document.addEventListener("DOMContentLoaded", initFabien);
+document.addEventListener("DOMContentLoaded", () => {
+  initFabien();
+
+  // Wire the Phyre skill tree arrow button → navigate to Fabien + focus Fast Forward
+  const goBtn = document.getElementById("fabien-phlegmatic-go");
+  if (goBtn) {
+    goBtn.addEventListener("click", () => {
+      // Switch to Fabien primary tab
+      document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      const fabienTab = document.querySelector(".tab-bar--primary .tab-bar__tab[data-tab='fabien']");
+      if (fabienTab) fabienTab.classList.add("active");
+      document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+      document.getElementById("page-fabien").classList.remove("hidden");
+      // Focus Fast Forward (passive = index 0 in FABIEN_ABILITIES)
+      fabienState.focusedIndex = 0;
+      renderFabienTree();
+    });
+  }
+});
