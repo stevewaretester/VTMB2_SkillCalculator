@@ -241,6 +241,17 @@ function bindToggles() {
     state.completionTalents = e.target.checked;
     renderGrid();
   });
+  // Shift+Click to force-enable disabled toggle
+  if (completionToggle) {
+    completionToggle.addEventListener("click", (e) => {
+      if (e.shiftKey) {
+        e.preventDefault();
+        state.completionTalents = !state.completionTalents;
+        completionToggle.checked = state.completionTalents;
+        renderGrid();
+      }
+    });
+  }
 
   const phlegmaticToggle = document.getElementById("toggle-fabien-phlegmatic");
   if (phlegmaticToggle) phlegmaticToggle.checked = state.modFabienPhlegmatic;
@@ -259,6 +270,16 @@ function bindToggles() {
       state.modHaven = e.target.checked;
       document.getElementById("goto-haven-items").classList.toggle("hidden", !e.target.checked);
       if (typeof renderPickupsPage === "function") renderPickupsPage();
+    });
+    // Shift+Click to force-enable disabled toggle
+    havenToggle.addEventListener("click", (e) => {
+      if (e.shiftKey) {
+        e.preventDefault();
+        state.modHaven = !state.modHaven;
+        havenToggle.checked = state.modHaven;
+        document.getElementById("goto-haven-items").classList.toggle("hidden", !state.modHaven);
+        if (typeof renderPickupsPage === "function") renderPickupsPage();
+      }
     });
   }
 
