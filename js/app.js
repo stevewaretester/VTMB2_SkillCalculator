@@ -379,7 +379,7 @@ function renderGrid() {
     const logoImg = header.querySelector('.clan-col-header__logo');
     const LMB = 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png';
     const RMB = 'assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png';
-    const SHF = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Shift_Left.png';
+    const SHF = 'assets/Keyboard/T_UI_Keyboard_Shift_Left.png';
     const headerTooltip =
       `<div class="tooltip__controls-row"><img src="${LMB}" alt="LMB"> Purchase all</div>` +
       `<div class="tooltip__controls-row"><img src="${SHF}" alt="Shift"> + <img src="${LMB}" alt="LMB"> Unlock all</div>` +
