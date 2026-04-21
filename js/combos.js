@@ -15,6 +15,10 @@ const RANK_CLASS = {
   "F":  "rank--f",
 };
 
+const COMBOS_FILTER = {
+  selected: null, // "all" | "partial" | "locked" | null
+};
+
 // ── Unlock state helpers ─────────────────────────────────────
 function getAbilityState(abilityName) {
   const loc = ABILITY_LOCATION[abilityName];
@@ -29,6 +33,11 @@ function getComboUnlockState(combo) {
   if (unlocked.length === known.length) return "all";
   if (unlocked.length > 0) return "partial";
   return "locked";
+}
+
+function comboPassesFilter(unlockState) {
+  if (!COMBOS_FILTER.selected) return true;
+  return unlockState === COMBOS_FILTER.selected;
 }
 
 // ── Ability icon HTML ─────────────────────────────────────────
@@ -143,9 +152,9 @@ function renderCombosPage() {
       </div>
     </div>
     <div class="combos-legend">
-      <span class="combos-legend__item combos-legend__item--all">All unlocked</span>
-      <span class="combos-legend__item combos-legend__item--partial">Partially unlocked</span>
-      <span class="combos-legend__item combos-legend__item--locked">Not started</span>
+      <button class="combos-legend__item combos-legend__item--all ${COMBOS_FILTER.selected === 'all' ? 'is-active' : ''}" data-combo-filter="all" aria-pressed="${COMBOS_FILTER.selected === 'all'}">All unlocked</button>
+      <button class="combos-legend__item combos-legend__item--partial ${COMBOS_FILTER.selected === 'partial' ? 'is-active' : ''}" data-combo-filter="partial" aria-pressed="${COMBOS_FILTER.selected === 'partial'}">Partially unlocked</button>
+      <button class="combos-legend__item combos-legend__item--locked ${COMBOS_FILTER.selected === 'locked' ? 'is-active' : ''}" data-combo-filter="locked" aria-pressed="${COMBOS_FILTER.selected === 'locked'}">Not started</button>
     </div>
     <table class="combos-table" role="table">
       <thead>
@@ -161,6 +170,7 @@ function renderCombosPage() {
 
   for (const combo of COMBOS) {
     const unlockState = getComboUnlockState(combo);
+    if (!comboPassesFilter(unlockState)) continue;
     const rowClass = `combos-table__row combos-table__row--${unlockState}`;
 
     // Name cell — <details> to expand reference
@@ -227,6 +237,14 @@ function renderCombosPage() {
         selectClan(clan);
       }
       navigateToAbility(clan, tier);
+    });
+  });
+
+  container.querySelectorAll("[data-combo-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const requested = btn.dataset.comboFilter;
+      COMBOS_FILTER.selected = COMBOS_FILTER.selected === requested ? null : requested;
+      renderCombosPage();
     });
   });
 }

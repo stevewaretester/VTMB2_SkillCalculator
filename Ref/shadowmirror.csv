@@ -1,0 +1,10 @@
+Key, Group, Flavour Label, Cost (melancholic), Possible Weapons, Ammo
+Num1, blunt, something blunt,10, pipe / bat,— (melee)
+Num2, sharp, something sharp,20, machete / sword / knife / club,— (melee)
+Num3, heavy, something heavy,30, sledgehammer / warhammer,— (melee)
+Num4, shotgun, a shotgun,50, shotgun / iaoshotgun,default (1 / 2)
+Num5, sidearm, a sidearm,70, pistol / highcal,default (10 / 6)
+Num6, rifle, a rifle,100, dollarstorem4 / iaorifle,default (12 / 12)
+Num7, smg, an SMG,100, stubbysmg / smg,default (20 / 22)
+Num8, megashotty, a riot gun,120, megashotty,default (5)
+Num9, deadly, something deadly,150, sniper / crossbow,default (1 / 1)

@@ -12,6 +12,7 @@ const state = {
   completedClans: new Set(),
   completionTalents: false,
   modFabienPhlegmatic: false,
+  modHaven: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
   abilities: {},
@@ -64,6 +65,9 @@ function bindTabs() {
       if (tab.dataset.subtab === "combos" && typeof renderCombosPage === "function") {
         renderCombosPage();
       }
+      if (tab.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") {
+        renderPickupsPage();
+      }
     });
   });
 
@@ -75,6 +79,17 @@ function bindTabs() {
       tab.classList.add("active");
       document.querySelectorAll(".fabien-subpage").forEach(p => p.classList.add("hidden"));
       document.getElementById(`fabien-subpage-${tab.dataset.fabtab}`).classList.remove("hidden");
+    });
+  });
+
+  // Pickups sub-tabs
+  const pickupsTabs = document.querySelectorAll(".tab-bar--pickups .tab-bar__tab");
+  pickupsTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      pickupsTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".pickups-subpage").forEach(p => p.classList.add("hidden"));
+      document.getElementById(`pickups-subpage-${tab.dataset.pickuptab}`).classList.remove("hidden");
     });
   });
 }
@@ -132,7 +147,8 @@ function renderClanSelector() {
       sharedTooltip.innerHTML =
         `<div class="tooltip__name">${clan.name}</div>` +
         `<div class="tooltip__clan-descr">${clan.descr}</div>` +
-        `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>`;
+        `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>` +
+        `<div class="tooltip__clan-hint"><em>to change clan, use the "Select Clan" divider above</em></div>`;
       sharedTooltip.classList.add('tooltip--visible');
       positionTooltip(e);
     });
@@ -219,16 +235,32 @@ function updateClanPattern() {
 
 // ── Toggles ──────────────────────────────────────────────────
 function bindToggles() {
-  document.getElementById("toggle-completion-talents").addEventListener("change", (e) => {
+  const completionToggle = document.getElementById("toggle-completion-talents");
+  if (completionToggle) completionToggle.checked = state.completionTalents;
+  completionToggle.addEventListener("change", (e) => {
     state.completionTalents = e.target.checked;
     renderGrid();
   });
 
-  document.getElementById("toggle-fabien-phlegmatic").addEventListener("change", (e) => {
+  const phlegmaticToggle = document.getElementById("toggle-fabien-phlegmatic");
+  if (phlegmaticToggle) phlegmaticToggle.checked = state.modFabienPhlegmatic;
+  document.getElementById("goto-fabien-phlegmatic").classList.toggle("hidden", !state.modFabienPhlegmatic);
+  phlegmaticToggle.addEventListener("change", (e) => {
     state.modFabienPhlegmatic = e.target.checked;
     document.getElementById("goto-fabien-phlegmatic").classList.toggle("hidden", !e.target.checked);
     if (typeof renderFabienTree === "function") renderFabienTree();
   });
+
+  const havenToggle = document.getElementById("toggle-haven");
+  if (havenToggle) {
+    havenToggle.checked = state.modHaven;
+    document.getElementById("goto-haven-items").classList.toggle("hidden", !state.modHaven);
+    havenToggle.addEventListener("change", (e) => {
+      state.modHaven = e.target.checked;
+      document.getElementById("goto-haven-items").classList.toggle("hidden", !e.target.checked);
+      if (typeof renderPickupsPage === "function") renderPickupsPage();
+    });
+  }
 
   document.getElementById("goto-fabien-phlegmatic").addEventListener("click", () => {
     // Close modal
@@ -245,6 +277,34 @@ function bindToggles() {
       fabienState.focusedIndex = passiveIndex;
       renderFabienTree();
     }
+  });
+
+  document.getElementById("goto-haven-items").addEventListener("click", () => {
+    // Close modal
+    document.getElementById("mods-modal").classList.add("hidden");
+
+    // Primary: Phyre
+    document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+    const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+    if (phyreTab) phyreTab.classList.add("active");
+    document.getElementById("page-phyre").classList.remove("hidden");
+
+    // Secondary: Pickups
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab[data-subtab="pickups"]');
+    if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
+    document.getElementById("subpage-pickups").classList.remove("hidden");
+
+    // Pickups tab: Items
+    document.querySelectorAll(".tab-bar--pickups .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".pickups-subpage").forEach(p => p.classList.add("hidden"));
+    const itemsTab = document.querySelector('.tab-bar--pickups .tab-bar__tab[data-pickuptab="items"]');
+    if (itemsTab) itemsTab.classList.add("active");
+    document.getElementById("pickups-subpage-items").classList.remove("hidden");
+
+    if (typeof renderPickupsPage === "function") renderPickupsPage();
   });
 
   document.getElementById("reset-all").addEventListener("click", resetAll);

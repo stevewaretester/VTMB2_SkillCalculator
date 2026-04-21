@@ -1,0 +1,25 @@
+Station, Key, Action, Cost, Result
+Alchemy, Num1, Craft Blood Elixir,150 sanguine,1 Blood Elixir
+Alchemy, Num2, Craft Mending Elixir,50 sanguine + 50 choleric + 50 melancholic,1 Mending Elixir
+Alchemy, Num3, Craft Potence Elixir,150 choleric,1 Potence Elixir
+Alchemy, Num4, Craft Fortitude Elixir,150 melancholic,1 Fortitude Elixir
+Alchemy, Num5, Craft All (one of each), up to 4× elixir costs,1 of each elixir (priority L→R)
+Alchemy, Num6, Craft All Until Full, repeats rotation, fill all elixir slots to cap
+Alchemy, Num7, Exchange sanguine,150 sanguine,+50 choleric + 50 melancholic
+Alchemy, Num8, Exchange choleric,150 choleric,+50 sanguine + 50 melancholic
+Alchemy, Num9, Exchange melancholic,150 melancholic,+50 sanguine + 50 choleric
+Alchemy, Num+, Resonance → XP,500 of each resonance,+1000 XP
+Alchemy, Num-, AP → Resonance,1 AP,+300 of each resonance
+Alchemy, Num/, AP → Elixir cap,1 AP,+1 elixir capacity
+Alchemy, Num*, AP → Max HP,1 AP,+5 Phyre Marks (health collectibles)
+Alchemy, F1, Show station note,—, display HUD note
+Shadow Mirror, Num1, Something blunt,10 melancholic, random: pipe OR baseball bat
+Shadow Mirror, Num2, Something sharp,20 melancholic,"random: machete, sword, knife, or club"
+Shadow Mirror, Num3, Something heavy,30 melancholic, random: sledgehammer OR warhammer
+Shadow Mirror, Num4, A sidearm,100 melancholic, random: pistol OR high - caliber pistol (+12 ammo)
+Shadow Mirror, Num5, A rifle,150 melancholic, random: standard rifle OR IAO rifle (+30 ammo)
+Shadow Mirror, Num6, An SMG,150 melancholic, SMG (+30 ammo)
+Shadow Mirror, Num7, A riot gun,200 melancholic, megashotty / riot gun (+8 ammo)
+Shadow Mirror, Num8, Something precise,200 melancholic, sniper rifle (+5 ammo)
+Shadow Mirror, Num9, Something explosive,200 melancholic, crossbow (+5 ammo)
+Shadow Mirror, Num0, Bathtub restore, free, heal 100 HP + refill all blood pips

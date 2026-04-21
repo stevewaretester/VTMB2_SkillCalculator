@@ -43,7 +43,7 @@
         <button class="tab-bar__tab active" data-subtab="skilltree">Skill Tree</button>
         <button class="tab-bar__tab" data-subtab="combos">Combos</button>
         <div class="tab-bar__aside-group">
-          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="consumables">Consumables</button>
+          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="pickups">Pickups</button>
           <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map</button>
         </div>
       </nav>
@@ -66,37 +66,46 @@
         </div>
         <div class="res-display">
           <div class="res-row res-row--sanguine">
-            <img class="res-row__icon" src="assets/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood1.png" alt="San">
+            <span class="res-row__icon" aria-hidden="true">
+              <span class="res-row__icon-diamond"></span>
+              <img class="res-row__icon-glyph" src="assets/ElixirIcons/res_bloodres_sanguine.png" alt="Sanguine resonance">
+            </span>
             <span class="res-row__value" id="res-san">0</span>
           </div>
           <div class="res-row res-row--melancholic">
-            <img class="res-row__icon" src="assets/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood3.png" alt="Mel">
+            <span class="res-row__icon" aria-hidden="true">
+              <span class="res-row__icon-diamond"></span>
+              <img class="res-row__icon-glyph" src="assets/ElixirIcons/res_bloodres_melancholic.png" alt="Melancholic resonance">
+            </span>
             <span class="res-row__value" id="res-mel">0</span>
           </div>
           <div class="res-row res-row--choleric">
-            <img class="res-row__icon" src="assets/N_Textures/ClanTrainer/T_UI_ClanTrainer_Blood2.png" alt="Cho">
+            <span class="res-row__icon" aria-hidden="true">
+              <span class="res-row__icon-diamond"></span>
+              <img class="res-row__icon-glyph" src="assets/ElixirIcons/res_bloodres_choleric.png" alt="Choleric resonance">
+            </span>
             <span class="res-row__value" id="res-cho">0</span>
           </div>
         </div>
         <button class="reset-btn" id="reset-all">Reset All</button>
 
         <hr class="sidebar-divider">
-        <div class="sidebar-controls-legend">
-          <div class="controls-legend__row" title="Select ability · expand details · toggle spent">
-            <img src="assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png" alt="Left click">
-            <span>Select / expand</span>
+        <details class="sidebar-help">
+          <summary class="sidebar-help__toggle"><img src="assets/favicon.png" alt="">How to unlock abilities <span class="sidebar-help__arrow">▶</span></summary>
+          <div class="sidebar-help__body">
+            <p><strong>In-Clan</strong> — Unlock abilities in sequence (Passive → Strike → Relocate → Affect → Mastery → Perk) by spending AP.</p>
+            <p><strong>Cross-Clan</strong> — To unlock another clan's ability:<br>
+              ① Awaken it at the Clan Trainer by spending Blood Resonance.<br>
+              ② Unlock the equivalent ability in your own clan tree first.<br>
+              ③ Spend AP — usually more than in-clan cost, but discounted 50% if your clan shares affinity.
+            </p>
+            <p><strong>Cross-Clan Perks</strong> — To unlock another clan's Perk:<br>
+              ① Unlock your own clan's Perk first.<br>
+              ② Awaken every ability in the target clan's tree.<br>
+              ③ Spend 6 AP to unlock their Perk.
+            </p>
           </div>
-          <div class="controls-legend__row" title="Hold Shift and click clan columns to multi-select">
-            <img src="assets/Keyboard/T_UI_Keyboard_Shift_Left.png" alt="Shift">
-            <span>+</span>
-            <img src="assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png" alt="Left click">
-            <span>Multi-select clan</span>
-          </div>
-          <div class="controls-legend__row" title="Deselect ability or outfit">
-            <img src="assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png" alt="Right click">
-            <span>Deselect</span>
-          </div>
-        </div>
+        </details>
       </aside>
 
       <!-- Skill Grid -->
@@ -134,7 +143,8 @@
           </aside>
 
           <section class="reactions-section" id="reactions-section">
-            <h2 class="reactions-section__title">NPC Reactions</h2>
+            <h2 class="reactions-section__title">Partial Resonance Reactions</h2>
+            <p class="reactions-section__intro">Some NPCs will be Partially Resonant, meaning you can cause them to become fully resonant, but this requires two things.<br>① An outfit they will be willing to talk to you wearing.<br>② The correct dialogue choice.<br>The below catalogues the responses you will get, depending on your choices of outfit and speech.</p>
             <div class="reactions-tables" id="reactions-tables"></div>
           </section>
         </div>
@@ -150,11 +160,33 @@
       </main>
     </div><!-- /subpage-combos -->
 
-    <!-- Sub-page: Consumables -->
-    <div class="subpage hidden" id="subpage-consumables">
-      <div class="placeholder-page">
-        <h2>Consumables</h2>
-        <p>Coming soon &mdash; Potions &amp; Weapons</p>
+    <!-- Sub-page: Pickups -->
+    <div class="subpage hidden" id="subpage-pickups">
+      <nav class="tab-bar tab-bar--pickups">
+        <button class="tab-bar__tab active" data-pickuptab="weapons">Weapons</button>
+        <button class="tab-bar__tab" data-pickuptab="items">Items</button>
+      </nav>
+
+      <!-- Weapons -->
+      <div class="pickups-subpage" id="pickups-subpage-weapons">
+        <div class="pickups-layout">
+          <!-- Base table; when MAHAH is enabled, extra mirror columns appear. -->
+          <div class="pickups-tables">
+            <h3 class="pickups-section-title">Weapons</h3>
+            <div id="pickups-weapons-table"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="pickups-subpage hidden" id="pickups-subpage-items">
+        <div class="pickups-layout">
+          <!-- Base table; when MAHAH is enabled, alchemy columns and actions appear. -->
+          <div class="pickups-tables">
+            <h3 class="pickups-section-title">Items</h3>
+            <div id="pickups-items-table"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -243,8 +275,9 @@
           <li class="mod-list__item">
             <label class="mod-list__toggle">
               <input type="checkbox" id="toggle-haven" disabled>
-              <span class="mod-list__label">Making a Haven a Home <em>(Coming Soon)</em></span>
+              <span class="mod-list__label"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/157" target="_blank" rel="noopener">Make a Haven a Home</a> <em>(Coming Soon)</em></span>
             </label>
+            <button class="mod-list__goto hidden" id="goto-haven-items" title="Go to Pickups Items">&#x2B07;</button>
           </li>
           <li class="mod-list__item">
             <label class="mod-list__toggle">
@@ -273,7 +306,7 @@
       <button class="modal-card__close" id="about-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="about-modal-title">About</h2>
-        <span class="modal-card__version">v1.03</span>
+        <span class="modal-card__version">v1.04</span>
       </div>
 
       <section class="modal-card__section">
@@ -281,8 +314,13 @@
           <summary class="modal-card__changelog-summary">Changelog</summary>
           <ul class="modal-card__changelog">
             <li>
-              <span class="changelog__version">v1.03</span>
+              <span class="changelog__version">v1.04</span>
               <span class="changelog__label">Current</span>
+              <span class="changelog__desc">Sortable Pickups tables (weapons &amp; items), Combo status filtering, Shadow Mirror weapon data &amp; pellet math display, melee projectile hiding, clan selector hover hint.</span>
+            </li>
+            <li>
+              <span class="changelog__version">v1.03</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/469d501" target="_blank" rel="noopener">469d501</a>
               <span class="changelog__desc">Made affinity colour based, added some better articulation, moved some bits around for better flow &mdash; combos now tell you how much they cost to unlock.</span>
             </li>
             <li>
@@ -347,5 +385,6 @@
   <script src="js/outfits.js"></script>
   <script src="js/fabien.js"></script>
   <script src="js/combos.js"></script>
+  <script src="js/pickups.js"></script>
 </body>
 </html>

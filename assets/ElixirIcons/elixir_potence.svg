@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#c08040"/>
+      <stop offset="100%" stop-color="#281508"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Diamond background -->
+  <polygon points="50,4 96,50 50,96 4,50" fill="url(#bg)"/>
+  <!-- Diamond edge highlight -->
+  <polygon points="50,4 96,50 50,96 4,50" fill="none" stroke="#7B5229" stroke-width="2.5" opacity="0.9"/>
+  <polygon points="50,7 93,50 50,93 7,50" fill="none" stroke="rgba(255,200,100,0.3)" stroke-width="1"/>
+  <!-- Bottle silhouette -->
+  <g fill="white" opacity="0.12">
+    <rect x="44" y="27" width="12" height="3" rx="1.5"/>
+    <path d="M43,30 L43,36 Q32,40 31,56 Q30,72 50,74 Q70,72 69,56 Q68,40 57,36 L57,30 Z"/>
+  </g>
+  <!-- Bottle neck outline -->
+  <rect x="44" y="27" width="12" height="9" rx="2" fill="none" stroke="white" stroke-width="1.2" opacity="0.35"/>
+  <!-- Fist / closed hand icon -->
+  <g filter="url(#glow)" fill="white" opacity="0.92">
+    <!-- Fingers -->
+    <rect x="37" y="47" width="9"  height="7" rx="2"/>
+    <rect x="47" y="45" width="9"  height="7" rx="2"/>
+    <rect x="57" y="47" width="7"  height="7" rx="2"/>
+    <!-- Knuckle bar -->
+    <rect x="37" y="53" width="27" height="10" rx="3"/>
+    <!-- Thumb -->
+    <rect x="37" y="58" width="7"  height="8"  rx="3" transform="rotate(-15 40 62)"/>
+    <!-- Palm -->
+    <rect x="39" y="60" width="22" height="10" rx="3"/>
+  </g>
+</svg>
