@@ -11,10 +11,10 @@ An interactive skill tree and build planner for **Vampire: The Masquerade – Bl
 ### Phyre — Skill Tree
 - **Six playable clans**: Brujah, Tremere, Banu Haqim, Ventrue, Lasombra, Toreador
 - Full ability grid across six tiers: Clan Passive, Strike, Relocate, Affect, Mastery, and Clan Perk
-- **Ability Point cost calculator** — tracks total AP spend, accounting for in-clan, affinity, and out-of-clan pricing
+- **Ability Point cost calculator** — tracks total AP spend, accounting for in-clan, affinity, and out-of-clan pricing; costs are colour-coded white / green (underlined) / red for accessibility
 - **Blood Resonance cost tracker** — cumulative Sanguine / Melancholic / Choleric requirements shown in the sidebar
-- **Discipline affinity bar** — shows which disciplines are relevant for the selected clan
-- **Ability detail panel** — shows description, blood pip cost, channeled status, resonance effects granted/cleansed, masquerade impact badge, and an in-game video preview
+- **Discipline affinity bar** — shows which disciplines are relevant for the selected clan, with per-discipline colour glows on affinity cells and a white glow for own-clan abilities
+- **Ability detail panel** — shows description, blood pip cost, channeled status, conversation ability indicator, resonance effects granted/cleansed, masquerade impact badge, and an in-game video preview
 - **Masquerade impact indicators** — per-ability badges (Breach / Moderate / Minor / Safe) derived from real game data
 - Click to unlock abilities, click again to unequip; right-click to reset a single ability
 - **Clan column header shortcuts**:

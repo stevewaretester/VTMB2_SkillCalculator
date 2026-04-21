@@ -50,17 +50,27 @@ body {
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 /* ── Smoky background ─────────────────────────────────────── */
 #app {
     position: relative;
     min-height: 100vh;
+}
+
+/* Background pinned to viewport so it never jumps on layout expand */
+#app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     background:
         radial-gradient(ellipse at 50% 40%, rgba(40, 36, 50, 0.6) 0%, transparent 60%),
         radial-gradient(ellipse at 30% 60%, rgba(30, 28, 38, 0.4) 0%, transparent 50%),
         radial-gradient(ellipse at 70% 50%, rgba(35, 30, 42, 0.3) 0%, transparent 50%),
         linear-gradient(180deg, #0e0e14 0%, #141420 40%, #18182a 70%, #0e0e14 100%);
+    pointer-events: none;
 }
 
 /* ── Header ───────────────────────────────────────────────── */
@@ -258,7 +268,7 @@ body {
 }
 
 .mod-list__goto:hover {
-    transform: translateX(3px);
+    transform: translateY(3px);
     opacity: 0.8;
 }
 
@@ -340,6 +350,124 @@ body {
 
 .modal-card__kofi-btn:hover {
     background: #ff3b38;
+}
+
+.modal-card__credits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-card__credits li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+.modal-card__credits a {
+    color: var(--gold-bright);
+    text-decoration: none;
+}
+
+.modal-card__credits a:hover {
+    text-decoration: underline;
+}
+
+.modal-card__changelog-details {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.modal-card__changelog-summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.modal-card__changelog-summary::-webkit-details-marker { display: none; }
+
+.modal-card__changelog-summary::before {
+    content: '\25B8';
+    font-size: 10px;
+    color: var(--gold-bright);
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+.modal-card__changelog-details[open] .modal-card__changelog-summary::before {
+    transform: rotate(90deg);
+}
+
+.modal-card__changelog-summary:hover {
+    color: var(--gold-bright);
+}
+
+.modal-card__changelog {
+    list-style: none;
+    padding: 0 12px 12px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-card__changelog li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+.changelog__version {
+    font-family: 'Cinzel', serif;
+    color: var(--gold-bright);
+    font-weight: 700;
+    min-width: 3.5rem;
+    flex-shrink: 0;
+}
+
+.changelog__commit {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.06);
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.changelog__commit:hover {
+    color: var(--gold-bright);
+}
+
+.changelog__label {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.06);
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.changelog__desc {
+    color: var(--text-dim);
 }
 
 .header__logo {
@@ -755,6 +883,36 @@ body {
     color: var(--bg-dark);
 }
 
+/* ── Sidebar controls legend ─────────────────────────────── */
+.sidebar-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 14px 0 10px;
+}
+
+.sidebar-controls-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.controls-legend__row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: var(--text-dim);
+    cursor: default;
+}
+
+.controls-legend__row img {
+    height: 20px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.75;
+    flex-shrink: 0;
+}
+
 .toggle-group {
     display: flex;
     align-items: center;
@@ -843,7 +1001,7 @@ body {
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-top: 8px;
+    margin-top: 14px;
 }
 
 .res-display {
@@ -949,6 +1107,26 @@ body {
     background: rgba(255, 255, 255, 0.03);
 }
 
+/* Generic glow for own-clan affinity abilities */
+.ability-cell.is-own-affinity {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.08), 0 0 5px rgba(255, 255, 255, 0.06);
+}
+.ability-cell.is-own-affinity:hover {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.15), 0 0 8px rgba(255, 255, 255, 0.10);
+}
+
+/* Preserve affinity glow on hover — intensify slightly */
+.ability-cell.is-affinity:hover { background: unset; }
+.ability-cell.is-affinity[data-discipline="celerity"]:hover     { background: linear-gradient(135deg, rgba(60, 160, 230, 0.28), rgba(40, 130, 200, 0.10)); box-shadow: inset 0 0 14px rgba(60, 160, 230, 0.22), 0 0 10px rgba(60, 160, 230, 0.18); }
+.ability-cell.is-affinity[data-discipline="potence"]:hover      { background: linear-gradient(135deg, rgba(220, 120, 30, 0.28), rgba(200, 80, 20, 0.10));  box-shadow: inset 0 0 14px rgba(220, 120, 30, 0.22), 0 0 10px rgba(220, 120, 30, 0.18); }
+.ability-cell.is-affinity[data-discipline="presence"]:hover     { background: linear-gradient(135deg, rgba(220, 140, 170, 0.28), rgba(200, 110, 150, 0.10)); box-shadow: inset 0 0 14px rgba(220, 140, 170, 0.22), 0 0 10px rgba(220, 140, 170, 0.18); }
+.ability-cell.is-affinity[data-discipline="bloodSorcery"]:hover { background: linear-gradient(135deg, rgba(160, 20, 30, 0.32), rgba(120, 10, 20, 0.12));   box-shadow: inset 0 0 14px rgba(200, 40, 40, 0.26), 0 0 10px rgba(200, 40, 40, 0.20); }
+.ability-cell.is-affinity[data-discipline="dominate"]:hover     { background: linear-gradient(135deg, rgba(210, 190, 40, 0.28), rgba(180, 160, 20, 0.10));  box-shadow: inset 0 0 14px rgba(210, 190, 40, 0.22), 0 0 10px rgba(210, 190, 40, 0.18); }
+.ability-cell.is-affinity[data-discipline="obfuscate"]:hover    { background: linear-gradient(135deg, rgba(120, 120, 130, 0.28), rgba(80, 80, 90, 0.10));   box-shadow: inset 0 0 14px rgba(150, 150, 165, 0.22), 0 0 10px rgba(150, 150, 165, 0.18); }
+.ability-cell.is-affinity[data-discipline="oblivion"]:hover     { background: linear-gradient(135deg, rgba(60, 20, 100, 0.32), rgba(40, 10, 70, 0.12));     box-shadow: inset 0 0 14px rgba(120, 60, 210, 0.26), 0 0 10px rgba(120, 60, 210, 0.20); }
+
 .ability-cell__btn {
     position: relative;
     width: 90px;
@@ -1050,8 +1228,7 @@ body {
 
 /* Invalid prerequisite highlight */
 .ability-cell.invalid {
-    outline: 2px solid var(--red);
-    outline-offset: -2px;
+    box-shadow: inset 0 0 0 2px var(--red), 0 0 8px rgba(160, 48, 48, 0.35) !important;
 }
 
 .ability-cell.invalid .ability-cell__btn-bg {
@@ -1077,30 +1254,15 @@ body {
     opacity: 1;
 }
 
-/* ── Discipline badge ─────────────────────────────────────── */
-.ability-cell__discipline {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    margin-top: 2px;
-}
-
-.ability-cell__discipline-icon {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    padding: 2px;
-    border-radius: 3px;
-}
-
-/* Per-discipline glow on affinity icon in ability cells */
-.ability-cell__discipline-icon.is-affinity[data-discipline="celerity"]    { filter: drop-shadow(0 0 4px rgba(60, 160, 230, 0.9)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="potence"]     { filter: drop-shadow(0 0 4px rgba(220, 120, 30, 0.9)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="presence"]    { filter: drop-shadow(0 0 4px rgba(220, 140, 170, 0.9)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="bloodSorcery"]{ filter: drop-shadow(0 0 4px rgba(200, 40, 40, 0.95)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="dominate"]    { filter: drop-shadow(0 0 4px rgba(210, 190, 40, 0.9)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="obfuscate"]   { filter: drop-shadow(0 0 4px rgba(150, 150, 165, 0.9)); }
-.ability-cell__discipline-icon.is-affinity[data-discipline="oblivion"]    { filter: drop-shadow(0 0 4px rgba(120, 60, 210, 0.9)); }
+/* ── Affinity cell glow ───────────────────────────────────── */
+/* Background gradient + box-shadow glow on affinity ability cells */
+.ability-cell.is-affinity[data-discipline="celerity"]     { background: linear-gradient(135deg, rgba(60, 160, 230, 0.18), rgba(40, 130, 200, 0.06)); box-shadow: inset 0 0 10px rgba(60, 160, 230, 0.15), 0 0 6px rgba(60, 160, 230, 0.12); }
+.ability-cell.is-affinity[data-discipline="potence"]      { background: linear-gradient(135deg, rgba(220, 120, 30, 0.18), rgba(200, 80, 20, 0.06));  box-shadow: inset 0 0 10px rgba(220, 120, 30, 0.15), 0 0 6px rgba(220, 120, 30, 0.12); }
+.ability-cell.is-affinity[data-discipline="presence"]     { background: linear-gradient(135deg, rgba(220, 140, 170, 0.18), rgba(200, 110, 150, 0.06)); box-shadow: inset 0 0 10px rgba(220, 140, 170, 0.15), 0 0 6px rgba(220, 140, 170, 0.12); }
+.ability-cell.is-affinity[data-discipline="bloodSorcery"] { background: linear-gradient(135deg, rgba(160, 20, 30, 0.22), rgba(120, 10, 20, 0.08));   box-shadow: inset 0 0 10px rgba(200, 40, 40, 0.18), 0 0 6px rgba(200, 40, 40, 0.14); }
+.ability-cell.is-affinity[data-discipline="dominate"]     { background: linear-gradient(135deg, rgba(210, 190, 40, 0.18), rgba(180, 160, 20, 0.06));  box-shadow: inset 0 0 10px rgba(210, 190, 40, 0.15), 0 0 6px rgba(210, 190, 40, 0.12); }
+.ability-cell.is-affinity[data-discipline="obfuscate"]    { background: linear-gradient(135deg, rgba(120, 120, 130, 0.18), rgba(80, 80, 90, 0.06));   box-shadow: inset 0 0 10px rgba(150, 150, 165, 0.15), 0 0 6px rgba(150, 150, 165, 0.12); }
+.ability-cell.is-affinity[data-discipline="oblivion"]     { background: linear-gradient(135deg, rgba(60, 20, 100, 0.22), rgba(40, 10, 70, 0.08));     box-shadow: inset 0 0 10px rgba(120, 60, 210, 0.18), 0 0 6px rgba(120, 60, 210, 0.14); }
 
 /* ── Blood Pips ───────────────────────────────────────────── */
 .ability-cell__pips {
@@ -1149,6 +1311,33 @@ body {
     height: 22px;
     object-fit: contain;
     z-index: 2;
+}
+
+/* ── Trainer Badge (out-of-clan abilities — detail panel) ── */
+.detail-panel__trainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding: 5px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: default;
+}
+
+.detail-panel__trainer-logo {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.detail-panel__trainer-name {
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
 }
 
 /* ── Masquerade Impact (tooltip + detail panel) ───────────── */
@@ -1580,6 +1769,48 @@ body {
     margin-bottom: 4px;
 }
 
+.tooltip__clan-descr {
+    font-size: 12px;
+    color: var(--text-main);
+    line-height: 1.5;
+    max-width: 280px;
+    margin-bottom: 8px;
+}
+
+.tooltip__clan-mastery {
+    font-size: 10px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tooltip__controls-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-main);
+    margin-bottom: 5px;
+}
+
+.tooltip__controls-row:last-child {
+    margin-bottom: 0;
+}
+
+.tooltip__controls-row img {
+    height: 18px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+
+.masq-val-noise-warn {
+    color: var(--red) !important;
+    text-decoration: underline;
+    cursor: help;
+}
+
 .tooltip__tier {
     font-size: 10px;
     color: var(--text-dim);
@@ -1615,6 +1846,16 @@ body {
 .tooltip__discipline.is-affinity[data-discipline="obfuscate"] span    { color: rgb(170, 170, 185); }
 .tooltip__discipline.is-affinity[data-discipline="oblivion"] span     { color: rgb(160, 100, 220); }
 
+/* Tooltip discipline own-clan — white glow */
+.tooltip__discipline.is-own-clan {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.08);
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+.tooltip__discipline.is-own-clan span { color: rgba(255, 255, 255, 0.85); }
+.tooltip__discipline.is-own-clan img  { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5)); }
+
 .tooltip__desc {
     font-size: 12px;
     color: var(--text);
@@ -1647,6 +1888,11 @@ body {
 
 .tooltip__cost-row .value.affinity {
     color: var(--green-affinity);
+    text-decoration: underline;
+}
+
+.tooltip__cost-row .value.cross-clan {
+    color: #c0392b;
 }
 
 .tooltip__cost-row .res-san { color: var(--res-sanguine); }
@@ -1681,6 +1927,11 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    position: sticky;
+    top: 16px;
 }
 
 .detail-panel__video {
@@ -1829,6 +2080,8 @@ body {
     background: rgba(255, 255, 255, 0.05);
     box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.08);
 }
+.detail-panel__discipline.is-own-clan span { color: rgba(255, 255, 255, 0.85); }
+.detail-panel__discipline.is-own-clan img  { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.55)); }
 
 .discipline-badge {
     font-size: 10px;
@@ -1845,9 +2098,9 @@ body {
 }
 
 .in-clan-badge {
-    color: #c8b040;
-    background: rgba(200, 176, 64, 0.12);
-    box-shadow: 0 0 5px 1px rgba(200, 176, 64, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.15);
 }
 
 /* Detail panel discipline affinity — per discipline color */
@@ -1939,6 +2192,36 @@ body {
     color: var(--gold);
 }
 
+.affect-link-btn {
+    background: none;
+    border: none;
+    color: var(--gold-dim);
+    font-size: inherit;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.affect-link-btn:hover {
+    color: var(--gold);
+}
+
+.affect-link-btn--locked {
+    color: var(--text-dim);
+    opacity: 0.55;
+    text-decoration: underline;
+    text-decoration-style: dashed;
+}
+.affect-link-btn--locked:hover {
+    color: var(--text);
+    opacity: 0.8;
+}
+
+.affect-row--locked td {
+    opacity: 0.4;
+}
+
 .detail-panel__costs {
     display: flex;
     flex-direction: column;
@@ -1957,6 +2240,16 @@ body {
 .detail-panel__ap-icon {
     color: var(--gold);
     flex-shrink: 0;
+    margin-left: 2px;
+}
+
+.detail-panel__ap-value.affinity {
+    color: var(--green-affinity);
+    text-decoration: underline;
+}
+
+.detail-panel__ap-value.cross-clan {
+    color: #c0392b;
 }
 
 .detail-panel__cost-row img {
@@ -2327,7 +2620,6 @@ body {
 
 .outfit-cell__type {
     font-size: 9px;
-    color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -2414,6 +2706,14 @@ body {
     font-size: 18px;
     font-weight: 700;
     color: var(--gold-bright);
+}
+
+.outfit-detail__desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.5;
+    margin-top: 4px;
 }
 
 .outfit-detail__type {
@@ -2680,9 +2980,10 @@ body {
     z-index: 2;
 }
 
-.combos-table__th--name        { width: 17%; }
-.combos-table__th--abilities   { width: 18%; }
-.combos-table__th--explanation { width: 55%; }
+.combos-table__th--name        { width: 14%; }
+.combos-table__th--abilities   { width: 13%; }
+.combos-table__th--cost        { width: 13%; }
+.combos-table__th--explanation { width: 50%; }
 .combos-table__th--rank        { width: 10%; text-align: center; }
 
 .combos-table__row {
@@ -2727,6 +3028,72 @@ body {
 .combos-table__td--explanation {
     font-size: 12px;
     color: var(--text-dim);
+}
+
+/* Combo cost cell — combined spent + left with labels */
+.combo-cost {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.combo-cost__section {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.combo-cost__label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    min-width: 30px;
+}
+
+.combo-cost__label--spent { color: var(--green-affinity); }
+.combo-cost__label--left  { color: var(--text); }
+
+.combos-table__td--cost { vertical-align: middle; }
+
+/* Combo total values */
+.combo-total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+
+.combo-total__ap,
+.combo-total__res {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.combo-total--spent .combo-total__ap,
+.combo-total--spent .combo-total__res {
+    color: var(--green-affinity);
+}
+
+.combo-total--left .combo-total__ap,
+.combo-total--left .combo-total__res {
+    color: var(--text);
+}
+
+.combo-cost__ap-icon {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.combo-total__res img {
+    height: 12px;
+    width: auto;
+    opacity: 0.85;
+    flex-shrink: 0;
 }
 
 /* Combo name <details> */
@@ -2980,4 +3347,11 @@ body {
     font-size: 12px;
     color: var(--gold);
     flex: 1;
+}
+
+.detail-panel__combo-arrow {
+    font-size: 11px;
+    color: var(--text-dim);
+    opacity: 0.6;
+    flex-shrink: 0;
 }

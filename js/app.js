@@ -115,6 +115,19 @@ function renderClanSelector() {
     });
 
     card.addEventListener("click", () => selectClan(clanId));
+
+    // Clan description tooltip
+    card.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML =
+        `<div class="tooltip__name">${clan.name}</div>` +
+        `<div class="tooltip__clan-descr">${clan.descr}</div>` +
+        `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    card.addEventListener('mousemove', positionTooltip);
+    card.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+
     container.appendChild(card);
   }
 }
@@ -157,8 +170,11 @@ function selectClan(clanId) {
     refreshOutfitsPage();
   }
 
-  // Show toggle button and collapse selector after first selection
-  // (toggle is always visible now)
+  // Auto-collapse clan selector on selection
+  if (!state.clanSelectorCollapsed) {
+    state.clanSelectorCollapsed = true;
+    applyClanSelectorCollapsed();
+  }
 }
 
 // ── Clan Selector Toggle ─────────────────────────────────────
@@ -221,6 +237,17 @@ function bindToggles() {
   });
 
   document.getElementById("reset-all").addEventListener("click", resetAll);
+
+  // Controls-legend sharedTooltip
+  document.querySelectorAll('.controls-legend__row').forEach(row => {
+    row.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = `<div class="tooltip__name">${row.title}</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    row.addEventListener('mousemove', positionTooltip);
+    row.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  });
 }
 
 function resetAll() {
@@ -328,7 +355,6 @@ function renderGrid() {
       <div class="clan-col-header__name">${clan.name}</div>
     `;
     header.style.cursor = "pointer";
-    header.title = "Left-click: purchase all | Shift+click: unlock all skills | Right-click: reset";
     header.addEventListener("click", (e) => {
       if (e.shiftKey) {
         unlockClanAbilities(clanId);
@@ -337,6 +363,23 @@ function renderGrid() {
       }
     });
     header.addEventListener("contextmenu", (e) => { e.preventDefault(); resetClanAbilities(clanId); });
+
+    // Rich sharedTooltip on the logo showing controls legend
+    const logoImg = header.querySelector('.clan-col-header__logo');
+    const LMB = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png';
+    const RMB = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png';
+    const SHF = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Shift_Left.png';
+    const headerTooltip =
+      `<div class="tooltip__controls-row"><img src="${LMB}" alt="LMB"> Purchase all</div>` +
+      `<div class="tooltip__controls-row"><img src="${SHF}" alt="Shift"> + <img src="${LMB}" alt="LMB"> Unlock all</div>` +
+      `<div class="tooltip__controls-row"><img src="${RMB}" alt="RMB"> Reset clan</div>`;
+    logoImg.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = headerTooltip;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    logoImg.addEventListener('mousemove', positionTooltip);
+    logoImg.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
     grid.appendChild(header);
   }
 
@@ -374,6 +417,18 @@ function createAbilityCell(clanId, tier) {
   if (!isOwnClan) cell.classList.add("cross-clan");
   if (abilityState === "awakened" && !isOwnClan && !canUnlock(clanId, tier)) {
     cell.classList.add("blocked");
+  }
+
+  // Affinity glow on cell background
+  if (isPerk && isOwnClan) {
+    cell.classList.add("is-own-affinity");
+  } else if (state.selectedClan && ability.discipline && !isPassive && CLANS[state.selectedClan].affinities.includes(ability.discipline)) {
+    if (isOwnClan) {
+      cell.classList.add("is-own-affinity");
+    } else {
+      cell.classList.add("is-affinity");
+      cell.dataset.discipline = ability.discipline;
+    }
   }
 
   // Mark invalid if prerequisites not met for current clan choice
@@ -437,14 +492,7 @@ function createAbilityCell(clanId, tier) {
 
   html += `</div>`;
 
-  // Discipline badge
-  if (ability.discipline && !isPassive) {
-    const disc = DISCIPLINES[ability.discipline];
-    const affinityClass = (state.selectedClan && CLANS[state.selectedClan].affinities.includes(ability.discipline)) ? ' is-affinity' : '';
-    html += `<div class="ability-cell__discipline">
-      <img class="ability-cell__discipline-icon${affinityClass}" data-discipline="${ability.discipline}" src="${disc.icon}" alt="${disc.name}" title="${disc.name}">
-    </div>`;
-  }
+  // Discipline badge removed — affinity shown via cell background glow
 
   // Blood pips
   if (ability.bloodPips > 0) {
@@ -459,13 +507,7 @@ function createAbilityCell(clanId, tier) {
     html += `</div>`;
   }
 
-  // Affinity marker
-  if (!isOwnClan && !isPassive && ability.discipline) {
-    const ownClan = CLANS[state.selectedClan];
-    if (ownClan.affinities.includes(ability.discipline)) {
-      html += `<img class="ability-cell__affinity-marker" src="${UI.cheaperMarker}" alt="Affinity" title="50% AP discount">`;
-    }
-  }
+  // Affinity marker removed — affinity shown via cell background glow
 
   cell.innerHTML = html;
 
@@ -545,7 +587,8 @@ function buildTooltipContent(clanId, tier, ability, abilityState) {
   if (ability.discipline) {
     const disc = DISCIPLINES[ability.discipline];
     const isAffinityDisc = !isOwnClan && state.selectedClan && CLANS[state.selectedClan].affinities.includes(ability.discipline);
-    html += `<div class="tooltip__discipline${isAffinityDisc ? ' is-affinity' : ''}" data-discipline="${ability.discipline}">
+    const isOwnClanAffinity = isOwnClan && state.selectedClan && CLANS[state.selectedClan].affinities.includes(ability.discipline);
+    html += `<div class="tooltip__discipline${isAffinityDisc ? ' is-affinity' : ''}${isOwnClanAffinity ? ' is-own-clan' : ''}" data-discipline="${ability.discipline}">
       <img src="${disc.icon}" alt="${disc.name}">
       <span>${disc.name}</span>
     </div>`;
@@ -559,7 +602,7 @@ function buildTooltipContent(clanId, tier, ability, abilityState) {
     const isAffinity = !isOwnClan && isAffinityAbility(clanId, tier);
     let row = `<div class="tooltip__cost-row">`;
     row += `<svg class="tooltip__ap-icon" viewBox="0 0 16 16" width="12" height="12"><polygon points="8,1 15,8 8,15 1,8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
-    row += `<span class="value${isAffinity ? ' affinity' : ''}">${apCost}</span>`;
+    row += `<span class="value${isAffinity ? ' affinity' : (!isOwnClan ? ' cross-clan' : '')}">${apCost}</span>`;
     // Inline resonance icons (no labels)
     if (!isOwnClan && !isPassive && tier !== "perk") {
       const res = ability.resonance;
@@ -782,7 +825,11 @@ function isPrereqMet(clanId, tier) {
     if (!prevTier || prevTier === "passive") return true;
     return state.abilities[`${clanId}:${prevTier}`] !== "locked";
   } else {
-    // Cross-clan validity: always valid if awakened (unlock gated separately)
+    // Cross-clan awakened: always valid (no prereq to awaken)
+    // Cross-clan unlocked: own-clan same tier must still be unlocked
+    if (state.abilities[`${clanId}:${tier}`] === "unlocked") {
+      return canUnlock(clanId, tier);
+    }
     return true;
   }
 }
@@ -976,6 +1023,14 @@ function renderDetailPanel() {
     </div>`;
   }
 
+  // Trainer badge (out-of-clan non-passive non-perk abilities)
+  if (!isOwnClan && !isPassive && !isPerk) {
+    html += `<div class="detail-panel__trainer" data-trainer-pos="${clan.trainerPos}">`;
+    html += `<img class="detail-panel__trainer-logo" src="${clan.logo}" alt="${clan.name}">`;
+    html += `<span class="detail-panel__trainer-name">Clan Contact: ${clan.trainerName}</span>`;
+    html += `</div>`;
+  }
+
   // Masquerade impact — expandable dropdown
   if (tier !== "passive" && MASQUERADE[clanId]) {
     const masqEvents = MASQUERADE[clanId][tier];
@@ -989,12 +1044,13 @@ function renderDetailPanel() {
         const initClass = e.initial > 0 ? `masq-val-${getMasqTier(e.initial)}` : '';
         const perSecClass = e.perSec > 0 ? `masq-val-${getMasqTier(e.perSec)}` : '';
         const noteHtml = e.note ? ` <span class="masq-event__note" title="${e.note}">ⓘ</span>` : '';
+        const noiseWarnClass = e.noiseWarn ? ' masq-val-noise-warn' : '';
         return `<div class="detail-panel__masq-event">
           <span class="masq-event__label">${e.label}${noteHtml}</span>
           <span class="masq-event__val ${initClass}">${e.initial || '—'}</span>
           <span class="masq-event__val ${perSecClass}">${e.perSec || '—'}</span>
-          <span class="masq-event__val">${e.noise || '—'}</span>
-          <span class="masq-event__val">${e.notice || '—'}</span>
+          <span class="masq-event__val${noiseWarnClass}">${e.noise || '—'}</span>
+          <span class="masq-event__val${noiseWarnClass}">${e.notice || '—'}</span>
         </div>`;
       }).join('');
 
@@ -1036,11 +1092,18 @@ function renderDetailPanel() {
   // Resonance grant / cleanse
   const resGrant = RESONANCE_GRANT[ability.name];
   const resCleanse = RESONANCE_CLEANSE.has(ability.name);
+  if (CONVO_ABILITIES.has(ability.name)) {
+    const resKey = RESONANCE_GRANT[ability.name];
+    html += `<div class="detail-panel__res-effect detail-panel__convo detail-panel__convo--${resKey}">
+      <img src="${CONVO_ICON}" alt="Conversation Ability">
+      <span>Conversation Ability</span>
+    </div>`;
+  }
   if (resGrant) {
     const resLabel = resGrant.charAt(0).toUpperCase() + resGrant.slice(1);
     html += `<div class="detail-panel__res-effect detail-panel__res-${resGrant}">
       <img src="${RES_ICONS[resGrant]}" alt="${resLabel}">
-      <span>Applies <strong>${resLabel}</strong> resonance to target</span>
+      <span>Applies <strong>${resLabel}</strong> resonance</span>
     </div>`;
   }
   if (resCleanse) {
@@ -1053,13 +1116,6 @@ function renderDetailPanel() {
     html += `<div class="detail-panel__res-effect detail-panel__feedable">
       <img src="${FEED_ICON}" alt="Makes Feedable">
       <span>Makes Feedable</span>
-    </div>`;
-  }
-  if (CONVO_ABILITIES.has(ability.name)) {
-    const resKey = RESONANCE_GRANT[ability.name];
-    html += `<div class="detail-panel__res-effect detail-panel__convo detail-panel__convo--${resKey}">
-      <img src="${CONVO_ICON}" alt="Conversation Ability">
-      <span>Conversation Ability</span>
     </div>`;
   }
   if (CANCELLABLE.has(ability.name)) {
@@ -1080,36 +1136,16 @@ function renderDetailPanel() {
     }
   }
 
-  // Combos
-  const comboIds = (typeof ABILITY_TO_COMBOS !== "undefined" && ABILITY_TO_COMBOS[ability.name]) || [];
-  if (comboIds.length > 0) {
-    const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id));
-    html += `<details class="detail-panel__res-effect detail-panel__combos">
-      <summary>
-        <img src="${COMBO_ICON}" alt="Combos">
-        <span>Combos (${matchedCombos.length})</span>
-      </summary>
-      <ul class="detail-panel__combos-list">`;
-    for (const c of matchedCombos) {
-      html += `<li>
-        <button class="detail-panel__combo-link" data-combo-id="${c.id}">
-          <span class="detail-panel__combo-name">${c.name}</span>
-          <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
-        </button>
-      </li>`;
-    }
-    html += `</ul></details>`;
-  }
-
   // Costs
   html += `<div class="detail-panel__costs">`;
 
   const apCost = getAPCost(clanId, tier);
   if (apCost !== null) {
     const isAffinity = !isOwnClan && isAffinityAbility(clanId, tier);
+    const apClass = !isOwnClan ? (isAffinity ? ' affinity' : ' cross-clan') : '';
     html += `<div class="detail-panel__cost-row">
       <svg class="detail-panel__ap-icon" viewBox="0 0 16 16" width="14" height="14"><polygon points="8,1 15,8 8,15 1,8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-      <span>${apCost} AP</span>
+      <span class="detail-panel__ap-value${apClass}">${apCost} AP</span>
       ${isAffinity ? '<span class="affinity-discount">Affinity 50%</span>' : ''}
     </div>`;
   }
@@ -1161,14 +1197,68 @@ function renderDetailPanel() {
     const isUnlocked = isOutfitUnlocked(clanId, tier);
     html += `<div class="detail-panel__outfit-link">
       <span class="detail-panel__outfit-link-label">Outfit:</span>
-      ${isUnlocked
-        ? `<button class="detail-panel__outfit-btn" data-clan="${clanId}" data-idx="${outfitTierIdx}">${outfit.name} →</button>`
-        : `<span class="detail-panel__outfit-locked">${outfit.name} (locked)</span>`
-      }
+      <button class="detail-panel__outfit-btn" data-clan="${clanId}" data-idx="${outfitTierIdx}">${isUnlocked ? '← ' : ''}${outfit.name}${!isUnlocked ? ' (locked)' : ''}</button>
     </div>`;
   }
 
+  // Combos (below outfit)
+  const comboIds = (typeof ABILITY_TO_COMBOS !== "undefined" && ABILITY_TO_COMBOS[ability.name]) || [];
+  if (comboIds.length > 0) {
+    const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id));
+    html += `<details class="detail-panel__res-effect detail-panel__combos">
+      <summary>
+        <img src="${COMBO_ICON}" alt="Combos">
+        <span>Combos (${matchedCombos.length})</span>
+      </summary>
+      <ul class="detail-panel__combos-list">`;
+    for (const c of matchedCombos) {
+      html += `<li>
+        <button class="detail-panel__combo-link" data-combo-id="${c.id}">
+          <span class="detail-panel__combo-name">${c.name}</span>
+          <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
+          <span class="detail-panel__combo-arrow">→</span>
+        </button>
+      </li>`;
+    }
+    html += `</ul></details>`;
+  }
+
   panel.innerHTML = html;
+
+  // Noise-warn tooltip (Unseen Passage easter egg)
+  panel.querySelectorAll('.masq-val-noise-warn').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = `<div class="tooltip__name" style="color:var(--red)">WHY THE F#$% IS THIS AS NOISY AS VAMPIRIC SPRINT?!1</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    el.addEventListener('mousemove', positionTooltip);
+    el.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  });
+
+  // Masquerade section header tooltip
+  const masqSummary = panel.querySelector('.detail-panel__masq-summary');
+  if (masqSummary) {
+    masqSummary.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = `<div class="tooltip__name">Masquerade Impact</div><div class="tooltip__desc">Denotes when this ability use is witnessed — some abilities are safe provided no NPCs or cops see you.</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    masqSummary.addEventListener('mousemove', positionTooltip);
+    masqSummary.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  }
+
+  // Trainer badge tooltip
+  const trainerBadge = panel.querySelector('.detail-panel__trainer');
+  if (trainerBadge) {
+    trainerBadge.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = `<div class="tooltip__name">${trainerBadge.dataset.trainerPos}</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    trainerBadge.addEventListener('mousemove', positionTooltip);
+    trainerBadge.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  }
 
   // Bind video lightbox click
   const videoWrap = panel.querySelector(".detail-panel__video");
