@@ -431,7 +431,6 @@ function createAbilityCell(clanId, tier) {
     const unlockable = canUnlock(clanId, tier);
     if (unlockable) {
       const apCost = getAPCost(clanId, tier);
-      html += `<img class="ability-cell__lock-overlay" src="${UI.lockIcon}" alt="Locked">`;
       html += `<span class="ability-cell__ap-cost">${apCost}</span>`;
     }
   }
