@@ -51,6 +51,84 @@ function buildComboAbilityIcon(abilityName) {
   </button>`;
 }
 
+// ── Cost cell builder ───────────────────────────────────────────
+const AP_DIAMOND = `<svg class="combo-cost__ap-icon" viewBox="0 0 16 16" width="10" height="10"><polygon points="8,1 15,8 8,15 1,8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`;
+
+function buildComboCostCell(combo) {
+  const spent = buildComboTotalSpent(combo);
+  const left  = buildComboTotalLeft(combo);
+  if (!spent && !left) return '';
+  let html = `<div class="combo-cost">`;
+  if (spent) html += `<div class="combo-cost__section"><span class="combo-cost__label combo-cost__label--spent">Spent</span>${spent}</div>`;
+  if (left)  html += `<div class="combo-cost__section"><span class="combo-cost__label combo-cost__label--left">Left</span>${left}</div>`;
+  html += `</div>`;
+  return html;
+}
+
+function buildComboTotalSpent(combo) {
+  let apSpent = 0, sanSpent = 0, melSpent = 0, choSpent = 0;
+  for (const name of combo.abilities) {
+    const loc = ABILITY_LOCATION[name];
+    if (!loc) continue;
+    const ability   = ABILITIES[loc.clan][loc.tier];
+    const abilState = state.abilities[`${loc.clan}:${loc.tier}`] || "locked";
+    const isCross   = loc.clan !== state.selectedClan;
+    const isUnlocked = abilState === "unlocked";
+    const isAwakened = abilState === "awakened";
+    // AP spent = unlocked
+    if (isUnlocked) {
+      const ap = getAPCost(loc.clan, loc.tier);
+      if (ap !== null) apSpent += ap;
+    }
+    // Resonance spent = awakened or unlocked (cross-clan non-perk)
+    if (isCross && (isAwakened || isUnlocked) && loc.tier !== "perk" && loc.tier !== "passive") {
+      sanSpent += ability.resonance.san || 0;
+      melSpent += ability.resonance.mel || 0;
+      choSpent += ability.resonance.cho || 0;
+    }
+  }
+  if (apSpent === 0 && sanSpent === 0 && melSpent === 0 && choSpent === 0) return "";
+  let html = `<div class="combo-total combo-total--spent">`;
+  if (apSpent > 0) html += `<span class="combo-total__ap">${AP_DIAMOND}${apSpent}</span>`;
+  if (sanSpent > 0) html += `<span class="combo-total__res"><img src="${UI.resSanguine}" alt="San">${sanSpent}</span>`;
+  if (melSpent > 0) html += `<span class="combo-total__res"><img src="${UI.resMelancholic}" alt="Mel">${melSpent}</span>`;
+  if (choSpent > 0) html += `<span class="combo-total__res"><img src="${UI.resCholeric}" alt="Cho">${choSpent}</span>`;
+  html += `</div>`;
+  return html;
+}
+
+function buildComboTotalLeft(combo) {
+  let apLeft = 0, sanLeft = 0, melLeft = 0, choLeft = 0;
+  for (const name of combo.abilities) {
+    const loc = ABILITY_LOCATION[name];
+    if (!loc) continue;
+    const ability   = ABILITIES[loc.clan][loc.tier];
+    const abilState = state.abilities[`${loc.clan}:${loc.tier}`] || "locked";
+    const isCross   = loc.clan !== state.selectedClan;
+    const isUnlocked = abilState === "unlocked";
+    const isAwakened = abilState === "awakened";
+    // AP left = not yet unlocked
+    if (!isUnlocked) {
+      const ap = getAPCost(loc.clan, loc.tier);
+      if (ap !== null) apLeft += ap;
+    }
+    // Resonance left = cross-clan not yet awakened or unlocked
+    if (isCross && !isAwakened && !isUnlocked && loc.tier !== "perk" && loc.tier !== "passive") {
+      sanLeft += ability.resonance.san || 0;
+      melLeft += ability.resonance.mel || 0;
+      choLeft += ability.resonance.cho || 0;
+    }
+  }
+  if (apLeft === 0 && sanLeft === 0 && melLeft === 0 && choLeft === 0) return "";
+  let html = `<div class="combo-total combo-total--left">`;
+  if (apLeft > 0) html += `<span class="combo-total__ap">${AP_DIAMOND}${apLeft}</span>`;
+  if (sanLeft > 0) html += `<span class="combo-total__res"><img src="${UI.resSanguine}" alt="San">${sanLeft}</span>`;
+  if (melLeft > 0) html += `<span class="combo-total__res"><img src="${UI.resMelancholic}" alt="Mel">${melLeft}</span>`;
+  if (choLeft > 0) html += `<span class="combo-total__res"><img src="${UI.resCholeric}" alt="Cho">${choLeft}</span>`;
+  html += `</div>`;
+  return html;
+}
+
 // ── Main render ───────────────────────────────────────────────
 function renderCombosPage() {
   const container = document.getElementById("combos-table-container");
@@ -74,6 +152,7 @@ function renderCombosPage() {
         <tr>
           <th class="combos-table__th combos-table__th--name">Combo</th>
           <th class="combos-table__th combos-table__th--abilities">Abilities</th>
+          <th class="combos-table__th combos-table__th--cost">Cost</th>
           <th class="combos-table__th combos-table__th--explanation">Explanation</th>
           <th class="combos-table__th combos-table__th--rank">Rank</th>
         </tr>
@@ -114,6 +193,7 @@ function renderCombosPage() {
         <td class="combos-table__td combos-table__td--abilities">
           <div class="combo-abilities">${abilitiesHtml}</div>
         </td>
+        <td class="combos-table__td combos-table__td--cost">${buildComboCostCell(combo)}</td>
         <td class="combos-table__td combos-table__td--explanation">${explanationHtml}</td>
         <td class="combos-table__td combos-table__td--rank">
           <span class="combo-rank ${RANK_CLASS[combo.rank] || ""}">${combo.rank}</span>
@@ -142,8 +222,8 @@ function renderCombosPage() {
       sharedTooltip.classList.remove("tooltip--visible");
     });
     btn.addEventListener("click", () => {
-      // Auto-select the clan if different from current, then navigate
-      if (state.selectedClan !== clan) {
+      // Only auto-select the clan if none is currently chosen
+      if (!state.selectedClan) {
         selectClan(clan);
       }
       navigateToAbility(clan, tier);

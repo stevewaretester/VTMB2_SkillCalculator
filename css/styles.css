@@ -545,6 +545,8 @@ body {
 
 .tab-bar--secondary {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    justify-content: center;
 }
 
 .tab-bar--secondary .tab-bar__tab {
@@ -552,6 +554,16 @@ body {
     padding: 6px 22px;
     letter-spacing: 1px;
 }
+
+.tab-bar__tab--aside {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    opacity: 0.7;
+}
+
+.tab-bar__tab--aside:nth-last-of-type(1) { right: 0; }
+.tab-bar__tab--aside:nth-last-of-type(2) { right: 75px; }
 
 /* ── Pages ────────────────────────────────────────────────── */
 .page.hidden,

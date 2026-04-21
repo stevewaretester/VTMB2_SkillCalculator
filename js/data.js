@@ -33,6 +33,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Brujah.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_Brujah.png`,
     color: "#c44121",
+    descr: "The Brujah's power lies in their strength and swiftness. They use these skills to turn the tide of battle — acting fast, hitting hard, and goading their foes into making a fatal move. A Brujah is an unstoppable force in a fight, their unparalleled prowess ensuring they remain on top.",
+    mastery: "NORMAL",
+    trainerName: "Silky",
+    trainerPos:  "Silky at The Dutchman",
   },
   tremere: {
     name: "Tremere",
@@ -42,6 +46,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Tremere.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_Tremere.png`,
     color: "#6b2fa0",
+    descr: "Members of Clan Tremere wield arcane powers and can bend blood to their will, weaponizing it against their foes. Their sorcery affects not only their own Blood but also that of their enemies, and they are able to inflict great pain and destruction on those that oppose them.",
+    mastery: "NORMAL",
+    trainerName: "Mrs. Thorn",
+    trainerPos:  "Mrs. Thorn at Wake the Dead",
   },
   banuHaqim: {
     name: "Banu Haqim",
@@ -51,6 +59,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Banu.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_BanuHaqim.png`,
     color: "#1a3a5c",
+    descr: "The Banu Haqim are silent judges, lawbringers, and executioners. Swift and deadly, they can silence and dispatch their foes through both violence and sorcery. Banu Haqim can take down an enemy with chilling precision in the blink of a mortal eye, before disappearing without a trace.",
+    mastery: "HARD",
+    trainerName: "Niko",
+    trainerPos:  "Niko at Aurora Pawn",
   },
   ventrue: {
     name: "Ventrue",
@@ -60,6 +72,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Ventrue.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_Ventrue.png`,
     color: "#b8962e",
+    descr: "The Ventrue are masters of control, subduing and puppeteering others through sheer force of personality and will. They can freeze enemies in their tracks, turn them against each other, or make them forget they were even there. The Ventrue's resilience also allows them to withstand attacks and survive inevitable reprisals.",
+    mastery: "EASY",
+    trainerName: "Fletcher",
+    trainerPos:  "Fletcher at Makom Bar",
   },
   lasombra: {
     name: "Lasombra",
@@ -69,6 +85,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Lasombra.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_Lasombra.png`,
     color: "#2a2a3a",
+    descr: "Lasombra use their power to stoke the fires of fear in enemies and allies alike. Masters of shadow, they bend the darkness to their will. Capable of nightmarish feats, they weaponize their control of shadows to isolate, ensnare, and instill dread in any target.",
+    mastery: "HARD",
+    trainerName: "Onda",
+    trainerPos:  "Onda at Glacier Hotel",
   },
   toreador: {
     name: "Toreador",
@@ -78,6 +98,10 @@ const CLANS = {
     column:        `${COLUMNS}/T_UI_ClanColumn_Toreador.png`,
     pattern:       `${CLAN_SEL}/ClanPattern/T_UI_ClanSelect_Pattern_Toreador.png`,
     color: "#1a8a7a",
+    descr: "The Toreador's enthralling presence allows them to make the first move, often before their enemy has a chance to react. They can entrance their victims and enemies, luring them in and blinding them to the danger in front of them — until it is too late.",
+    mastery: "NORMAL",
+    trainerName: "Patience",
+    trainerPos:  "Patience at Aurora Pawn",
   },
 };
 
@@ -200,7 +224,7 @@ const MASQUERADE = {
   banuHaqim: {
     passive:  [],
     perk: [
-      { label: "Prowl", initial: 35, perSec: 9, noise: 550, notice: 300, violent: false },
+      { label: "Prowl", initial: 35, perSec: 9, noise: 550, notice: 300, violent: false, noiseWarn: true },
     ],
     strike: [
       { label: "Hit",         initial: 60, perSec:  0, noise:  150, notice:   0, violent: true  },
@@ -741,40 +765,40 @@ const SILO = `${TEX}/N_Textures/Outfit/Silhouettes`;
 
 const OUTFITS = {
   brujah: [
-    { name: "The Drifter",   tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_03.png` },
-    { name: "The Brawler",   tier: "relocate",  type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_04.png` },
-    { name: "The Rebel",     tier: "affect",    type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_01.png` },
-    { name: "The Outcast",   tier: "mastery",   type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_02.png` },
+    { name: "The Drifter",   tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_03.png`,     desc: "Not the kind to settle down, or to stick with the status quo. They'd make their own path no matter the odds." },
+    { name: "The Brawler",   tier: "relocate",  type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_04.png`,     desc: "They moved through the world like a raging bull, and you knew not to stand in the way." },
+    { name: "The Rebel",     tier: "affect",    type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_01.png`,     desc: "This one looked like trouble. The kind that kicks down doors and dares the world to push back." },
+    { name: "The Outcast",   tier: "mastery",   type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_Brujah_02.png`,     desc: "Someone who didn't fit in, and didn't give a damn, with no time for the rules and no patience for fools." },
   ],
   tremere: [
-    { name: "The Trickster", tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_01.png` },
-    { name: "The Warlock",   tier: "relocate",  type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_04.png` },
-    { name: "The Mage",      tier: "affect",    type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_03.png` },
-    { name: "The Magister",  tier: "mastery",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_02.png` },
+    { name: "The Trickster", tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_01.png`,    desc: "A whip-smart survivor of the streets, quick of hand and mind, and always too clever for the opposition." },
+    { name: "The Warlock",   tier: "relocate",  type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_04.png`,    desc: "The clear gaze of a subtle mind, and a controlled, brooding aura that hinted at deep mastery." },
+    { name: "The Mage",      tier: "affect",    type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_03.png`,    desc: "They looked like they'd been through hell and fought their way back with blood-sorcery and style." },
+    { name: "The Magister",  tier: "mastery",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Tremere_02.png`,    desc: "Steeped in power and lore, a master of the arcane arts, skills honed by long years of deadly application." },
   ],
   banuHaqim: [
-    { name: "The Stalker",   tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_03.png` },
-    { name: "The Slayer",    tier: "relocate",  type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_04.png` },
-    { name: "The Sheriff",   tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_01.png` },
-    { name: "The Justicar",  tier: "mastery",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_02.png` },
+    { name: "The Stalker",   tier: "strike",   type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_03.png`, desc: "A moment of silence, a gleam in the dark, and an end to existence. Look, and they were already gone." },
+    { name: "The Slayer",    tier: "relocate",  type: "grunge",     thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_04.png`, desc: "It was clear they'd spent their time going toe-to-toe with monsters - human, Kindred, or otherwise." },
+    { name: "The Sheriff",   tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_01.png`, desc: "Steely-eyed and standing tall, this one would be found right at the heart of the matter." },
+    { name: "The Justicar",  tier: "mastery",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Banu_Haqim_02.png`, desc: "When an act deserved to reap the consequences, this might just be the face of your judgement." },
   ],
   ventrue: [
-    { name: "The Seneschal", tier: "strike",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_02.png` },
-    { name: "The Prince",    tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_04.png` },
-    { name: "The Herald",    tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_01.png` },
-    { name: "The General",   tier: "mastery",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_03.png` },
+    { name: "The Seneschal", tier: "strike",   type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_02.png`,    desc: "Considered, urbane, this one looked like they knew which levers to pull and where to apply the pressure." },
+    { name: "The Prince",    tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_04.png`,    desc: "Strength and power clothed in a panther-like grace, and an aura of command that you could feel a mile away." },
+    { name: "The Herald",    tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_01.png`,    desc: "The considered courtesy of the true political adept, masking the iron will of centuries of survival." },
+    { name: "The General",   tier: "mastery",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_Ventrue_03.png`,    desc: "They had earned that arrogant stance through years of decisive victory, leaving corpses in their wake." },
   ],
   lasombra: [
-    { name: "The Atheist",       tier: "strike",   type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_04.png` },
-    { name: "The Shadowdancer",  tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_02.png` },
-    { name: "The Sin Eater",     tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_01.png` },
-    { name: "The Priest",        tier: "mastery",   type: "priest",     thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_03.png` },
+    { name: "The Atheist",       tier: "strike",   type: "strong",     thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_04.png`,  desc: "Their very presence drew the light away - an inescapable spiral into velvet darkness." },
+    { name: "The Shadowdancer",  tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_02.png`,  desc: "A beguiling form of smoke and shadow that drew the eye into danger and delight." },
+    { name: "The Sin Eater",     tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_01.png`,  desc: "A true creature of the night, seemingly clothed in centuries of the world's transgressions." },
+    { name: "The Priest",        tier: "mastery",   type: "priest",     thumb: `${SILO}/T_UI_Thumb_Phyre_LaSombra_03.png`,  desc: "They seemed the chosen predator of the divine - a single glance and they would know every one of your sins." },
   ],
   toreador: [
-    { name: "The Player",   tier: "strike",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_01.png` },
-    { name: "The Poet",     tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_02.png` },
-    { name: "The Elder",    tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Toreador_04.png` },
-    { name: "The Diva",     tier: "mastery",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_03.png` },
+    { name: "The Player",   tier: "strike",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_01.png`,         desc: "Sleek, sharp, and wicked, they moved like nothing human and their eyes were just for you, only you." },
+    { name: "The Poet",     tier: "relocate",  type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_02.png`,         desc: "The troubador, the wordsmith, the raconteur - it was in every movement, every gesture, every word." },
+    { name: "The Elder",    tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Toreador_04.png`,         desc: "Centuries of wickedness and delicious temptation, wrapped in style and glamor, with a smile that cut like a knife." },
+    { name: "The Diva",     tier: "mastery",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_03.png`,         desc: "The center of attention, the star of every show. When they walked into a room why would anything else matter?" },
   ],
 };
 

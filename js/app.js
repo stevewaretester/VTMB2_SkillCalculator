@@ -51,7 +51,7 @@ function bindTabs() {
   });
 
   // Secondary tabs within Phyre (Skill Tree, Outfits)
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary .tab-bar__tab");
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab");
   secondaryTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       secondaryTabs.forEach(t => t.classList.remove("active"));
@@ -64,6 +64,17 @@ function bindTabs() {
       if (tab.dataset.subtab === "combos" && typeof renderCombosPage === "function") {
         renderCombosPage();
       }
+    });
+  });
+
+  // Fabien sub-tabs
+  const fabienTabs = document.querySelectorAll(".tab-bar--fabien .tab-bar__tab");
+  fabienTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      fabienTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".fabien-subpage").forEach(p => p.classList.add("hidden"));
+      document.getElementById(`fabien-subpage-${tab.dataset.fabtab}`).classList.remove("hidden");
     });
   });
 }
@@ -366,8 +377,8 @@ function renderGrid() {
 
     // Rich sharedTooltip on the logo showing controls legend
     const logoImg = header.querySelector('.clan-col-header__logo');
-    const LMB = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png';
-    const RMB = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png';
+    const LMB = 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png';
+    const RMB = 'assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png';
     const SHF = 'UI_export/Textures/Keyboard/T_UI_Keyboard_Shift_Left.png';
     const headerTooltip =
       `<div class="tooltip__controls-row"><img src="${LMB}" alt="LMB"> Purchase all</div>` +

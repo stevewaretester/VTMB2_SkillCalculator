@@ -43,17 +43,9 @@ function initOutfits() {
 
 // Called by app.js when switching to the outfits tab
 function refreshOutfitsPage() {
-  // Sync clan from skill tree
-  if (state.selectedClan) {
+  // Sync clan from skill tree, but only if we're not navigating to a specific outfit
+  if (state.selectedClan && !outfitState.focusedOutfit) {
     outfitState.selectedClan = state.selectedClan;
-  }
-  // Clear focus if the focused outfit is no longer unlocked
-  if (outfitState.focusedOutfit) {
-    const { clanId, index } = outfitState.focusedOutfit;
-    const outfit = OUTFITS[clanId][index];
-    if (!isOutfitUnlocked(clanId, outfit.tier)) {
-      outfitState.focusedOutfit = null;
-    }
   }
   renderOutfitGrid();
   renderOutfitDetail();
@@ -104,7 +96,7 @@ function renderOutfitGrid() {
       if (isUnlocked) {
         cell.innerHTML = `<img class="outfit-cell__thumb" src="${outfit.thumb}" alt="${outfit.name}">
           <div class="outfit-cell__name">${outfit.name}</div>
-          <div class="outfit-cell__type">${OUTFIT_TYPES[outfit.type].label}</div>`;
+          <div class="outfit-cell__type outfit-type--${outfit.type}">${OUTFIT_TYPES[outfit.type].label}</div>`;
       } else {
         cell.innerHTML = `<img class="outfit-cell__lock" src="${UI.blockedPadlock}" alt="Locked">
           <div class="outfit-cell__name">${outfit.name}</div>`;
@@ -112,7 +104,17 @@ function renderOutfitGrid() {
 
       cell.style.cursor = "pointer";
       cell.addEventListener("click", () => {
-        outfitState.focusedOutfit = { clanId, index: tierIdx };
+        const alreadyFocused = outfitState.focusedOutfit &&
+          outfitState.focusedOutfit.clanId === clanId &&
+          outfitState.focusedOutfit.index === tierIdx;
+        outfitState.focusedOutfit = alreadyFocused ? null : { clanId, index: tierIdx };
+        renderOutfitGrid();
+        renderOutfitDetail();
+        renderReactionsTable();
+      });
+      cell.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        outfitState.focusedOutfit = null;
         renderOutfitGrid();
         renderOutfitDetail();
         renderReactionsTable();
@@ -177,6 +179,11 @@ function renderOutfitDetail() {
   // Name
   html += `<div class="outfit-detail__name">${outfit.name}</div>`;
 
+  // Description
+  if (outfit.desc) {
+    html += `<div class="outfit-detail__desc">${outfit.desc}</div>`;
+  }
+
   // Type badge
   html += `<div class="outfit-detail__type outfit-type--${outfit.type}">${typeData.label}</div>`;
 
@@ -199,7 +206,7 @@ function renderOutfitDetail() {
   // Skill tree link
   html += `<div class="outfit-detail__req">
     <button class="outfit-detail__skilltree-btn" data-clan="${clanId}" data-tier="${outfit.tier}">
-      ← View in Skill Tree: ${ability.name}
+      View in Skill Tree: ${ability.name} →
     </button>
   </div>`;
 
@@ -247,7 +254,7 @@ function getUnlockedAffects() {
     if (s === "unlocked" || s === "awakened") {
       const res = AFFECT_RESONANCE[ability.name];
       if (res) {
-        unlocked.push({ name: ability.name, resonance: res, clanId });
+        unlocked.push({ name: ability.name, resonance: res, clanId, tier: "affect" });
       }
     }
   }
@@ -260,15 +267,6 @@ function renderReactionsTable() {
   const container = document.getElementById("reactions-tables");
   container.innerHTML = "";
 
-  if (!outfitState.focusedOutfit) {
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-dim);">Select an unlocked outfit to see NPC reactions</div>';
-    return;
-  }
-
-  const { clanId, index } = outfitState.focusedOutfit;
-  const outfit = OUTFITS[clanId][index];
-  const typeData = OUTFIT_TYPES[outfit.type];
-
   const npcTypes = [
     { id: "homeless",     label: "Homeless" },
     { id: "biker",        label: "Biker" },
@@ -276,100 +274,161 @@ function renderReactionsTable() {
     { id: "business",     label: "Business" },
   ];
   const resTypes = [
-    { id: "san", icon: UI.resSanguineLg,   cssVar: "--res-sanguine" },
+    { id: "san", icon: UI.resSanguineLg,    cssVar: "--res-sanguine" },
     { id: "mel", icon: UI.resMelancholicLg, cssVar: "--res-melancholic" },
     { id: "cho", icon: UI.resCholericLg,    cssVar: "--res-choleric" },
   ];
+  const AFFECT_LINK_DEFS = [
+    { name: "Taunt",               lookup: "Taunt",               resVar: "--res-choleric" },
+    { name: "Beckon",              lookup: "Beckon",              resVar: "--res-sanguine" },
+    { name: "Glimpse of Oblivion", lookup: "Glimpse of Oblivion", resVar: "--res-melancholic" },
+  ];
 
-  // Helper: resonance icon header
   const resHeader = (r) => `<th><img class="reactions-res-icon" src="${r.icon}" alt="" title="${r.id}"></th>`;
 
-  // ── Table 1: Can you talk to them? (outfit type gating) ──
-  let html = `<h3 class="reactions-section__subtitle">Approach – <span class="outfit-type--${outfit.type}">${typeData.label}</span> outfit</h3>`;
-  html += `<table class="reactions-table"><thead><tr><th></th>`;
-  for (const r of resTypes) {
-    html += resHeader(r);
-  }
-  html += `</tr></thead><tbody>`;
-  for (const npc of npcTypes) {
-    html += `<tr><td>${npc.label}</td>`;
-    for (const r of resTypes) {
-      const val = typeData.reactions[npc.id][r.id];
-      html += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
-    }
-    html += `</tr>`;
-  }
-  html += `</tbody></table>`;
-
-  // ── Table 2: Affect abilities (resonance columns, gated by skill tree) ──
-  const unlockedAffects = getUnlockedAffects();
-  html += `<h3 class="reactions-section__subtitle">Affect Abilities</h3>`;
-  if (unlockedAffects.length === 0) {
-    html += `<div style="padding:8px; color:var(--text-dim);">No affect abilities unlocked. Unlock Taunt, Beckon, or Glimpse of Oblivion in the Skill Tree.</div>`;
-  } else {
-    html += `<table class="reactions-table"><thead><tr><th>Ability</th>`;
-    for (const r of resTypes) {
-      html += resHeader(r);
-    }
-    html += `</tr></thead><tbody>`;
-    for (const affect of unlockedAffects) {
-      html += `<tr><td>${affect.name}</td>`;
+  function buildApproachTable(typeKey, typeData) {
+    let h = `<h3 class="reactions-section__subtitle">Approach – <span class="outfit-type--${typeKey}">${typeData.label}</span></h3>`;
+    h += `<table class="reactions-table"><thead><tr><th></th>`;
+    for (const r of resTypes) h += resHeader(r);
+    h += `</tr></thead><tbody>`;
+    for (const npc of npcTypes) {
+      h += `<tr><td>${npc.label}</td>`;
       for (const r of resTypes) {
-        const val = affect.resonance[r.id];
-        html += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
+        const val = typeData.reactions[npc.id][r.id];
+        h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
       }
-      html += `</tr>`;
+      h += `</tr>`;
     }
-    html += `</tbody></table>`;
+    h += `</tbody></table>`;
+    return h;
   }
 
-  // ── Table 3: Conversation options + disposition ──
-  html += `<h3 class="reactions-section__subtitle">Conversation &amp; Disposition</h3>`;
-  html += `<table class="reactions-table"><thead><tr><th>Option</th>`;
-  for (const npc of npcTypes) {
-    html += `<th colspan="3">${npc.label}</th>`;
-  }
-  html += `</tr><tr><th></th>`;
-  for (let i = 0; i < npcTypes.length; i++) {
-    for (const r of resTypes) {
-      html += resHeader(r);
+  function buildAffectBlock() {
+    // Build a lookup of unlocked affect names from state
+    const unlockedNames = new Set();
+    const unlockedMeta = {}; // name -> { clanId, tier }
+    for (const clanId of CLAN_ORDER) {
+      const ability = ABILITIES[clanId].affect;
+      const key = `${clanId}:affect`;
+      const s = state.abilities[key];
+      if ((s === "unlocked" || s === "awakened") && !unlockedNames.has(ability.name)) {
+        unlockedNames.add(ability.name);
+        unlockedMeta[ability.name] = { clanId, tier: "affect" };
+      }
     }
-  }
-  html += `</tr></thead><tbody>`;
 
-  // Friendly / Aggressive rows (from this outfit's type)
-  html += `<tr><td class="convo-friendly">"${typeData.convo[0]}"</td>`;
-  for (const npc of npcTypes) {
-    for (const r of resTypes) {
-      const val = CONVO_EFFECTS.friendly[npc.id][r.id];
-      html += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
-    }
-  }
-  html += `</tr>`;
-  html += `<tr><td class="convo-aggressive">"${typeData.convo[1]}"</td>`;
-  for (const npc of npcTypes) {
-    for (const r of resTypes) {
-      const val = CONVO_EFFECTS.aggressive[npc.id][r.id];
-      html += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
-    }
-  }
-  html += `</tr>`;
+    let h = `<h3 class="reactions-section__subtitle">Affect Abilities</h3>`;
+    h += `<table class="reactions-table"><thead><tr><th>Ability</th>`;
+    for (const r of resTypes) h += resHeader(r);
+    h += `</tr></thead><tbody>`;
 
-  // Disposition rows
-  for (const [id, data] of Object.entries(DISPOSITIONS)) {
-    html += `<tr><td><strong>${id.charAt(0).toUpperCase() + id.slice(1)}</strong><br><span style="font-size:10px;color:var(--text-dim)">"${data.quote}"</span></td>`;
+    for (const a of AFFECT_LINK_DEFS) {
+      const res = AFFECT_RESONANCE[a.lookup];
+      const isUnlocked = unlockedNames.has(a.name);
+      const meta = unlockedMeta[a.name];
+      const loc = ABILITY_LOCATION[a.lookup];
+
+      if (isUnlocked && meta) {
+        h += `<tr>`;
+        h += `<td><button class="affect-link-btn" style="color:var(${a.resVar})" data-clan="${meta.clanId}" data-tier="${meta.tier}">${a.name}</button></td>`;
+        for (const r of resTypes) {
+          const val = res ? res[r.id] : false;
+          h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
+        }
+        h += `</tr>`;
+      } else {
+        const linkBtn = loc
+          ? `<button class="affect-link-btn affect-link-btn--locked" data-clan="${loc.clan}" data-tier="${loc.tier}">🔒 ${a.name}</button>`
+          : `<span class="affect-locked-name">🔒 ${a.name}</span>`;
+        h += `<tr class="affect-row--locked">`;
+        h += `<td>${linkBtn}</td>`;
+        for (const r of resTypes) {
+          const val = res ? res[r.id] : false;
+          h += `<td class="${val ? "react-pos react-pos--locked" : "react-neg react-neg--locked"}">${val ? "✓" : "✗"}</td>`;
+        }
+        h += `</tr>`;
+      }
+    }
+
+    h += `</tbody></table>`;
+    return h;
+  }
+
+  function buildConvoBlock(friendlyLabel, aggressiveLabel) {
+    let h = `<h3 class="reactions-section__subtitle">Conversation &amp; Disposition</h3>`;
+    h += `<table class="reactions-table"><thead><tr><th>Option</th>`;
+    for (const npc of npcTypes) h += `<th colspan="3">${npc.label}</th>`;
+    h += `</tr><tr><th></th>`;
+    for (let i = 0; i < npcTypes.length; i++) for (const r of resTypes) h += resHeader(r);
+    h += `</tr></thead><tbody>`;
+
+    h += `<tr><td class="convo-friendly">${friendlyLabel}</td>`;
     for (const npc of npcTypes) {
       for (const r of resTypes) {
-        const val = data[npc.id][r.id];
-        html += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
+        const val = CONVO_EFFECTS.friendly[npc.id][r.id];
+        h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
       }
     }
-    html += `</tr>`;
+    h += `</tr>`;
+    h += `<tr><td class="convo-aggressive">${aggressiveLabel}</td>`;
+    for (const npc of npcTypes) {
+      for (const r of resTypes) {
+        const val = CONVO_EFFECTS.aggressive[npc.id][r.id];
+        h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
+      }
+    }
+    h += `</tr>`;
+
+    for (const [id, data] of Object.entries(DISPOSITIONS)) {
+      h += `<tr><td><strong>${id.charAt(0).toUpperCase() + id.slice(1)}</strong><br><span style="font-size:10px;color:var(--text-dim)">"${data.quote}"</span></td>`;
+      for (const npc of npcTypes) {
+        for (const r of resTypes) {
+          const val = data[npc.id][r.id];
+          h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
+        }
+      }
+      h += `</tr>`;
+    }
+    h += `</tbody></table>`;
+    return h;
   }
 
-  html += `</tbody></table>`;
+  let html = "";
+
+  if (!outfitState.focusedOutfit) {
+    // ── Default view: all outfit types ──
+    for (const typeKey of ["grunge", "strong", "wealthy", "attractive", "priest"]) {
+      const td = OUTFIT_TYPES[typeKey];
+      if (td) html += buildApproachTable(typeKey, td);
+    }
+    html += buildAffectBlock();
+    html += buildConvoBlock(
+      '<span class="convo-friendly">First Option</span>',
+      '<span class="convo-aggressive">Second Option</span>'
+    );
+  } else {
+    // ── Focused outfit view ──
+    const { clanId, index } = outfitState.focusedOutfit;
+    const outfit = OUTFITS[clanId][index];
+    const typeData = OUTFIT_TYPES[outfit.type];
+    html += buildApproachTable(outfit.type, typeData);
+    html += buildAffectBlock();
+    html += buildConvoBlock(
+      `<span class="convo-friendly">"${typeData.convo[0]}"</span>`,
+      `<span class="convo-aggressive">"${typeData.convo[1]}"</span>`
+    );
+  }
 
   container.innerHTML = html;
+
+  container.querySelectorAll(".affect-link-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (typeof navigateToAbility === "function") {
+        if (!state.selectedClan) selectClan(btn.dataset.clan);
+        navigateToAbility(btn.dataset.clan, btn.dataset.tier);
+      }
+    });
+  });
 }
 
 // ── Initialize on load ───────────────────────────────────────
