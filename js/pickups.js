@@ -96,6 +96,17 @@ const ELIXIRS = [
     craftCost: '150 Melancholic',
     craftTokens: { mel: 150 },
   },
+  {
+    id: 'xp_collectible',
+    name: 'XP Collectible',
+    iconSil: 'assets/ElixirIcons/icon_phyre_mark.png',
+    iconBg:  'radial-gradient(circle at 35% 35%, rgba(113,75,173,0.9), rgba(42,82,168,0.75) 55%, rgba(15,24,52,0.9))',
+    iconClass: 'pickup-phyre-icon',
+    effect: 'Found in the world, raises Phyre\'s max HP.',
+    magnitude: '+1.9 Max HP',
+    duration: 'Permanent',
+    missionOnly: false,
+  },
 ];
 
 // Alchemy utility actions (MAHAH mod)
@@ -107,8 +118,8 @@ const ALCHEMY_EXTRA = [
   { key: 'Num 9', action: 'Exchange Melancholic',     iconType: 'exchange-cost', costTokens: { mel: 150 },          resultTokens: { san: 50, cho: 50 } },
   { key: 'Num +', action: 'Resonance → AP',           iconType: 'res-to-ap',    costTokens: { san: 500, cho: 500, mel: 500 }, resultTokens: { ap: 1 } },
   { key: 'Num -', action: 'AP → Resonance',           iconType: 'ap-to-res',    costTokens: { ap: 1 },             resultTokens: { san: 300, cho: 300, mel: 300 } },
-  { key: 'Num /', action: 'AP → Elixir Cap',          iconType: 'bottle',       costTokens: { ap: 1 },             result: '+1 elixir capacity' },
-  { key: 'Num *', action: 'AP → Max HP',              iconType: 'phyre',        costTokens: { ap: 1 },             result: '+5 Phyre Marks (health collectibles, +9.5 Max HP)', havenAltName: 'XP collectible', havenAltEffect: 'Found in the world, raises Phyre\'s max HP.', havenAltMagnitude: '+1.9 Max HP', havenAltDuration: 'Permanent' },
+  { key: 'Num /', action: 'AP → Elixir Cap',          iconType: 'bottle',       costTokens: { ap: 1 },             result: '+1 elixir capacity',                               duration: 'Permanent' },
+  { key: 'Num *', action: 'AP → Max HP',              iconType: 'phyre-gold',   costTokens: { ap: 1 },             result: '+5 Phyre Marks (health collectibles, +9.5 Max HP)', duration: 'Permanent' },
   { key: 'F1',    action: 'Show Station Note',        iconType: 'station-note', cost: '—',                         result: 'Display HUD note' },
 ];
 
@@ -284,6 +295,13 @@ function renderAlchemyRowIcon(row) {
     </div>`;
   }
 
+  if (row.iconType === 'phyre-gold') {
+    return `<div class="pickup-img-slot pickup-img-slot--phyre-gold" title="AP to Max HP (+5 Phyre Marks)">
+      <img class="pickup-phyre-icon pickup-phyre-icon--gold" src="assets/ElixirIcons/icon_phyre_mark.png" alt="Phyre Mark">
+      <span class="pickup-phyre-count">×5</span>
+    </div>`;
+  }
+
   if (row.iconType === 'station-note') {
     return `<div class="pickup-img-slot" title="Show Station Note">
       <img src="assets/ElixirIcons/icon_station_note.png" alt="Station Note">
@@ -296,7 +314,34 @@ function renderAlchemyRowIcon(row) {
 }
 
 // ── Render ───────────────────────────────────────────────────
+function updatePickupsTabLabels() {
+  const havenActive = typeof state !== 'undefined' && state.modHaven;
+
+  const weaponsTab  = document.querySelector('[data-pickuptab="weapons"]');
+  const itemsTab    = document.querySelector('[data-pickuptab="items"]');
+  const weaponsTitle = document.querySelector('#pickups-subpage-weapons .pickups-section-title');
+  const itemsTitle   = document.querySelector('#pickups-subpage-items .pickups-section-title');
+
+  if (weaponsTab) {
+    weaponsTab.textContent = havenActive ? 'Shadow Broker' : 'Weapons';
+    weaponsTab.classList.toggle('tab--shadow-broker', havenActive);
+  }
+  if (itemsTab) {
+    itemsTab.textContent = havenActive ? 'Blood Alchemy' : 'Items';
+    itemsTab.classList.toggle('tab--blood-alchemy', havenActive);
+  }
+  if (weaponsTitle) {
+    weaponsTitle.textContent = havenActive ? 'Shadow Broker' : 'Weapons';
+    weaponsTitle.classList.toggle('pickups-section-title--shadow', havenActive);
+  }
+  if (itemsTitle) {
+    itemsTitle.textContent = havenActive ? 'Blood Alchemy' : 'Items';
+    itemsTitle.classList.toggle('pickups-section-title--blood', havenActive);
+  }
+}
+
 function renderPickupsPage() {
+  updatePickupsTabLabels();
   renderWeaponsPage();
   renderItemsPage();
 }
@@ -446,22 +491,22 @@ function renderItemsPage() {
       costText: e.craftCost || '—',
       iconBg: e.iconBg,
       iconSil: e.iconSil,
+      iconClass: e.iconClass,
       source: e,
     });
   }
 
   if (havenActive) {
     for (const r of ALCHEMY_EXTRA) {
-      const isMaxHpRow = r.key === 'Num *';
       itemRows.push({
         rowKind: 'alchemy',
         key: r.key,
-        name: isMaxHpRow && r.havenAltName ? r.havenAltName : r.action,
-        effect: isMaxHpRow && r.havenAltEffect ? r.havenAltEffect : 'Alchemy Station utility',
-        magnitude: isMaxHpRow && r.havenAltMagnitude ? r.havenAltMagnitude : (r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—')),
-        duration: isMaxHpRow && r.havenAltDuration ? r.havenAltDuration : 'Instant',
-        costTokens: isMaxHpRow ? null : r.costTokens,
-        costText: isMaxHpRow ? '—' : (r.cost || '—'),
+        name: r.action,
+        effect: 'Alchemy Station utility',
+        magnitude: r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—'),
+        duration: r.duration || 'Instant',
+        costTokens: r.costTokens,
+        costText: r.cost || '—',
         source: r,
       });
     }
@@ -513,7 +558,7 @@ function renderItemsPage() {
       <td class="col-img">
         <div class="pickup-img-slot pickup-img-slot--elixir"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
           ${row.iconSil
-            ? `<img src="${row.iconSil}" alt="${row.name}" class="elixir-icon-sil">`
+            ? `<img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">`
             : `<span class="pickup-img-slot__placeholder">?</span>`}
         </div>
       </td>

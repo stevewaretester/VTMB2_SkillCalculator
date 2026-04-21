@@ -151,8 +151,18 @@ body {
     padding: 28px 32px;
     max-width: 540px;
     width: 90%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
     position: relative;
     box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+
+.modal-card__body {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 6px;
+    margin-right: -6px;
 }
 
 .modal-card__close {
@@ -2603,6 +2613,42 @@ body {
     letter-spacing: 1px;
 }
 
+.tab-bar--pickups .tab--shadow-broker {
+    color: #9b8ec4;
+    text-shadow: 0 0 8px rgba(100, 60, 180, 0.8), 0 1px 3px rgba(0,0,0,0.9);
+    letter-spacing: 2px;
+}
+
+.tab-bar--pickups .tab--shadow-broker.active {
+    color: #c4b0f0;
+    border-bottom-color: #7a50cc;
+    text-shadow: 0 0 12px rgba(130, 80, 220, 0.95), 0 0 4px rgba(80, 40, 140, 0.7);
+}
+
+.tab-bar--pickups .tab--blood-alchemy {
+    color: #b84040;
+    text-shadow: 0 0 8px rgba(180, 30, 30, 0.7), 0 1px 3px rgba(0,0,0,0.9);
+    letter-spacing: 2px;
+}
+
+.tab-bar--pickups .tab--blood-alchemy.active {
+    color: #e06060;
+    border-bottom-color: #aa2020;
+    text-shadow: 0 0 12px rgba(200, 40, 40, 0.95), 0 0 4px rgba(120, 20, 20, 0.7);
+}
+
+.pickups-section-title--shadow {
+    color: #9b8ec4;
+    text-shadow: 0 0 10px rgba(110, 65, 200, 0.7), 0 1px 4px rgba(0,0,0,0.9);
+    letter-spacing: 3px;
+}
+
+.pickups-section-title--blood {
+    color: #c04040;
+    text-shadow: 0 0 10px rgba(180, 30, 30, 0.7), 0 1px 4px rgba(0,0,0,0.9);
+    letter-spacing: 3px;
+}
+
 .pickups-subpage {
     padding: 16px;
 }
@@ -2903,6 +2949,32 @@ body {
     height: 70%;
     object-fit: contain;
     filter: hue-rotate(245deg) saturate(180%) brightness(1.15) drop-shadow(0 0 4px rgba(129, 99, 224, 0.8));
+}
+
+.pickup-img-slot--phyre-gold {
+    border-style: solid;
+    background: radial-gradient(circle at 35% 35%, rgba(230, 175, 45, 0.95), rgba(180, 115, 15, 0.85) 55%, rgba(70, 35, 5, 0.95));
+    box-shadow: 0 0 14px rgba(230, 175, 45, 0.75), inset 0 0 10px rgba(255, 210, 80, 0.4);
+    position: relative;
+}
+
+.pickup-phyre-icon--gold {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    filter: sepia(1) saturate(4) brightness(1.4) hue-rotate(5deg) drop-shadow(0 0 6px rgba(255, 200, 50, 0.95));
+}
+
+.pickup-phyre-count {
+    position: absolute;
+    bottom: 3px;
+    right: 5px;
+    font-size: 9px;
+    font-weight: bold;
+    color: #ffe080;
+    text-shadow: 0 0 5px rgba(255, 160, 0, 0.95);
+    line-height: 1;
+    pointer-events: none;
 }
 
 .pickup-img-slot__placeholder {
