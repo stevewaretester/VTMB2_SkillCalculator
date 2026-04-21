@@ -241,9 +241,10 @@ function bindToggles() {
     state.completionTalents = e.target.checked;
     renderGrid();
   });
-  // Shift+Click to force-enable disabled toggle
-  if (completionToggle) {
-    completionToggle.addEventListener("click", (e) => {
+  // Shift+Click on label to force-enable disabled toggle
+  const completionLabel = completionToggle && completionToggle.closest('label');
+  if (completionLabel) {
+    completionLabel.addEventListener("click", (e) => {
       if (e.shiftKey) {
         e.preventDefault();
         state.completionTalents = !state.completionTalents;
@@ -271,16 +272,19 @@ function bindToggles() {
       document.getElementById("goto-haven-items").classList.toggle("hidden", !e.target.checked);
       if (typeof renderPickupsPage === "function") renderPickupsPage();
     });
-    // Shift+Click to force-enable disabled toggle
-    havenToggle.addEventListener("click", (e) => {
-      if (e.shiftKey) {
-        e.preventDefault();
-        state.modHaven = !state.modHaven;
-        havenToggle.checked = state.modHaven;
-        document.getElementById("goto-haven-items").classList.toggle("hidden", !state.modHaven);
-        if (typeof renderPickupsPage === "function") renderPickupsPage();
-      }
-    });
+    // Shift+Click on label to force-enable disabled toggle
+    const havenLabel = havenToggle.closest('label');
+    if (havenLabel) {
+      havenLabel.addEventListener("click", (e) => {
+        if (e.shiftKey) {
+          e.preventDefault();
+          state.modHaven = !state.modHaven;
+          havenToggle.checked = state.modHaven;
+          document.getElementById("goto-haven-items").classList.toggle("hidden", !state.modHaven);
+          if (typeof renderPickupsPage === "function") renderPickupsPage();
+        }
+      });
+    }
   }
 
   document.getElementById("goto-fabien-phlegmatic").addEventListener("click", () => {
