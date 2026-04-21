@@ -23,7 +23,7 @@ const WEAPONS = [
   { id: 'megashotty',      name: 'Riot Gun',           type: 'Ranged', ammo: 5,  thrownDmg: 10,  projDmg: 3.4,      pelletCount: 8,  shadowKey: 'Num 8', shadowCost: '120 Melancholic' },
   { id: 'sniperrifle',     name: 'Sniper Rifle',       type: 'Ranged', ammo: 1,  thrownDmg: 10,  projDmg: 60.0,     shadowKey: 'Num 9', shadowCost: '150 Melancholic' },
   { id: 'crossbow',        name: 'Crossbow',           type: 'Ranged', ammo: 1,  thrownDmg: 10,  projDmg: 'Special', shadowKey: 'Num 9', shadowCost: '150 Melancholic' },
-  { id: 'mirror_station_note', name: 'Show Station Notes', type: 'Utility', ammo: 0, thrownDmg: '—', projDmg: '—', shadowKey: 'F1', shadowCost: '—' },
+  { id: 'mirror_station_note', name: 'Show Station Notes', type: 'Utility', ammo: 0, thrownDmg: '—', projDmg: '—', shadowKey: 'F1', shadowCost: '—', havenOnly: true },
   // Not directly produced by Shadow Mirror recipe list.
   { id: 'revolver',        name: 'Revolver',           type: 'Ranged', ammo: 6,  thrownDmg: 10,  projDmg: 10.0 },
 ];
@@ -108,7 +108,7 @@ const ALCHEMY_EXTRA = [
   { key: 'Num +', action: 'Resonance → AP',           iconType: 'res-to-ap',    costTokens: { san: 500, cho: 500, mel: 500 }, resultTokens: { ap: 1 } },
   { key: 'Num -', action: 'AP → Resonance',           iconType: 'ap-to-res',    costTokens: { ap: 1 },             resultTokens: { san: 300, cho: 300, mel: 300 } },
   { key: 'Num /', action: 'AP → Elixir Cap',          iconType: 'bottle',       costTokens: { ap: 1 },             result: '+1 elixir capacity' },
-  { key: 'Num *', action: 'AP → Max HP',              iconType: 'phyre',        costTokens: { ap: 1 },             result: '+5 Phyre Marks (health collectibles, +9.5 Max HP)' },
+  { key: 'Num *', action: 'AP → Max HP',              iconType: 'phyre',        costTokens: { ap: 1 },             result: '+5 Phyre Marks (health collectibles, +9.5 Max HP)', havenAltName: 'XP collectible', havenAltEffect: 'Found in the world, raises Phyre\'s max HP.', havenAltMagnitude: '+1.9 Max HP', havenAltDuration: 'Permanent' },
   { key: 'F1',    action: 'Show Station Note',        iconType: 'station-note', cost: '—',                         result: 'Display HUD note' },
 ];
 
@@ -325,6 +325,7 @@ function renderWeaponsPage() {
   };
 
   const weaponsRows = WEAPONS
+    .filter(w => !w.havenOnly || havenActive)
     .map((w, idx) => ({ w, idx }))
     .sort((a, b) => {
       if (!tableSort.key) return a.idx - b.idx;
@@ -451,15 +452,16 @@ function renderItemsPage() {
 
   if (havenActive) {
     for (const r of ALCHEMY_EXTRA) {
+      const isMaxHpRow = r.key === 'Num *';
       itemRows.push({
         rowKind: 'alchemy',
         key: r.key,
-        name: r.action,
-        effect: 'Alchemy Station utility',
-        magnitude: r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—'),
-        duration: 'Instant',
-        costTokens: r.costTokens,
-        costText: r.cost || '—',
+        name: isMaxHpRow && r.havenAltName ? r.havenAltName : r.action,
+        effect: isMaxHpRow && r.havenAltEffect ? r.havenAltEffect : 'Alchemy Station utility',
+        magnitude: isMaxHpRow && r.havenAltMagnitude ? r.havenAltMagnitude : (r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—')),
+        duration: isMaxHpRow && r.havenAltDuration ? r.havenAltDuration : 'Instant',
+        costTokens: isMaxHpRow ? null : r.costTokens,
+        costText: isMaxHpRow ? '—' : (r.cost || '—'),
         source: r,
       });
     }
@@ -528,7 +530,7 @@ function renderItemsPage() {
 
     const r = row.source;
     const costHtml = row.costTokens ? formatResourceTokens(row.costTokens) : row.costText;
-    const resultHtml = r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—');
+    const resultHtml = row.name === 'XP collectible' ? row.magnitude : (r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—'));
     html += `<tr class="pickups-row--alchemy">
       <td><kbd class="pickup-key">${row.key}</kbd></td>
       <td class="col-img">
