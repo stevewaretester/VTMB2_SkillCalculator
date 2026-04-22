@@ -107,6 +107,88 @@ const CLANS = {
 
 const CLAN_ORDER = ["brujah", "tremere", "banuHaqim", "ventrue", "lasombra", "toreador"];
 
+// ── Completion Talents (Clan Completion Talents mod) ─────────
+const COMPLETION_FRAME = 'assets/CompletionTalents/frame_completed.png';
+
+const BLOOD_HEAL_TALENT = {
+  name:          'Blood Heal',
+  nameCompleted: 'Blood Quickening',
+  icon:          'assets/CompletionTalents/blood_heal.png',
+  bloodPips:     2,
+  input:         'While holding nothing, sprint+feed ([shift]+[F])',
+  lines:         [
+    'Restore 20 HP and cleanse blood of ongoing boiling.',
+  ],
+  linesCompleted:[
+    'Restore 20 HP and cleanse blood of ongoing boiling.',
+    'Quickening: Also activates your Clan Passive.',
+  ],
+};
+
+const COMPLETION_TALENTS = {
+  brujah:    {
+    name: 'Titanfist',
+    icon: 'assets/CompletionTalents/brujah_titanfist.png',
+    bloodPips: 1,
+    input: 'While holding a throwable with TK, sprint+attack ([shift]+[m1])',
+    lines: ['Throw objects with lethal force, eliminating most enemies in a single hit.'],
+  },
+  tremere:   {
+    name: 'Bloodcraft',
+    icon: 'assets/CompletionTalents/tremere_bloodcraft.png',
+    bloodPips: 2,
+    input: 'While holding a weapon or elixir with TK, sprint+feed ([shift]+[F])',
+    lines: [
+      'Use blood to manipulate objects.',
+      '&nbsp;&nbsp;• Duplicate melee weapons.',
+      '&nbsp;&nbsp;• Reload guns.',
+      '&nbsp;&nbsp;• Swap elixirs for an equivalent.',
+      '&nbsp;&nbsp;• <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodhealth.png" alt="Mending"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodpips.png" alt="Blood">',
+      '&nbsp;&nbsp;• <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_armor.png" alt="Fortitude"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_damage.png" alt="Potence">',
+      '<span class="cct-bracket-hint"><em>(This does not cost additional blood pips.)</em></span>',
+    ],
+  },
+  banuHaqim: {
+    name: 'Distraction',
+    icon: 'assets/CompletionTalents/banu_distraction.png',
+    input: 'With nothing in hand, sprint+abilities ([shift]+[rightclick])',
+    lines: [
+      'Creates a small distraction at the location, drawing NPCs toward it.',
+      'Does not influence targets in combat or otherwise preoccupied.',
+      'Has a short cooldown.',
+    ],
+  },
+  ventrue:   {
+    name: 'Discerning Tastes',
+    icon: 'assets/CompletionTalents/ventrue_discerning.png',
+    input: 'Passive',
+    lines: [
+      'Mentally influences partially resonant targets so they are always willing to talk.',
+      'Gain double resonance from targets you feed on',
+      'Restore one additional blood pip per ability when feeding on resonant targets.',
+    ],
+  },
+  lasombra:  {
+    name: 'Shadow Cache',
+    icon: 'assets/CompletionTalents/lasombra_distraction.png',
+    input: 'With a TK-held object in hand, sprint+interact ([shift]+[E])',
+    lines: [
+      'Stores objects in the shadow realm for later summoning.',
+      'Use again with empty hands to summon the stored object.',
+      'Also vanishes corpses.',
+    ],
+  },
+  toreador:  {
+    name: 'Alacrity',
+    icon: 'assets/CompletionTalents/toreador_alacrity.png',
+    input: 'sprint+TK ([shift]+[Q])',
+    lines: [
+      'Siphon speed from a target, slowing them while increasing your speed.',
+      'Has a short cooldown before it can be used again.',
+    ],
+  },
+};
+
 // ── Tiers ────────────────────────────────────────────────────
 // AP costs: [inClan, affinity, outOfClan]
 const TIERS = {

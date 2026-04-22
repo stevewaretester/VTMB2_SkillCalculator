@@ -22,7 +22,7 @@ const WEAPONS = [
   { id: 'smg',             name: 'SMG',                type: 'Ranged', ammo: 22, thrownDmg: 10,  projDmg: 4.0,      shadowKey: 'Num 7', shadowCost: '100 Melancholic' },
   { id: 'megashotty',      name: 'Riot Gun',           type: 'Ranged', ammo: 5,  thrownDmg: 10,  projDmg: 3.4,      pelletCount: 8,  shadowKey: 'Num 8', shadowCost: '120 Melancholic' },
   { id: 'sniperrifle',     name: 'Sniper Rifle',       type: 'Ranged', ammo: 1,  thrownDmg: 10,  projDmg: 60.0,     shadowKey: 'Num 9', shadowCost: '150 Melancholic' },
-  { id: 'crossbow',        name: 'Crossbow',           type: 'Ranged', ammo: 1,  thrownDmg: 10,  projDmg: 'Special', shadowKey: 'Num 9', shadowCost: '150 Melancholic' },
+  { id: 'crossbow',        name: 'Crossbow',           type: 'Ranged', ammo: 1,  thrownDmg: 10,  projDmg: 'Special', projDmgNote: 'Fires an explosive bolt that detonates after a short delay, high damage in a small area', shadowKey: 'Num 9', shadowCost: '150 Melancholic' },
   { id: 'mirror_station_note', name: 'Show Station Notes', type: 'Utility', ammo: 0, thrownDmg: '—', projDmg: '—', shadowKey: 'F1', shadowCost: '—', havenOnly: true },
   // Not directly produced by Shadow Mirror recipe list.
   { id: 'revolver',        name: 'Revolver',           type: 'Ranged', ammo: 6,  thrownDmg: 10,  projDmg: 10.0 },
@@ -451,7 +451,7 @@ function renderWeaponsPage() {
       </td>
       <td>${w.type}</td>
       <td class="pickup-name">${w.name}</td>
-      <td>${formatProjDamage(w)}</td>
+      <td>${w.projDmgNote ? `<span class="pickup-special-dmg" data-tooltip="${w.projDmgNote}">${formatProjDamage(w)}</span>` : formatProjDamage(w)}</td>
       <td>${w.thrownDmg}</td>
       <td>${w.type === 'Ranged' ? w.ammo : '—'}</td>
       ${havenActive ? costCell : ''}
@@ -460,6 +460,17 @@ function renderWeaponsPage() {
 
   html += '</tbody></table>';
   container.innerHTML = html;
+
+  // Attach tooltip handlers to special damage cells
+  container.querySelectorAll('.pickup-special-dmg').forEach((el) => {
+    el.addEventListener('mouseenter', (e) => {
+      sharedTooltip.innerHTML = `<div class="tooltip__name">${el.dataset.tooltip}</div>`;
+      sharedTooltip.classList.add('tooltip--visible');
+      positionTooltip(e);
+    });
+    el.addEventListener('mousemove', positionTooltip);
+    el.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  });
 
   container.querySelectorAll('th[data-sort]').forEach((th) => {
     th.addEventListener('click', () => {

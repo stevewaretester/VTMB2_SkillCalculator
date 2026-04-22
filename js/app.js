@@ -147,8 +147,7 @@ function renderClanSelector() {
       sharedTooltip.innerHTML =
         `<div class="tooltip__name">${clan.name}</div>` +
         `<div class="tooltip__clan-descr">${clan.descr}</div>` +
-        `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>` +
-        `<div class="tooltip__clan-hint"><em>to change clan, use the "Select Clan" divider above</em></div>`;
+        `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>`;
       sharedTooltip.classList.add('tooltip--visible');
       positionTooltip(e);
     });
@@ -438,7 +437,10 @@ function renderGrid() {
   // Render affinity bar
   renderAffinityBar();
 
-
+  // Completion talent rows (mod: Clan Completion Talents)
+  if (state.completionTalents) {
+    renderCompletionTalentRows(grid);
+  }
 
   // Column headers row
   grid.appendChild(createEl("div", "")); // empty corner
@@ -468,14 +470,20 @@ function renderGrid() {
     const headerTooltip =
       `<div class="tooltip__controls-row"><img src="${LMB}" alt="LMB"> Purchase all</div>` +
       `<div class="tooltip__controls-row"><img src="${SHF}" alt="Shift"> + <img src="${LMB}" alt="LMB"> Unlock all</div>` +
-      `<div class="tooltip__controls-row"><img src="${RMB}" alt="RMB"> Reset clan</div>`;
-    logoImg.addEventListener('mouseenter', (e) => {
+      `<div class="tooltip__controls-row"><img src="${RMB}" alt="RMB"> Reset clan</div>` +
+      `<div class="tooltip__clan-hint"><em>to change clan, use the "Select Clan" divider above</em></div>`;
+    const headerFullTooltip =
+      `<div class="tooltip__name">${clan.name}</div>` +
+      `<div class="tooltip__clan-descr">${clan.descr}</div>` +
+      `<div class="tooltip__clan-mastery">COMBAT MASTERY RATING: ${clan.mastery}</div>` +
+      `<div class="tooltip__clan-hint"><em>to change clan, use the "Select Clan" divider above</em></div>`;
+    header.addEventListener('mouseenter', (e) => {
       sharedTooltip.innerHTML = headerTooltip;
       sharedTooltip.classList.add('tooltip--visible');
       positionTooltip(e);
     });
-    logoImg.addEventListener('mousemove', positionTooltip);
-    logoImg.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+    header.addEventListener('mousemove', positionTooltip);
+    header.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
     grid.appendChild(header);
   }
 
@@ -610,13 +618,9 @@ function createAbilityCell(clanId, tier) {
   // Click handler
   cell.addEventListener("click", () => {
     // Set focus state BEFORE handleAbilityClick so renderGrid restores the class
-    state.focusedAbility = { clanId, tier };
+    state.focusedAbility = { type: 'ability', clanId, tier };
     handleAbilityClick(clanId, tier);
-    // If renderGrid wasn't called (passive etc), still apply selection manually
-    document.querySelectorAll(".ability-cell").forEach(c => c.classList.remove("selected-ability"));
-    const key2 = `${clanId}:${tier}`;
-    const el = document.querySelector(`.ability-cell[data-key="${key2}"]`);
-    if (el) el.classList.add("selected-ability");
+    applyFocusedSelection();
     renderDetailPanel();
   });
 
@@ -1043,18 +1047,170 @@ function toggleFocusedAbility(clanId, tier) {
   if (state.focusedAbility && state.focusedAbility.clanId === clanId && state.focusedAbility.tier === tier) {
     state.focusedAbility = null;
   } else {
-    state.focusedAbility = { clanId, tier };
+    state.focusedAbility = { type: "ability", clanId, tier };
   }
-  // Update selected-ability class on all cells
-  document.querySelectorAll(".ability-cell").forEach(cell => {
-    cell.classList.remove("selected-ability");
-  });
-  if (state.focusedAbility) {
-    const key = `${state.focusedAbility.clanId}:${state.focusedAbility.tier}`;
-    const el = document.querySelector(`.ability-cell[data-key="${key}"]`);
-    if (el) el.classList.add("selected-ability");
-  }
+  applyFocusedSelection();
   renderDetailPanel();
+}
+
+function toggleFocusedCCT(cctKey) {
+  if (state.focusedAbility && state.focusedAbility.type === 'cct' && state.focusedAbility.cctKey === cctKey) {
+    state.focusedAbility = null;
+  } else {
+    state.focusedAbility = { type: 'cct', cctKey };
+  }
+  applyFocusedSelection();
+  renderDetailPanel();
+}
+
+function applyFocusedSelection() {
+  document.querySelectorAll('.ability-cell, .comp-talent').forEach(cell => {
+    cell.classList.remove('selected-ability');
+  });
+
+  if (!state.focusedAbility) return;
+
+  if (state.focusedAbility.type === 'cct') {
+    const cctEl = document.querySelector(`.comp-talent[data-cct-key="${state.focusedAbility.cctKey}"]`);
+    if (cctEl) cctEl.classList.add('selected-ability');
+    return;
+  }
+
+  const key = `${state.focusedAbility.clanId}:${state.focusedAbility.tier}`;
+  const el = document.querySelector(`.ability-cell[data-key="${key}"]`);
+  if (el) el.classList.add('selected-ability');
+}
+
+const CCT_INLINE_KEY_ICONS = {
+  shift: 'assets/Keyboard/T_UI_Keyboard_Shift_Left.png',
+  f: 'assets/Keyboard/T_UI_Keyboard_F.png',
+  m1: 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
+  lmb: 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
+  rightclick: 'assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png',
+  e: 'assets/Keyboard/T_UI_Keyboard_E.png',
+  i: 'assets/Keyboard/T_UI_Keyboard_I.png',
+};
+
+const CCT_SHIFT_LMB_ICONS = `<img class="cct-inline-key" src="assets/Keyboard/T_UI_Keyboard_Shift_Left.png" alt="Shift"> + <img class="cct-inline-key" src="assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png" alt="LMB">`;
+
+function formatCCTInlineText(text) {
+  if (!text) return '';
+  return String(text).replace(/\[([^\]]+)\]/g, (full, tokenRaw) => {
+    const token = String(tokenRaw || '').trim();
+    const key = token.toLowerCase();
+    const src = CCT_INLINE_KEY_ICONS[key];
+    if (!src) return full;
+    return `<img class="cct-inline-key" src="${src}" alt="${token}" title="${token}">`;
+  });
+}
+
+function renderCCTDetailPanel(panel) {
+  const allCompleted = CLAN_ORDER.every(id => state.completedClans.has(id));
+  const { cctKey } = state.focusedAbility || {};
+  if (!cctKey) {
+    panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+    return;
+  }
+
+  let name = '';
+  let icon = '';
+  let inputText = '';
+  let detailLines = [];
+  let bloodPips = 0;
+  let isUnlocked = false;
+  let statusText = '';
+  let cctClanId = null;
+
+  if (cctKey === 'bloodHeal') {
+    name = allCompleted ? BLOOD_HEAL_TALENT.nameCompleted : BLOOD_HEAL_TALENT.name;
+    icon = BLOOD_HEAL_TALENT.icon;
+    inputText = BLOOD_HEAL_TALENT.input || '';
+    detailLines = allCompleted ? (BLOOD_HEAL_TALENT.linesCompleted || []) : (BLOOD_HEAL_TALENT.lines || []);
+    bloodPips = BLOOD_HEAL_TALENT.bloodPips || 0;
+    isUnlocked = true;
+    statusText = allCompleted ? 'Enhanced (all clans complete)' : 'Unlocked by default';
+  } else {
+    const talent = COMPLETION_TALENTS[cctKey];
+    if (!talent) {
+      panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+      return;
+    }
+    name = talent.name;
+    icon = talent.icon;
+    inputText = talent.input || '';
+    detailLines = Array.isArray(talent.lines) ? talent.lines : [];
+    bloodPips = talent.bloodPips || 0;
+    isUnlocked = state.completedClans.has(cctKey);
+    statusText = isUnlocked ? 'Unlocked' : `Locked (complete ${CLANS[cctKey].name})`;
+    cctClanId = cctKey;
+  }
+
+  const fallbackClanId = state.selectedClan || CLAN_ORDER.find(id => state.completedClans.has(id)) || CLAN_ORDER[0];
+  const videoClanId = cctKey === 'bloodHeal' ? fallbackClanId : cctKey;
+  const cctVideo = ABILITIES[videoClanId] && ABILITIES[videoClanId].passive
+    ? ABILITIES[videoClanId].passive.video
+    : null;
+
+  let html = '';
+  html += `<div class="detail-panel__video">`;
+  if (cctVideo) {
+    html += `<video src="${cctVideo}" autoplay loop muted data-video-src="${cctVideo}"></video>`;
+    html += `<div class="detail-panel__video-expand" title="Click to enlarge">&#x26F6;</div>`;
+  } else {
+    html += `<span class="detail-panel__video-placeholder">Video preview</span>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="detail-panel__tier">Clan Completion Talent</div>`;
+  html += `<div class="detail-panel__name-row">`;
+  html += `<img class="detail-panel__ability-icon" src="${icon}" alt="${name}">`;
+  html += `<div class="detail-panel__name">${name}</div>`;
+  html += `</div>`;
+
+  if (inputText) {
+    html += `<div class="detail-panel__cct-input"><span class="detail-panel__cct-input-label">Input:</span> ${formatCCTInlineText(inputText)}</div>`;
+  }
+
+  if (detailLines.length > 0) {
+    html += `<ul class="detail-panel__cct-lines">`;
+    for (const line of detailLines) {
+      html += `<li>${formatCCTInlineText(line)}</li>`;
+    }
+    html += `</ul>`;
+  }
+
+  if (cctClanId) {
+    const cctClan = CLANS[cctClanId];
+    const clanLogo = isUnlocked ? cctClan.logoCompleted : cctClan.logo;
+    html += `<div class="detail-panel__discipline cct-clan-symbol ${isUnlocked ? 'cct-clan-symbol--unlocked' : 'cct-clan-symbol--locked'}">
+      <img src="${clanLogo}" alt="${cctClan.name}">
+      <span>${cctClan.name}</span>
+      <span class="discipline-badge ${isUnlocked ? 'in-clan-badge' : 'cct-clan-symbol__badge--locked'}">${isUnlocked ? 'Completed' : 'Not Complete'}</span>
+    </div>`;
+  }
+
+  if (bloodPips > 0) {
+    html += `<div class="detail-panel__costs">`;
+    html += `<div style="display:flex; gap:3px; margin-top:4px;">`;
+    for (let i = 0; i < bloodPips; i++) {
+      html += `<div class="blood-pip${isUnlocked ? ' filled' : ''}" style="width:14px; height:6px;"></div>`;
+    }
+    html += `</div>`;
+    html += `</div>`;
+  }
+
+  html += `<div style="margin-top:12px; font-size:11px; color:var(--text-dim);">Status: ${statusText}</div>`;
+  panel.innerHTML = html;
+
+  const videoWrap = panel.querySelector('.detail-panel__video');
+  const videoEl = videoWrap && videoWrap.querySelector('video');
+  if (videoEl) {
+    const openLightbox = () => openVideoLightbox(videoEl.dataset.videoSrc);
+    videoEl.style.cursor = 'pointer';
+    videoEl.addEventListener('click', openLightbox);
+    const expandBtn = videoWrap.querySelector('.detail-panel__video-expand');
+    if (expandBtn) expandBtn.addEventListener('click', openLightbox);
+  }
 }
 
 function renderDetailPanel() {
@@ -1062,6 +1218,11 @@ function renderDetailPanel() {
 
   if (!state.focusedAbility) {
     panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+    return;
+  }
+
+  if (state.focusedAbility.type === 'cct') {
+    renderCCTDetailPanel(panel);
     return;
   }
 
@@ -1406,6 +1567,157 @@ function openVideoLightbox(src) {
 }
 
 // ── Helpers ──────────────────────────────────────────────────
+function buildCCTTooltip(name, isUnlocked, clanName) {
+  const tierLabel = 'Clan Completion Talent';
+  const clanId = CLAN_ORDER.find(id => CLANS[id].name === clanName);
+  const isUniversalCCT = !clanId;
+  const clanLogo = clanId ? (isUnlocked ? CLANS[clanId].logoCompleted : CLANS[clanId].logo) : null;
+  const statusClass = isUnlocked ? 'cct-tooltip__status--unlocked' : 'cct-tooltip__status--locked';
+  const statusHtml = isUnlocked
+    ? `<div class="cct-tooltip__status ${statusClass}">Unlocked</div>`
+    : `<div class="cct-tooltip__status ${statusClass}">Complete ${clanName} to unlock</div>` +
+      `<div class="cct-tooltip__status cct-tooltip__status--hint">Set clan to completed to unlock this ability</div>`;
+  const interactionHint = isUniversalCCT
+    ? `<div class="tooltip__clan-hint">${CCT_SHIFT_LMB_ICONS} complete all clans and unlock Blood Quickening</div>`
+    : `<div class="tooltip__clan-hint">${CCT_SHIFT_LMB_ICONS} set ${clanName} to completed</div>`;
+
+  const clanSymbolHtml = clanLogo
+    ? `<div class="tooltip__discipline cct-clan-symbol ${isUnlocked ? 'cct-clan-symbol--unlocked' : 'cct-clan-symbol--locked'}">
+        <img src="${clanLogo}" alt="${clanName}">
+        <span>${clanName}</span>
+      </div>`
+    : '';
+
+  return `<div class="tooltip__name">${name}</div>` +
+    `<div class="tooltip__tier">${tierLabel}</div>` +
+    clanSymbolHtml +
+    `<div class="tooltip__divider"></div>` +
+    statusHtml +
+    interactionHint;
+}
+
+function attachCCTTooltip(el, name, isUnlocked, clanName) {
+  el.addEventListener('mouseenter', (e) => {
+    sharedTooltip.innerHTML = buildCCTTooltip(name, isUnlocked, clanName);
+    sharedTooltip.classList.add('tooltip--visible');
+    positionTooltip(e);
+  });
+  el.addEventListener('mousemove', positionTooltip);
+  el.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+}
+
+function buildCCTPipsMarkup(pipCount, isFilled) {
+  if (!pipCount || pipCount <= 0) return '';
+  let html = '<div class="comp-talent__pips">';
+  for (let i = 0; i < pipCount; i++) {
+    html += `<div class="blood-pip${isFilled ? ' filled' : ''}"></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function setCCTClanCompleted(clanId) {
+  if (!state.completedClans.has(clanId)) {
+    state.completedClans.add(clanId);
+  }
+  renderClanSelector();
+  renderGrid();
+  renderDetailPanel();
+  if (typeof renderFabienTree === 'function') renderFabienTree();
+}
+
+function setAllClansCompletedFromBloodHeal() {
+  CLAN_ORDER.forEach(id => state.completedClans.add(id));
+  renderClanSelector();
+  renderGrid();
+  renderDetailPanel();
+  if (typeof renderFabienTree === 'function') renderFabienTree();
+}
+
+function renderCompletionTalentRows(grid) {
+  const allCompleted = CLAN_ORDER.every(id => state.completedClans.has(id));
+  const CCT_COMPLETED_CONTAINER = 'assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Selected.png';
+  
+  // Clan-specific colored diamond frame backgrounds (Brujah uses plain uncolored container)
+  const CLAN_PATTERN_BG = {
+    tremere:   'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Tremere.png',
+    ventrue:   'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Ventrue.png',
+    banuHaqim: 'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_BanuHaqim.png',
+    brujah:    'assets/ClanPatterns/T_UI_ClanIconContainer.png',
+    lasombra:  'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Lasombra.png',
+    toreador:  'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Toreador.png',
+  };
+
+  // ── Row A: Blood Heal (universal, spans all 6 clan columns) ──
+  grid.appendChild(createEl('div', 'tier-label')); // empty corner
+
+  const bhName = allCompleted ? BLOOD_HEAL_TALENT.nameCompleted : BLOOD_HEAL_TALENT.name;
+  const bhDesc = allCompleted ? BLOOD_HEAL_TALENT.descCompleted : BLOOD_HEAL_TALENT.desc;
+  const bhCell = createEl('div', 'comp-talent comp-talent--universal');
+  if (allCompleted) bhCell.classList.add('comp-talent--completed');
+  bhCell.dataset.cctKey = 'bloodHeal';
+  bhCell.innerHTML = `
+    <div class="comp-talent__icon-wrap">
+      <img class="ability-cell__btn-bg" src="assets/N_Textures/AbilityTree/Assets/T_AbilityTree_ButtonBg_Equipped.png" alt="">
+      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt="">` : ''}
+      <img class="comp-talent__icon" src="${BLOOD_HEAL_TALENT.icon}" alt="${bhName}">
+    </div>
+    ${buildCCTPipsMarkup(BLOOD_HEAL_TALENT.bloodPips, true)}
+  `;
+  bhCell.addEventListener('click', (e) => {
+    if (e.shiftKey) {
+      setAllClansCompletedFromBloodHeal();
+      return;
+    }
+    toggleFocusedCCT('bloodHeal');
+  });
+  if (state.focusedAbility && state.focusedAbility.type === 'cct' && state.focusedAbility.cctKey === 'bloodHeal') {
+    bhCell.classList.add('selected-ability');
+  }
+  attachCCTTooltip(bhCell, bhName, true, 'all clans');
+  grid.appendChild(bhCell);
+
+  // ── Row B: Clan-specific completion talents ──
+  const rowLabel = createEl('div', 'tier-label tier-label--cct');
+  rowLabel.textContent = 'CCT';
+  rowLabel.addEventListener('mouseenter', (e) => {
+    sharedTooltip.innerHTML = `<div class="tooltip__name">Clan Completion Talents</div>`;
+    sharedTooltip.classList.add('tooltip--visible');
+    positionTooltip(e);
+  });
+  rowLabel.addEventListener('mousemove', positionTooltip);
+  rowLabel.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
+  grid.appendChild(rowLabel);
+
+  for (const clanId of CLAN_ORDER) {
+    const talent = COMPLETION_TALENTS[clanId];
+    const isCompleted = state.completedClans.has(clanId);
+    const cell = createEl('div', 'comp-talent');
+    cell.classList.add(isCompleted ? 'comp-talent--completed' : 'comp-talent--locked');
+    cell.dataset.clan = clanId;
+    cell.dataset.cctKey = clanId;
+    cell.innerHTML = `
+      <div class="comp-talent__icon-wrap">
+        ${isCompleted ? `<img class="comp-talent__container-bg" src="${CLAN_PATTERN_BG[clanId]}" alt="">` : ''}
+        <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}">
+      </div>
+      ${buildCCTPipsMarkup(talent.bloodPips, isCompleted)}
+    `;
+    cell.addEventListener('click', (e) => {
+      if (e.shiftKey) {
+        setCCTClanCompleted(clanId);
+        return;
+      }
+      toggleFocusedCCT(clanId);
+    });
+    if (state.focusedAbility && state.focusedAbility.type === 'cct' && state.focusedAbility.cctKey === clanId) {
+      cell.classList.add('selected-ability');
+    }
+    attachCCTTooltip(cell, talent.name, isCompleted, CLANS[clanId].name);
+    grid.appendChild(cell);
+  }
+}
+
 function createEl(tag, className) {
   const el = document.createElement(tag);
   if (className) el.className = className;
