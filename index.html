@@ -345,14 +345,14 @@
         <!-- Populated by JS -->
       </div>
       <button class="clan-selector-toggle" id="benny-dlc-toggle">▼ DLC Info</button>
-      <nav class="tab-bar tab-bar--secondary">
+      <nav class="tab-bar tab-bar--secondary tab-bar--benny">
         <button class="tab-bar__tab active" data-bennytab="skills">Skills</button>
       </nav>
       <div class="benny-layout">
         <img class="benny-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Bruhjan.png" alt="">
         <aside class="benny-sidebar">
-          <img class="benny-sidebar__pistol" src="assets/T_UI_BennyPistol.png" alt="Benny's Pistol" id="benny-pistol-img">
-        </aside>
+        <div id="benny-sidebar-items" class="benny-sidebar-items"></div>
+      </aside>
         <main class="benny-main">
           <div id="benny-tree">
             <!-- Populated by JS -->
@@ -424,7 +424,7 @@
       <button class="modal-card__close" id="about-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="about-modal-title">About</h2>
-        <span class="modal-card__version">v1.06</span>
+        <span class="modal-card__version">v1.07</span>
       </div>
 
       <div class="modal-card__body">
@@ -434,8 +434,13 @@
           <summary class="modal-card__changelog-summary">Changelog</summary>
           <ul class="modal-card__changelog">
             <li>
-              <span class="changelog__version">v1.06</span>
+              <span class="changelog__version">v1.07</span>
               <span class="changelog__label">Current</span>
+              <span class="changelog__desc">Benny sidebar &mdash; New Features panel with Sidearm, Melee Weapons &amp; Soaring Leap entries (screenshots, descriptions, detail panel). URL tab position tracking (?at= param). Tab switching fix (Benny secondary tab no longer breaks Phyre navigation). Titanfist icon updated &amp; rotated. Bloodcraft sub-list formatting fixed.</span>
+            </li>
+            <li>
+              <span class="changelog__version">v1.06</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/de84387" target="_blank" rel="noopener">de84387</a>
               <span class="changelog__desc">Benny (Loose Cannon DLC) tab &mdash; skill tree, sidebar pistol, DLC info section with trailer link, outfit row &amp; detail panel. State persisted in URL.</span>
             </li>
             <li>

@@ -1,7 +1,35 @@
 // Benny Skill Tree
 // Two-column unlocked display: core Brujah column + Benny side column.
 
-const bennyState = { focused: null, pistolFocused: false, looseCannon: false, dlcInfoOpen: false };
+const bennyState = { focused: null, sidebarFocused: null, looseCannon: false, dlcInfoOpen: false };
+
+const BENNY_SIDEBAR_ITEMS = [
+  {
+    id: "sidearm",
+    icon: "assets/T_UI_BennyPistol.png",
+    iconClass: "benny-sidebar-item__pistol-icon",
+    title: "Benny's Sidearm",
+    tier: "Signature Weapon",
+    subtitle: "Replaces Phyre's Telekinesis",
+    image: "assets/screenshot/bennyGun.png",
+    desc: "Benny's sidearm is his prized possession. A custom made 9mm pistol that has been heavily modified to be fully automatic, with a high-capacity magazine and compensator. Impractical for a mortal due to the extreme recoil, but not a problem for a Brujah vampire."
+  },
+  {
+    id: "melee",
+    title: "Melee Weapons",
+    tier: "Combat",
+    image: "assets/screenshot/bennyMelee.png",
+    desc: "Interact with weapons you find to pick them up. Different weapons offer different attack styles, from slow but devastating swings with a warhammer, to quick stabs with a knife."
+  },
+  {
+    id: "leap",
+    title: "Soaring Leap",
+    tier: "Traversal",
+    image: "assets/screenshot/BennySoar.png",
+    subtitle: "Replaces Phyre's Glide",
+    desc: "Benny's approach to rooftop traversal is more forceful, using Soaring Leap to jump great heights, and Air Dash to quickly cover large distances in the air."
+  }
+];
 
 const BENNY_CORE_ORDER = ["perk", "mastery", "affect", "relocate", "strike", "passive"];
 const BENNY_SIDE_ORDER = ["mastery", "affect", "relocate", "strike"];
@@ -15,25 +43,48 @@ const BENNY_SIDE_SOURCE = {
 
 function initBenny() {
   renderBennyTree();
+  renderBennySidebarItems();
+}
 
-  const pistol = document.getElementById("benny-pistol-img");
-  if (pistol) {
-    const tipHtml = `<div class="tooltip__name">Benny's Pistol</div><div class="tooltip__desc">Benny's sidearm is his prized possession. A custom made 9mm pistol that has been heavily modified to be fully automatic, with a high-capacity magazine and compensator. Impractical for a mortal due to the extreme recoil, but not a problem for a Brujah vampire.</div>`;
-    pistol.addEventListener("mouseenter", e => {
-      sharedTooltip.innerHTML = tipHtml;
-      sharedTooltip.classList.add("tooltip--visible");
-      positionTooltip(e);
-    });
-    pistol.addEventListener("mousemove", positionTooltip);
-    pistol.addEventListener("mouseleave", () => sharedTooltip.classList.remove("tooltip--visible"));
-    pistol.addEventListener("click", () => {
-      bennyState.pistolFocused = !bennyState.pistolFocused;
-      if (bennyState.pistolFocused) bennyState.focused = null;
-      pistol.classList.toggle("benny-pistol--focused", bennyState.pistolFocused);
+function renderBennySidebarItems() {
+  const container = document.getElementById("benny-sidebar-items");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "benny-sidebar-items__heading";
+  heading.textContent = "New Features";
+  container.appendChild(heading);
+
+  BENNY_SIDEBAR_ITEMS.forEach(item => {
+    const el = document.createElement("div");
+    el.className = "benny-sidebar-item" + (bennyState.sidebarFocused === item.id ? " focused" : "");
+    el.dataset.itemId = item.id;
+
+    if (item.icon) {
+      const icon = document.createElement("img");
+      icon.className = "benny-sidebar-item__icon" + (item.iconClass ? " " + item.iconClass : "");
+      icon.src = item.icon;
+      icon.alt = item.title;
+      el.appendChild(icon);
+    }
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "benny-sidebar-item__title";
+    titleEl.textContent = item.title;
+    el.appendChild(titleEl);
+
+    el.addEventListener("click", () => {
+      const same = bennyState.sidebarFocused === item.id;
+      bennyState.sidebarFocused = same ? null : item.id;
+      bennyState.focused = null;
+      renderBennySidebarItems();
       const detail = document.getElementById("benny-detail");
       if (detail) renderBennyDetail(detail);
     });
-  }
+
+    container.appendChild(el);
+  });
 }
 
 function refreshBennyPage() {
@@ -197,8 +248,8 @@ function renderBennyTree() {
       tree.appendChild(makeBennyCell(sideAbility, isFocused, () => {
         const same = bennyState.focused && bennyState.focused.column === "side" && bennyState.focused.tier === tier;
         bennyState.focused = same ? null : { column: "side", tier };
-        bennyState.pistolFocused = false;
-        document.getElementById("benny-pistol-img")?.classList.remove("benny-pistol--focused");
+        bennyState.sidebarFocused = null;
+        renderBennySidebarItems();
         renderBennyTree();
       }, tier));
     } else {
@@ -213,8 +264,8 @@ function renderBennyTree() {
       tree.appendChild(makeBennyCell(coreAbility, isFocused, () => {
         const same = bennyState.focused && bennyState.focused.column === "core" && bennyState.focused.tier === tier;
         bennyState.focused = same ? null : { column: "core", tier };
-        bennyState.pistolFocused = false;
-        document.getElementById("benny-pistol-img")?.classList.remove("benny-pistol--focused");
+        bennyState.sidebarFocused = null;
+        renderBennySidebarItems();
         renderBennyTree();
       }, tier, coreFallback));
     } else {
@@ -226,17 +277,28 @@ function renderBennyTree() {
 }
 
 function renderBennyDetail(panel) {
-  if (bennyState.pistolFocused) {
-    panel.innerHTML = `
-      <div class="detail-panel__tier">Signature Weapon</div>
-      <div class="detail-panel__name">Benny's Pistol</div>
-      <div class="detail-panel__video">
-        <img src="assets/screenshot/bennyGun.png" alt="Benny's Pistol" style="width:100%; border-radius:4px; cursor:pointer;">
-      </div>
-      <div class="detail-panel__desc">Benny's sidearm is his prized possession. A custom made 9mm pistol that has been heavily modified to be fully automatic, with a high-capacity magazine and compensator. Impractical for a mortal due to the extreme recoil, but not a problem for a Brujah vampire.</div>
-    `;
-    panel.querySelector(".detail-panel__video img").addEventListener("click", () => openImageLightbox("assets/screenshot/bennyGun.png", "Benny's Pistol"));
-    return;
+  if (bennyState.sidebarFocused) {
+    const item = BENNY_SIDEBAR_ITEMS.find(i => i.id === bennyState.sidebarFocused);
+    if (item) {
+      let html = `<div class="detail-panel__tier">${item.tier}</div>`;
+      if (item.image) {
+        html += `<div class="detail-panel__video"><img src="${item.image}" alt="${item.title}" style="width:100%; border-radius:4px; cursor:pointer;"></div>`;
+      }
+      if (item.icon) {
+        html += `<div class="detail-panel__name-row"><img class="detail-panel__ability-icon" src="${item.icon}" alt="${item.title}"><div class="detail-panel__name">${item.title}</div></div>`;
+      } else {
+        html += `<div class="detail-panel__name">${item.title}</div>`;
+      }
+      if (item.subtitle) {
+        html += `<div class="detail-panel__subtitle">${item.subtitle}</div>`;
+      }
+      html += `<div class="detail-panel__desc">${item.desc}</div>`;
+      panel.innerHTML = html;
+      if (item.image) {
+        panel.querySelector(".detail-panel__video img").addEventListener("click", () => openImageLightbox(item.image, item.title));
+      }
+      return;
+    }
   }
   if (!bennyState.focused) {
     panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';

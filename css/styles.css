@@ -715,25 +715,71 @@ body {
     flex-shrink: 0;
     position: relative;
     align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.benny-sidebar__pistol {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 220px;
-    opacity: 0.85;
-    pointer-events: all;
-    cursor: pointer;
-    z-index: 1;
+.benny-sidebar-items {
+    padding: 6px 4px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.benny-sidebar-items__heading {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 0 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 6px;
+}
+
+.benny-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
     border-radius: 4px;
-    transition: filter 0.2s, opacity 0.2s;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-light);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid transparent;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
 
-.benny-sidebar__pistol.benny-pistol--focused {
-    filter: drop-shadow(0 0 8px rgba(255, 210, 60, 0.9)) drop-shadow(0 0 3px rgba(255, 210, 60, 0.7));
-    opacity: 1;
+.benny-sidebar-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.benny-sidebar-item.focused {
+    color: #fff;
+    background: rgba(220, 120, 30, 0.12);
+    border-color: rgba(220, 120, 30, 0.45);
+}
+
+.benny-sidebar-item__icon {
+    width: 22px;
+    height: auto;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.benny-sidebar-item__pistol-icon {
+    width: auto;
+    height: 22px;
+}
+
+.benny-sidebar-item__title {
+    flex: 1;
 }
 
 .benny-dlc-link {
@@ -2507,6 +2553,14 @@ body {
     letter-spacing: 1px;
 }
 
+.detail-panel__subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 6px;
+    opacity: 0.75;
+}
+
 .detail-panel__desc {
     font-size: 13px;
     color: var(--text);
@@ -2518,11 +2572,25 @@ body {
     color: var(--text);
     line-height: 1.5;
     margin: 0;
-    padding-left: 18px;
+    padding-left: 4px;
+    list-style: none;
 }
 
 .detail-panel__cct-lines li {
     margin: 0;
+}
+
+.detail-panel__cct-sublines {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 4px 0 0;
+    padding-left: 16px;
+}
+
+.detail-panel__cct-sublines li {
+    margin: 0;
+    list-style: none;
 }
 
 .detail-panel__discipline {

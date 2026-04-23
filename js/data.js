@@ -129,6 +129,7 @@ const COMPLETION_TALENTS = {
   brujah:    {
     name: 'Titanfist',
     icon: 'assets/CompletionTalents/brujah_titanfist.png',
+    iconRotate: 270,
     bloodPips: 1,
     input: 'While holding a throwable with TK, sprint+attack ([shift]+[m1])',
     lines: ['Throw objects with lethal force, eliminating most enemies in a single hit.'],
@@ -140,12 +141,14 @@ const COMPLETION_TALENTS = {
     input: 'While holding a weapon or elixir with TK, sprint+feed ([shift]+[F])',
     lines: [
       'Use blood to manipulate objects.',
-      '&nbsp;&nbsp;• Duplicate melee weapons.',
-      '&nbsp;&nbsp;• Reload guns.',
-      '&nbsp;&nbsp;• Swap elixirs for an equivalent.',
-      '&nbsp;&nbsp;• <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodhealth.png" alt="Mending"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodpips.png" alt="Blood">',
-      '&nbsp;&nbsp;• <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_armor.png" alt="Fortitude"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_damage.png" alt="Potence">',
-      '<span class="cct-bracket-hint"><em>(This does not cost additional blood pips.)</em></span>',
+      '• Duplicate melee weapons.',
+      '• Reload guns.',
+      '• Swap elixirs for an equivalent.',
+    ],
+    subLines: [
+      '<img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodhealth.png" alt="Mending"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_bloodpips.png" alt="Blood">',
+      '<img class="cct-elixir-icon" src="assets/ElixirIcons/sil_armor.png" alt="Fortitude"> ⇌ <img class="cct-elixir-icon" src="assets/ElixirIcons/sil_damage.png" alt="Potence">',
+      '<em>(This does not cost additional blood pips.)</em>',
     ],
   },
   banuHaqim: {

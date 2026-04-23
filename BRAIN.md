@@ -169,7 +169,138 @@ If a new change is not persisting, verify either:
 - Reset flows still behave correctly.
 - No console errors when controls are missing/hidden.
 
-## 8) Future Improvement Suggestion
+## 8) Tab Position Persistence (URL `?at=` param)
+
+Separate from the state blob. Implemented in `js/app.js`.
+
+- URL param key: `POS_PARAM = "at"`
+- Written on every tab click via `persistPosition()` using `history.replaceState`
+- Read on load via `applyPersistedPosition(pos)` called after `bindTabs()` in `init()`
+- Does **not** touch the `?state=` blob — fully independent
+
+Syntax examples:
+
+| Position            | `?at=` value                             |
+| ------------------- | ---------------------------------------- |
+| Phyre skill tree    | `phyre.skill-tree`                       |
+| Phyre outfits       | `phyre.outfits`                          |
+| Phyre combos        | `phyre.combos`                           |
+| Phyre pickups       | `phyre.pickups`                          |
+| Fabien (any subtab) | `fabien.skills` / `fabien.builds` / etc. |
+| Benny               | `benny`                                  |
+| Ysabelle            | `ysabelle`                               |
+
+`persistPosition()` reads the currently `.active` primary tab + secondary/fabien subtab from the DOM and writes the combined value.
+
+`applyPersistedPosition(pos)` splits on `.`, then activates matching tabs and shows matching pages/subpages. Safe to call with unknown values — returns early if no matching tab found.
+
+## 9) Character-Specific Page Architecture
+
+Each non-Phyre character has its own JS file and an isolated state object.
+
+### Benny (`js/benny.js`)
+
+State object:
+
+```js
+bennyState = {
+  focused: null,
+  pistolFocused: false,
+  looseCannon: false,
+  dlcInfoOpen: false,
+};
+```
+
+- `looseCannon`: DLC owned toggle — persisted in state blob as `lc` (boolean)
+- `pistolFocused`: sidebar pistol focus state — not persisted, UI-only
+- `focused`: currently focused skill node — not persisted
+
+Entry points:
+
+- `initBenny()` — called once on first visit; renders tree + wires all interactions
+- `refreshBennyPage()` — called on every tab switch to Benny; re-renders grid and details
+
+Layout: `.benny-layout` wraps crest image + tree + sidebar. No `overflow:hidden` (removed to prevent crest clipping).
+
+DLC section uses `.clan-selector` pattern (same CSS classes as Phyre clan selector) so it shares styles. Requires `z-index:1` + `background: var(--bg-dark)` on `.clan-selector` and `.clan-selector-toggle` so crest image behind layout doesn't bleed through.
+
+Crest: `.benny-layout__crest` — `position:absolute; top:-70%; left:10%; width:1000px; opacity:0.1; z-index:0`
+
+Sidebar pistol: `.benny-sidebar__pistol` — `position:absolute; bottom:0; left:50%; transform:translateX(-50%); cursor:pointer`
+
+- Focused state adds `.benny-pistol--focused` (yellow drop-shadow glow)
+- Click calls `openImageLightbox('assets/screenshot/bennyGun.png', ...)`
+
+DLC purchase tile click: `window.open("https://youtu.be/tAN6R0GEJyM", "_blank")` (YouTube embed blocked on file:// origin — use new tab instead)
+
+Render order in detail panel: video renders FIRST (before tier/name), matching Phyre layout.
+
+Persisted state additions (in `makePersistedState` / `applyPersistedState`):
+
+- `lc`: `!!bennyState.looseCannon`
+
+### Fabien (`js/fabien.js`)
+
+Has its own subtabs via `.tab-bar--fabien` with `data-fabtab` attributes.
+`persistPosition()` captures active `[data-fabtab]` tab for the `?at=fabien.*` value.
+
+## 10) Lightbox System
+
+Two lightbox types, both in `js/app.js`:
+
+### Image Lightbox — `openImageLightbox(src, alt)`
+
+- Creates a `.video-lightbox` overlay containing a `<img>` element
+- Image container gets `.video-lightbox__content--img`
+- Sized via CSS: `width:auto; height:auto; max-width:90vw; max-height:90vh`
+- Click backdrop or press Escape closes it
+- Used for: pistol image (Benny), outfit full images
+
+### Video Lightbox — `openVideoLightbox(src)`
+
+- If `src` contains `youtube.com` or `youtu.be` → renders `<iframe>` with `?autoplay=1`
+- Otherwise → renders `<video autoplay controls>`
+- Container uses `.video-lightbox__content` (fixed 854×480px for 16:9)
+- **Note**: YouTube iframes are blocked on `file://` protocol — prefer `window.open()` for YouTube DLC tiles
+
+## 11) Outfit System Details (`js/outfits.js`)
+
+- Reactions table handles `clanId === "benny"` specially — reads from `BENNY_OUTFIT` directly
+- Benny row logo cell uses `assets/ElixirIcons/icon_phyre_mark.png`
+- Badge shown on both locked and unlocked Benny cells: `.outfit-cell__badge { bottom:15%; left:4px; width:36px }`
+- Full outfit image clickable → `openImageLightbox(outfit.fullImg, ...)`
+- `BENNY_OUTFIT.fullImg = 'assets/screenshot/BennyOutfit.png'`
+
+## 12) Clan Pattern / Background System
+
+`CLAN_PATTERN_BG` in `js/app.js` maps clan ID → background image path.
+
+- Brujah uses the container image (not the raw icon):
+  `CLAN_PATTERN_BG.brujah = 'assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Selected.png'`
+- Pattern updates via `updateClanPattern()` on every clan change
+
+## 13) Current Persisted Payload Shape (v1.06)
+
+```json
+{
+  "v": 1,
+  "sc": "brujah",
+  "cc": [],
+  "ct": false,
+  "mh": false,
+  "mf": false,
+  "cs": false,
+  "sp": {},
+  "a": {},
+  "lc": false
+}
+```
+
+Key additions since v1.0:
+
+- `lc` (v1.06): Benny DLC / Loose Cannon owned toggle
+
+## 14) Future Improvement Suggestion
 
 If toggles keep growing, introduce a registry-driven toggle system:
 

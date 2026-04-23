@@ -26,6 +26,62 @@ const state = {
 const STATE_PARAM = "state";
 const STATE_COOKIE = "vtmb2_state";
 const STATE_VERSION = 1;
+const POS_PARAM = "at";
+
+function persistPosition() {
+  const primary = document.querySelector(".tab-bar--primary .tab-bar__tab.active");
+  if (!primary) return;
+  const page = primary.dataset.tab;
+  let pos = page;
+
+  if (page === "phyre") {
+    const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active");
+    if (secondary) pos = `phyre.${secondary.dataset.subtab}`;
+  } else if (page === "fabien") {
+    const fabSub = document.querySelector(".tab-bar--fabien .tab-bar__tab.active");
+    if (fabSub) pos = `fabien.${fabSub.dataset.fabtab}`;
+  }
+
+  const url = new URL(window.location.href);
+  url.searchParams.set(POS_PARAM, pos);
+  history.replaceState(null, "", url.toString());
+}
+
+function applyPersistedPosition(pos) {
+  if (!pos) return;
+  const [page, sub] = pos.split(".");
+
+  // Activate primary tab
+  const primaryTab = document.querySelector(`.tab-bar--primary .tab-bar__tab[data-tab="${page}"]`);
+  if (!primaryTab) return;
+  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  primaryTab.classList.add("active");
+  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  const pageEl = document.getElementById(`page-${page}`);
+  if (pageEl) pageEl.classList.remove("hidden");
+
+  if (page === "phyre" && sub) {
+    const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="${sub}"]`);
+    if (secondaryTab) {
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      secondaryTab.classList.add("active");
+      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+      const subEl = document.getElementById(`subpage-${sub}`);
+      if (subEl) subEl.classList.remove("hidden");
+    }
+  } else if (page === "fabien" && sub) {
+    const fabTab = document.querySelector(`.tab-bar--fabien .tab-bar__tab[data-fabtab="${sub}"]`);
+    if (fabTab) {
+      document.querySelectorAll(".tab-bar--fabien .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      fabTab.classList.add("active");
+      document.querySelectorAll(".fabien-subpage").forEach(p => p.classList.add("hidden"));
+      const fabEl = document.getElementById(`fabien-subpage-${sub}`);
+      if (fabEl) fabEl.classList.remove("hidden");
+    }
+  } else if (page === "benny" && typeof refreshBennyPage === "function") {
+    refreshBennyPage();
+  }
+}
 
 function initAbilityStateDefaults() {
   for (const clanId of CLAN_ORDER) {
@@ -173,6 +229,10 @@ function init() {
   bindTabs();
   bindClanSelectorToggle();
 
+  // Restore tab position after tabs are bound
+  const posFromUrl = new URL(window.location.href).searchParams.get(POS_PARAM);
+  if (posFromUrl) applyPersistedPosition(posFromUrl);
+
   // Ensure URL/cookie reflect normalized runtime state after initial load.
   persistState();
 }
@@ -202,7 +262,7 @@ function bindTabs() {
       document.getElementById(`page-${tab.dataset.tab}`).classList.remove("hidden");
       if (tab.dataset.tab === "phyre") {
         // Restore the active secondary tab (whichever was last active)
-        const activeSecondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab.active");
+        const activeSecondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active");
         if (activeSecondary) {
           document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
           const subpage = document.getElementById(`subpage-${activeSecondary.dataset.subtab}`);
@@ -215,11 +275,12 @@ function bindTabs() {
       if (tab.dataset.tab === "benny" && typeof refreshBennyPage === "function") {
         refreshBennyPage();
       }
+      persistPosition();
     });
   });
 
   // Secondary tabs within Phyre (Skill Tree, Outfits)
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab");
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
   secondaryTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       secondaryTabs.forEach(t => t.classList.remove("active"));
@@ -238,6 +299,7 @@ function bindTabs() {
           setActivePickupsSubtab("maha");
         }
       }
+      persistPosition();
     });
   });
 
@@ -249,6 +311,7 @@ function bindTabs() {
       tab.classList.add("active");
       document.querySelectorAll(".fabien-subpage").forEach(p => p.classList.add("hidden"));
       document.getElementById(`fabien-subpage-${tab.dataset.fabtab}`).classList.remove("hidden");
+      persistPosition();
     });
   });
 
@@ -489,9 +552,9 @@ function bindToggles() {
     document.getElementById("page-phyre").classList.remove("hidden");
 
     // Secondary: Pickups
-    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab").forEach(t => t.classList.remove("active"));
     document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab[data-subtab="pickups"]');
+    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="pickups"]');
     if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
     document.getElementById("subpage-pickups").classList.remove("hidden");
 
@@ -1288,8 +1351,10 @@ function renderCCTDetailPanel(panel) {
 
   let name = '';
   let icon = '';
+  let iconRotate = 0;
   let inputText = '';
   let detailLines = [];
+  let subLines = [];
   let bloodPips = 0;
   let isUnlocked = false;
   let statusText = '';
@@ -1311,8 +1376,10 @@ function renderCCTDetailPanel(panel) {
     }
     name = talent.name;
     icon = talent.icon;
+    iconRotate = talent.iconRotate || 0;
     inputText = talent.input || '';
     detailLines = Array.isArray(talent.lines) ? talent.lines : [];
+    subLines = Array.isArray(talent.subLines) ? talent.subLines : [];
     bloodPips = talent.bloodPips || 0;
     isUnlocked = state.completedClans.has(cctKey);
     statusText = isUnlocked ? 'Unlocked' : `Locked (complete ${CLANS[cctKey].name})`;
@@ -1337,7 +1404,7 @@ function renderCCTDetailPanel(panel) {
 
   html += `<div class="detail-panel__tier">Clan Completion Talent</div>`;
   html += `<div class="detail-panel__name-row">`;
-  html += `<img class="detail-panel__ability-icon" src="${icon}" alt="${name}">`;
+  html += `<img class="detail-panel__ability-icon" src="${icon}" alt="${name}"${iconRotate ? ` style="transform:rotate(${iconRotate}deg)"` : ''}>`;
   html += `<div class="detail-panel__name">${name}</div>`;
   html += `</div>`;
 
@@ -1347,8 +1414,18 @@ function renderCCTDetailPanel(panel) {
 
   if (detailLines.length > 0) {
     html += `<ul class="detail-panel__cct-lines">`;
-    for (const line of detailLines) {
-      html += `<li>${formatCCTInlineText(line)}</li>`;
+    for (let i = 0; i < detailLines.length; i++) {
+      const isLast = i === detailLines.length - 1 && subLines.length > 0;
+      if (isLast) {
+        html += `<li>${formatCCTInlineText(detailLines[i])}`;
+        html += `<ul class="detail-panel__cct-sublines">`;
+        for (const sub of subLines) {
+          html += `<li>${formatCCTInlineText(sub)}</li>`;
+        }
+        html += `</ul></li>`;
+      } else {
+        html += `<li>${formatCCTInlineText(detailLines[i])}</li>`;
+      }
     }
     html += `</ul>`;
   }
@@ -1843,7 +1920,7 @@ function renderCompletionTalentRows(grid) {
     tremere:   'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Tremere.png',
     ventrue:   'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Ventrue.png',
     banuHaqim: 'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_BanuHaqim.png',
-    brujah:    'assets/ClanPatterns/T_UI_ClanIconContainer.png',
+    brujah:    'assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Selected.png',
     lasombra:  'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Lasombra.png',
     toreador:  'assets/ClanPatterns/T_UI_ClanIconContainer_Selected_Toreador.png',
   };
@@ -1899,7 +1976,7 @@ function renderCompletionTalentRows(grid) {
     cell.innerHTML = `
       <div class="comp-talent__icon-wrap">
         ${isCompleted ? `<img class="comp-talent__container-bg" src="${CLAN_PATTERN_BG[clanId]}" alt="">` : ''}
-        <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}">
+        <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}"${talent.iconRotate ? ` style="transform:rotate(${talent.iconRotate}deg)"` : ''}>
       </div>
       ${buildCCTPipsMarkup(talent.bloodPips, isCompleted)}
     `;
