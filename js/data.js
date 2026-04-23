@@ -820,6 +820,9 @@ const UI = {
   questionMark:          `${TEX}/N_Textures/AbilityTree/T_UI_QuestionMark.png`,
   columnGradient:        `${COLUMNS}/T_UI_ClanColumn_Gradient.png`,
 
+  // DLC
+  bennyLogo:             `${CLAN_LOGOS}/T_UI_BennyLogo.png`,
+
   // Branding
   vtmLogo:               `${TEX}/UI_TITLE_VtM_01.png`,
   skilltreeBg:           `${TEX}/T_UI_SKILLTREE_Background_2058_.png`,
@@ -882,6 +885,16 @@ const OUTFITS = {
     { name: "The Elder",    tier: "affect",    type: "wealthy",    thumb: `${SILO}/T_UI_Thumb_Toreador_04.png`,         desc: "Centuries of wickedness and delicious temptation, wrapped in style and glamor, with a smile that cut like a knife." },
     { name: "The Diva",     tier: "mastery",   type: "attractive", thumb: `${SILO}/T_UI_Thumb_Toreador_03.png`,         desc: "The center of attention, the star of every show. When they walked into a room why would anything else matter?" },
   ],
+};
+
+// ── Benny DLC Outfit ────────────────────────────────────────
+const BENNY_OUTFIT = {
+  name: "The Maverick Cop",
+  tier: "strike",
+  type: "strong",
+  thumb: `${SILO}/T_UI_Thumb_Phyre_Benny.png`,
+  fullImg: `assets/screenshot/BennyOutfit.png`,
+  desc: "A force of nature wearing the city like a second skin. A simmering volcano on the edge of eruption.",
 };
 
 // ── Outfit Type Reactions ────────────────────────────────────

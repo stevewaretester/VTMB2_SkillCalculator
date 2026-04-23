@@ -27,6 +27,15 @@ function renderFabienTree() {
     ? `${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian_COMPLETED.png`
     : `${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian.png`;
   logo.alt = "Malkavian";
+  logo.addEventListener("mouseenter", (e) => {
+    sharedTooltip.innerHTML =
+      `<div class="tooltip__name">Malkavian</div>` +
+      `<div class="tooltip__clan-descr">Malkavians possess unsettling insight, seeing the world askew. Some call them mad, others prophetic.</div>`;
+    sharedTooltip.classList.add("tooltip--visible");
+    positionTooltip(e);
+  });
+  logo.addEventListener("mousemove", positionTooltip);
+  logo.addEventListener("mouseleave", () => sharedTooltip.classList.remove("tooltip--visible"));
   grid.appendChild(logo);
 
   const clanName = document.createElement("div");
@@ -68,11 +77,15 @@ function renderFabienTree() {
 
     cell.appendChild(btn);
 
-    // Label
-    const label = document.createElement("div");
-    label.className = "fabien-cell__name";
-    label.textContent = ability.name;
-    cell.appendChild(label);
+    const tierLabel = ability.tier && TIERS[ability.tier] ? TIERS[ability.tier].label : "";
+    const tooltipHtml = `<div class="tooltip__tier">${tierLabel}</div><div class="tooltip__name">${ability.name}</div>`;
+    cell.addEventListener("mouseenter", (e) => {
+      sharedTooltip.innerHTML = tooltipHtml;
+      sharedTooltip.classList.add("tooltip--visible");
+      positionTooltip(e);
+    });
+    cell.addEventListener("mousemove", positionTooltip);
+    cell.addEventListener("mouseleave", () => sharedTooltip.classList.remove("tooltip--visible"));
 
     // Connector line between abilities (not after last)
     if (revIdx < order.length - 1) {
@@ -131,8 +144,9 @@ function renderFabienDetail(panel) {
     </div>`;
   }
 
-  // Blood pips
-  if (ability.bloodPips > 0) {
+  // Blood pips (Fast Forward mod has no blood pip cost)
+  const hidePipsForFastForward = ability.tier === "passive" && state.modFabienPhlegmatic;
+  if (ability.bloodPips > 0 && !hidePipsForFastForward) {
     html += `<div style="display:flex; gap:3px; margin-top:8px;">`;
     for (let i = 0; i < ability.bloodPips; i++) {
       html += `<div class="blood-pip filled" style="width:14px; height:6px;"></div>`;

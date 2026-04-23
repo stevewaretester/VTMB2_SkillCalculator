@@ -123,6 +123,56 @@ function renderOutfitGrid() {
       grid.appendChild(cell);
     }
   }
+
+  // ── Benny (Loose Cannon DLC) row ──
+  const bennyLogoCell = document.createElement("div");
+  bennyLogoCell.className = "outfit-grid__clan-logo";
+  bennyLogoCell.innerHTML = `<img src="assets/ElixirIcons/icon_phyre_mark.png" alt="Benny" title="Benny — Loose Cannon DLC">`;
+  grid.appendChild(bennyLogoCell);
+
+  const isBennyFocused = outfitState.focusedOutfit &&
+    outfitState.focusedOutfit.clanId === "benny" &&
+    outfitState.focusedOutfit.index === 0;
+  const isBennyUnlocked = bennyState.looseCannon;
+  const bennyCell = document.createElement("div");
+  bennyCell.className = "outfit-cell" +
+    (isBennyUnlocked ? " unlocked" : " locked") +
+    (isBennyFocused ? " focused" : "");
+  if (isBennyUnlocked) {
+    bennyCell.innerHTML = `
+    <img class="outfit-cell__thumb" src="${BENNY_OUTFIT.thumb}" alt="${BENNY_OUTFIT.name}">
+    <img class="outfit-cell__badge" src="${UI.bennyLogo}" alt="Loose Cannon DLC">
+    <div class="outfit-cell__name">${BENNY_OUTFIT.name}</div>
+    <div class="outfit-cell__type outfit-type--${BENNY_OUTFIT.type}">${OUTFIT_TYPES[BENNY_OUTFIT.type].label}</div>`;
+  } else {
+    bennyCell.innerHTML = `
+    <img class="outfit-cell__lock" src="${UI.blockedPadlock}" alt="Locked">
+    <img class="outfit-cell__badge" src="${UI.bennyLogo}" alt="Loose Cannon DLC">
+    <div class="outfit-cell__name">${BENNY_OUTFIT.name}</div>`;
+  }
+  bennyCell.style.cursor = "pointer";
+  bennyCell.addEventListener("click", () => {
+    const alreadyFocused = outfitState.focusedOutfit &&
+      outfitState.focusedOutfit.clanId === "benny" &&
+      outfitState.focusedOutfit.index === 0;
+    outfitState.focusedOutfit = alreadyFocused ? null : { clanId: "benny", index: 0 };
+    renderOutfitGrid();
+    renderOutfitDetail();
+    renderReactionsTable();
+  });
+  bennyCell.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    outfitState.focusedOutfit = null;
+    renderOutfitGrid();
+    renderOutfitDetail();
+    renderReactionsTable();
+  });
+  grid.appendChild(bennyCell);
+
+  // Empty cells for the remaining 3 tier columns
+  for (let i = 1; i < tierLabels.length; i++) {
+    grid.appendChild(document.createElement("div"));
+  }
 }
 
 // Check if an outfit is unlocked based on skill tree state
@@ -147,6 +197,44 @@ function renderOutfitDetail() {
   }
 
   const { clanId, index } = outfitState.focusedOutfit;
+
+  // ── Benny DLC detail ──
+  if (clanId === "benny") {
+    const outfit = BENNY_OUTFIT;
+    const typeData = OUTFIT_TYPES[outfit.type];
+    const isUnlocked = bennyState.looseCannon;
+    let html = "";
+
+    html += `<div class="outfit-detail__thumb-wrap">`;
+    if (isUnlocked && outfit.fullImg) {
+      html += `<img class="outfit-detail__thumb" src="${outfit.fullImg}" alt="${outfit.name}" style="cursor:pointer;">`;
+    } else {
+      html += `<img class="outfit-detail__thumb outfit-detail__thumb--locked" src="assets/N_Textures/Outfit/Silhouettes/T_UI_Thumb_Bruhjan04.png" alt="Locked">`;
+    }
+    html += `</div>`;
+
+    html += `<div class="outfit-detail__name">${outfit.name}</div>`;
+    if (outfit.desc) html += `<div class="outfit-detail__desc">${outfit.desc}</div>`;
+    html += `<div class="outfit-detail__type outfit-type--${outfit.type}">${typeData.label}</div>`;
+    html += `<div class="outfit-detail__clan">
+      <img src="${UI.bennyLogo}" alt="Loose Cannon DLC">
+      <span>Benny — Loose Cannon DLC</span>
+    </div>`;
+    if (isUnlocked) {
+      html += `<div class="outfit-detail__req"><span style="color:var(--green-affinity)">✓ Unlocked</span></div>`;
+    } else {
+      html += `<div class="outfit-detail__req"><button class="outfit-detail__skilltree-btn" id="benny-dlc-unlock-link">Enable Loose Cannon DLC to unlock →</button></div>`;
+    }
+    panel.innerHTML = html;
+    if (isUnlocked && outfit.fullImg) {
+      panel.querySelector(".outfit-detail__thumb").addEventListener("click", () => openImageLightbox(outfit.fullImg, outfit.name));
+    }
+    panel.querySelector("#benny-dlc-unlock-link")?.addEventListener("click", () => {
+      if (typeof navigateToBennyDLC === "function") navigateToBennyDLC();
+    });
+    return;
+  }
+
   const outfit = OUTFITS[clanId][index];
   const clan = CLANS[clanId];
   const typeData = OUTFIT_TYPES[outfit.type];
@@ -279,9 +367,9 @@ function renderReactionsTable() {
     { id: "cho", icon: UI.resCholericLg,    cssVar: "--res-choleric" },
   ];
   const AFFECT_LINK_DEFS = [
-    { name: "Taunt",               lookup: "Taunt",               resVar: "--res-choleric" },
-    { name: "Beckon",              lookup: "Beckon",              resVar: "--res-sanguine" },
-    { name: "Glimpse of Oblivion", lookup: "Glimpse of Oblivion", resVar: "--res-melancholic" },
+    { name: "Taunt",               lookup: "Taunt",               resVar: "--res-choleric",    convo: "You are nothing to me" },
+    { name: "Beckon",              lookup: "Beckon",              resVar: "--res-sanguine",    convo: "You want me" },
+    { name: "Glimpse of Oblivion", lookup: "Glimpse of Oblivion", resVar: "--res-melancholic", convo: "You should run" },
   ];
 
   const resHeader = (r) => `<th><img class="reactions-res-icon" src="${r.icon}" alt="" title="${r.id}"></th>`;
@@ -318,7 +406,7 @@ function renderReactionsTable() {
     }
 
     let h = `<h3 class="reactions-section__subtitle">Affect Abilities</h3>`;
-    h += `<table class="reactions-table"><thead><tr><th>Ability</th>`;
+    h += `<table class="reactions-table"><thead><tr><th>Ability</th><th>Convo Option</th>`;
     for (const r of resTypes) h += resHeader(r);
     h += `</tr></thead><tbody>`;
 
@@ -331,6 +419,7 @@ function renderReactionsTable() {
       if (isUnlocked && meta) {
         h += `<tr>`;
         h += `<td><button class="affect-link-btn" style="color:var(${a.resVar})" data-clan="${meta.clanId}" data-tier="${meta.tier}">${a.name}</button></td>`;
+        h += `<td class="convo-affect-option" style="color:var(${a.resVar})">&ldquo;${a.convo}&rdquo;</td>`;
         for (const r of resTypes) {
           const val = res ? res[r.id] : false;
           h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
@@ -342,6 +431,7 @@ function renderReactionsTable() {
           : `<span class="affect-locked-name">🔒 ${a.name}</span>`;
         h += `<tr class="affect-row--locked">`;
         h += `<td>${linkBtn}</td>`;
+        h += `<td class="convo-affect-option convo-affect-option--locked">—</td>`;
         for (const r of resTypes) {
           const val = res ? res[r.id] : false;
           h += `<td class="${val ? "react-pos react-pos--locked" : "react-neg react-neg--locked"}">${val ? "✓" : "✗"}</td>`;
@@ -409,7 +499,7 @@ function renderReactionsTable() {
   } else {
     // ── Focused outfit view ──
     const { clanId, index } = outfitState.focusedOutfit;
-    const outfit = OUTFITS[clanId][index];
+    const outfit = clanId === "benny" ? BENNY_OUTFIT : OUTFITS[clanId][index];
     const typeData = OUTFIT_TYPES[outfit.type];
     html += buildApproachTable(outfit.type, typeData);
     html += buildAffectBlock();

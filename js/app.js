@@ -23,19 +23,171 @@ const state = {
   clanSelectorCollapsed: false,
 };
 
-// ── Init ─────────────────────────────────────────────────────
-function init() {
-  // Initialize all abilities as locked
+const STATE_PARAM = "state";
+const STATE_COOKIE = "vtmb2_state";
+const STATE_VERSION = 1;
+
+function initAbilityStateDefaults() {
   for (const clanId of CLAN_ORDER) {
     for (const tier of TIER_ORDER) {
       state.abilities[`${clanId}:${tier}`] = "locked";
     }
   }
+}
+
+function encodeStatePayload(payload) {
+  try {
+    const json = JSON.stringify(payload);
+    return btoa(unescape(encodeURIComponent(json)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+  } catch {
+    return "";
+  }
+}
+
+function decodeStatePayload(encoded) {
+  try {
+    const padded = encoded + "===".slice((encoded.length + 3) % 4);
+    const b64 = padded.replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function makePersistedState() {
+  const abilityEntries = {};
+  for (const [k, v] of Object.entries(state.abilities)) {
+    if (v !== "locked") abilityEntries[k] = v;
+  }
+
+  return {
+    v: STATE_VERSION,
+    sc: state.selectedClan,
+    cc: Array.from(state.completedClans),
+    ct: !!state.completionTalents,
+    mh: !!state.modHaven,
+    mf: !!state.modFabienPhlegmatic,
+    cs: !!state.clanSelectorCollapsed,
+    sp: state.selectedPerTier,
+    a: abilityEntries,
+    lc: !!bennyState.looseCannon,
+  };
+}
+
+function setCookie(name, value, maxAgeSeconds) {
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAgeSeconds}; samesite=lax`;
+}
+
+function getCookie(name) {
+  const prefix = `${name}=`;
+  const parts = document.cookie ? document.cookie.split("; ") : [];
+  for (const p of parts) {
+    if (p.startsWith(prefix)) return p.substring(prefix.length);
+  }
+  return "";
+}
+
+function persistState() {
+  const payload = makePersistedState();
+  const encoded = encodeStatePayload(payload);
+  if (!encoded) return;
+
+  const url = new URL(window.location.href);
+  url.searchParams.set(STATE_PARAM, encoded);
+  history.replaceState(null, "", url.toString());
+
+  // Keep one-year rolling save for returning visitors.
+  setCookie(STATE_COOKIE, encoded, 60 * 60 * 24 * 365);
+}
+
+function applyPersistedState(payload) {
+  if (!payload || typeof payload !== "object") return;
+
+  state.selectedClan = CLAN_ORDER.includes(payload.sc) ? payload.sc : null;
+  state.completedClans = new Set(
+    Array.isArray(payload.cc) ? payload.cc.filter(id => CLAN_ORDER.includes(id)) : []
+  );
+  state.completionTalents = !!payload.ct;
+  state.modHaven = !!payload.mh;
+  state.modFabienPhlegmatic = !!payload.mf;
+  state.clanSelectorCollapsed = !!payload.cs;
+  state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
+
+  initAbilityStateDefaults();
+  if (payload.a && typeof payload.a === "object") {
+    for (const [k, v] of Object.entries(payload.a)) {
+      if (Object.prototype.hasOwnProperty.call(state.abilities, k) && ["locked", "awakened", "unlocked"].includes(v)) {
+        state.abilities[k] = v;
+      }
+    }
+  }
+
+  // If a clan is selected but no state was persisted for its baseline, keep the UX baseline intact.
+  if (state.selectedClan && state.abilities[`${state.selectedClan}:passive`] === "locked") {
+    state.abilities[`${state.selectedClan}:passive`] = "unlocked";
+  }
+
+  if (typeof bennyState !== "undefined") {
+    bennyState.looseCannon = !!payload.lc;
+  }
+}
+
+function loadPersistedState() {
+  const url = new URL(window.location.href);
+  const fromUrl = url.searchParams.get(STATE_PARAM);
+  if (fromUrl) {
+    const payload = decodeStatePayload(fromUrl);
+    if (payload) {
+      applyPersistedState(payload);
+      // Sync cookie to latest URL payload.
+      setCookie(STATE_COOKIE, fromUrl, 60 * 60 * 24 * 365);
+      return;
+    }
+  }
+
+  const fromCookie = getCookie(STATE_COOKIE);
+  if (fromCookie) {
+    const payload = decodeStatePayload(fromCookie);
+    if (payload) {
+      applyPersistedState(payload);
+    }
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────
+function init() {
+  initAbilityStateDefaults();
+  loadPersistedState();
 
   renderClanSelector();
+  renderGrid();
+  updateCosts();
+  renderDetailPanel();
+  updateClanPattern();
+  applyClanSelectorCollapsed();
   bindToggles();
   bindTabs();
   bindClanSelectorToggle();
+
+  // Ensure URL/cookie reflect normalized runtime state after initial load.
+  persistState();
+}
+
+function setActivePickupsSubtab(tabId) {
+  const tabs = document.querySelectorAll(".tab-bar--pickups .tab-bar__tab");
+  const targetTab = document.querySelector(`.tab-bar--pickups .tab-bar__tab[data-pickuptab="${tabId}"]`);
+  const targetSubpage = document.getElementById(`pickups-subpage-${tabId}`);
+  if (!targetTab || !targetSubpage) return false;
+
+  tabs.forEach(t => t.classList.remove("active"));
+  targetTab.classList.add("active");
+  document.querySelectorAll(".pickups-subpage").forEach(p => p.classList.add("hidden"));
+  targetSubpage.classList.remove("hidden");
+  return true;
 }
 
 // ── Tab Navigation ───────────────────────────────────────────
@@ -48,6 +200,21 @@ function bindTabs() {
       tab.classList.add("active");
       document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
       document.getElementById(`page-${tab.dataset.tab}`).classList.remove("hidden");
+      if (tab.dataset.tab === "phyre") {
+        // Restore the active secondary tab (whichever was last active)
+        const activeSecondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab.active");
+        if (activeSecondary) {
+          document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+          const subpage = document.getElementById(`subpage-${activeSecondary.dataset.subtab}`);
+          if (subpage) subpage.classList.remove("hidden");
+          if (activeSecondary.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") refreshOutfitsPage();
+          if (activeSecondary.dataset.subtab === "combos" && typeof renderCombosPage === "function") renderCombosPage();
+          if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
+        }
+      }
+      if (tab.dataset.tab === "benny" && typeof refreshBennyPage === "function") {
+        refreshBennyPage();
+      }
     });
   });
 
@@ -67,6 +234,9 @@ function bindTabs() {
       }
       if (tab.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") {
         renderPickupsPage();
+        if (state.modHaven) {
+          setActivePickupsSubtab("maha");
+        }
       }
     });
   });
@@ -86,10 +256,7 @@ function bindTabs() {
   const pickupsTabs = document.querySelectorAll(".tab-bar--pickups .tab-bar__tab");
   pickupsTabs.forEach(tab => {
     tab.addEventListener("click", () => {
-      pickupsTabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      document.querySelectorAll(".pickups-subpage").forEach(p => p.classList.add("hidden"));
-      document.getElementById(`pickups-subpage-${tab.dataset.pickuptab}`).classList.remove("hidden");
+      setActivePickupsSubtab(tab.dataset.pickuptab);
     });
   });
 }
@@ -138,6 +305,7 @@ function renderClanSelector() {
       renderClanSelector();
       renderGrid();
       if (typeof renderFabienTree === "function") renderFabienTree();
+      if (typeof renderPickupsPage === "function") renderPickupsPage();
     });
 
     card.addEventListener("click", () => selectClan(clanId));
@@ -219,6 +387,7 @@ function applyClanSelectorCollapsed() {
   if (sel) sel.classList.toggle("collapsed", state.clanSelectorCollapsed);
   const btn = document.getElementById("clan-selector-toggle");
   if (btn) btn.textContent = state.clanSelectorCollapsed ? "\u25bc Select Clan" : "\u25b2 Hide Clan";
+  persistState();
 }
 
 // ── Clan Pattern Background ─────────────────────────────────
@@ -239,6 +408,7 @@ function bindToggles() {
   completionToggle.addEventListener("change", (e) => {
     state.completionTalents = e.target.checked;
     renderGrid();
+    if (typeof renderPickupsPage === "function") renderPickupsPage();
   });
   // Shift+Click on label to force-enable disabled toggle
   const completionLabel = completionToggle && completionToggle.closest('label');
@@ -249,6 +419,7 @@ function bindToggles() {
         state.completionTalents = !state.completionTalents;
         completionToggle.checked = state.completionTalents;
         renderGrid();
+        if (typeof renderPickupsPage === "function") renderPickupsPage();
       }
     });
   }
@@ -260,6 +431,7 @@ function bindToggles() {
     state.modFabienPhlegmatic = e.target.checked;
     document.getElementById("goto-fabien-phlegmatic").classList.toggle("hidden", !e.target.checked);
     if (typeof renderFabienTree === "function") renderFabienTree();
+    persistState();
   });
 
   const havenToggle = document.getElementById("toggle-haven");
@@ -270,6 +442,7 @@ function bindToggles() {
       state.modHaven = e.target.checked;
       document.getElementById("goto-haven-items").classList.toggle("hidden", !e.target.checked);
       if (typeof renderPickupsPage === "function") renderPickupsPage();
+      persistState();
     });
     // Shift+Click on label to force-enable disabled toggle
     const havenLabel = havenToggle.closest('label');
@@ -281,6 +454,7 @@ function bindToggles() {
           havenToggle.checked = state.modHaven;
           document.getElementById("goto-haven-items").classList.toggle("hidden", !state.modHaven);
           if (typeof renderPickupsPage === "function") renderPickupsPage();
+          persistState();
         }
       });
     }
@@ -321,14 +495,12 @@ function bindToggles() {
     if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
     document.getElementById("subpage-pickups").classList.remove("hidden");
 
-    // Pickups tab: Items
-    document.querySelectorAll(".tab-bar--pickups .tab-bar__tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".pickups-subpage").forEach(p => p.classList.add("hidden"));
-    const itemsTab = document.querySelector('.tab-bar--pickups .tab-bar__tab[data-pickuptab="items"]');
-    if (itemsTab) itemsTab.classList.add("active");
-    document.getElementById("pickups-subpage-items").classList.remove("hidden");
-
     if (typeof renderPickupsPage === "function") renderPickupsPage();
+
+    const targetTab = state.modHaven ? "maha" : "items";
+    if (!setActivePickupsSubtab(targetTab)) {
+      setActivePickupsSubtab("items");
+    }
   });
 
   document.getElementById("reset-all").addEventListener("click", resetAll);
@@ -500,6 +672,8 @@ function renderGrid() {
       grid.appendChild(cell);
     }
   }
+
+  persistState();
 }
 
 function createAbilityCell(clanId, tier) {
@@ -1544,8 +1718,7 @@ function renderDetailPanel() {
   });
 }
 
-function openVideoLightbox(src) {
-  // Remove existing
+function openImageLightbox(src, alt) {
   const old = document.getElementById("video-lightbox");
   if (old) old.remove();
 
@@ -1553,11 +1726,38 @@ function openVideoLightbox(src) {
   overlay.id = "video-lightbox";
   overlay.className = "video-lightbox";
   overlay.innerHTML = `
-    <div class="video-lightbox__content">
-      <video src="${src}" autoplay loop muted></video>
+    <div class="video-lightbox__content video-lightbox__content--img">
+      <img src="${src}" alt="${alt || ''}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; cursor:default;">
       <button class="video-lightbox__close">&times;</button>
     </div>
   `;
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay || e.target.classList.contains("video-lightbox__close")) {
+      overlay.remove();
+    }
+  });
+  document.body.appendChild(overlay);
+}
+
+function openVideoLightbox(src) {
+  // Remove existing
+  const old = document.getElementById("video-lightbox");
+  if (old) old.remove();
+
+  const isYouTube = src.includes("youtube.com/embed") || src.includes("youtu.be");
+
+  const overlay = document.createElement("div");
+  overlay.id = "video-lightbox";
+  overlay.className = "video-lightbox";
+  overlay.innerHTML = isYouTube
+    ? `<div class="video-lightbox__content">
+        <iframe src="${src}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width:100%;height:100%;"></iframe>
+        <button class="video-lightbox__close">&times;</button>
+      </div>`
+    : `<div class="video-lightbox__content">
+        <video src="${src}" autoplay loop muted></video>
+        <button class="video-lightbox__close">&times;</button>
+      </div>`;
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.classList.contains("video-lightbox__close")) {
       overlay.remove();

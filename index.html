@@ -13,7 +13,7 @@
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
-      <img class="header__logo" src="assets/UI_TITLE_VtM_01.png" alt="VtM">
+      <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/about" target="_blank" rel="noopener noreferrer"><img class="header__logo" src="assets/UI_TITLE_VtM_01.png" alt="VtM"></a>
       <div class="header__title-group">
         <h1 class="header__title">Skill Calculator</h1>
         <p class="header__byline">a tool by <a href="https://github.com/stevewaretester" target="_blank" rel="noopener">stevewaretester</a> / <a href="https://www.nexusmods.com/profile/0bv10u5" target="_blank" rel="noopener">obvious</a> / <a href="https://www.reddit.com/user/teh_stev3/" target="_blank" rel="noopener">teh_steve</a></p>
@@ -163,6 +163,9 @@
     <!-- Sub-page: Pickups -->
     <div class="subpage hidden" id="subpage-pickups">
       <nav class="tab-bar tab-bar--pickups">
+        <div class="tab-bar__aside-group tab-bar__aside-group--left">
+          <button class="tab-bar__tab tab-bar__tab--aside pickup-tab--maha hidden" data-pickuptab="maha">MAHA</button>
+        </div>
         <button class="tab-bar__tab active" data-pickuptab="weapons">Weapons</button>
         <button class="tab-bar__tab" data-pickuptab="items">Items</button>
       </nav>
@@ -186,6 +189,108 @@
             <h3 class="pickups-section-title">Items</h3>
             <div id="pickups-items-table"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- MAHA Guide -->
+      <div class="pickups-subpage hidden" id="pickups-subpage-maha">
+        <div class="maha-guide">
+          <h2 class="maha-guide__title">Make a Haven a Home</h2>
+          <p class="maha-guide__lead">A conversion mod for Phyre&rsquo;s Haven, activated by collecting the Dead Cat codex, and applied any time entering/exiting the Haven.</p>
+          <p class="maha-guide__lead">In addition to cleaning up the place you get the following features:</p>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Blood Alchemy screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title"><a class="maha-feature__title-link maha-feature__title-link--blood" href="#" data-maha-pickuptab="items">Blood Alchemy</a></h3>
+              <p class="maha-feature__meta">Located in the kitchen.</p>
+              <p>Phyre has found some of Dale&rsquo;s recipes and is capable of creating not just thin-blood elixirs, but also exchanging resonances for each other, Ability Points, max Elixir count, and even max HP.</p>
+            </div>
+          </article>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Shadow Broker screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title"><a class="maha-feature__title-link maha-feature__title-link--shadow" href="#" data-maha-pickuptab="weapons">Shadow Broker</a></h3>
+              <div class="maha-req" id="maha-shadow-requires" aria-live="polite">
+                <span class="maha-req__label">Requires</span>
+                <span class="maha-req__chip" data-requirement="completion-talents">Clan Completion Talents</span>
+                <span class="maha-req__chip maha-req__chip--clan" data-requirement="lasombra-complete">
+                  <img class="maha-req__clan-icon" id="maha-req-lasombra-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Lasombra.png" alt="Lasombra">
+                  Lasombra Clan Completion
+                </span>
+              </div>
+              <p>Located in the bathroom area, the Shadow Broker is a mysterious entity that can provide an assortment of deadly weapons, stored directly in your shadowcache, all at the cost of Melancholic resonance.</p>
+            </div>
+          </article>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Blood Bath screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title">Blood Bath</h3>
+              <p>Phyre finally gets to wash, but in blood. Located beside the Shadow Broker, you can take a dip in the tub to restore all lost HP and Blood pips.</p>
+            </div>
+          </article>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Fast Travel screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title">Fast Travel</h3>
+              <div class="maha-req" id="maha-fasttravel-requires" aria-live="polite">
+                <span class="maha-req__label">Requires</span>
+                <span class="maha-req__chip" data-requirement="prince-permission">Prince permission to move about the town</span>
+              </div>
+              <p>Once you&rsquo;re able to move freely, Phyre can use Dale&rsquo;s notes and maps to travel through backdoors to each Elysium without being noticed or back again, indicated by the neon bat sign.</p>
+            </div>
+          </article>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Window Escape screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title">Window Escape</h3>
+              <p>As a creature of the night, making use of a window to enter and exit the Haven makes sense, and now you can achieve exactly that.</p>
+            </div>
+          </article>
+
+          <article class="maha-feature">
+            <div class="maha-feature__image-wrap">
+              <img class="maha-feature__image" src="assets/UI_TITLE_VtM_01.png" alt="Clan Decal Training screenshot placeholder">
+              <div class="maha-feature__image-caption">Screenshot placeholder</div>
+            </div>
+            <div class="maha-feature__content">
+              <h3 class="maha-feature__title">Clan Decal Training</h3>
+              <div class="maha-req" id="maha-clan-decal-requires" aria-live="polite">
+                <span class="maha-req__label">Requires</span>
+                <a class="maha-req__chip maha-req__chip-link" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/add-ons/expansion-pass" target="_blank" rel="noopener">Santa Monica Memories DLC</a>
+                <span class="maha-req__chip maha-req__chip--icons" data-requirement="clan-completion-any">
+                  <span class="maha-req__chip-text">Completed clans:</span>
+                  <img class="maha-req__clan-list-icon" data-clan-key="brujah" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Bruhjan.png" alt="Brujah">
+                  <img class="maha-req__clan-list-icon" data-clan-key="tremere" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Tremere.png" alt="Tremere">
+                  <img class="maha-req__clan-list-icon" data-clan-key="banuHaqim" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_BamuHaquim.png" alt="Banu Haqim">
+                  <img class="maha-req__clan-list-icon" data-clan-key="ventrue" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Venture.png" alt="Ventrue">
+                  <img class="maha-req__clan-list-icon" data-clan-key="lasombra" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Lasombra.png" alt="Lasombra">
+                  <img class="maha-req__clan-list-icon" data-clan-key="toreador" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Toreador.png" alt="Toreador">
+                </span>
+              </div>
+              <p class="maha-feature__meta">Location: Bedroom.</p>
+              <p>Allows access to clan training without needing to go to each Clan representative, but only for the clans you have completed.</p>
+            </div>
+          </article>
         </div>
       </div>
     </div>
@@ -236,13 +341,26 @@
 
     <!-- Page: Benny -->
     <div class="page hidden" id="page-benny">
-      <div class="placeholder-page placeholder-page--dlc">
-        <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/add-ons/expansion-pass" target="_blank" rel="noopener noreferrer" class="dlc-link">
-          <img class="dlc-link__icon" src="assets/T_UI_DLC_FrontEnd_Icon_LooseCannon.png" alt="Loose Cannon DLC">
-          <h2>Benny</h2>
-          <p>Coming Soon</p>
-          <span class="dlc-link__cta">Expansion Pass</span>
-        </a>
+      <div class="clan-selector" id="benny-dlc-section">
+        <!-- Populated by JS -->
+      </div>
+      <button class="clan-selector-toggle" id="benny-dlc-toggle">▼ DLC Info</button>
+      <nav class="tab-bar tab-bar--secondary">
+        <button class="tab-bar__tab active" data-bennytab="skills">Skills</button>
+      </nav>
+      <div class="benny-layout">
+        <img class="benny-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Bruhjan.png" alt="">
+        <aside class="benny-sidebar">
+          <img class="benny-sidebar__pistol" src="assets/T_UI_BennyPistol.png" alt="Benny's Pistol" id="benny-pistol-img">
+        </aside>
+        <main class="benny-main">
+          <div id="benny-tree">
+            <!-- Populated by JS -->
+          </div>
+          <aside class="fabien-detail" id="benny-detail">
+            <div class="empty-state">Select an ability to view details</div>
+          </aside>
+        </main>
       </div>
     </div>
 
@@ -306,7 +424,7 @@
       <button class="modal-card__close" id="about-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="about-modal-title">About</h2>
-        <span class="modal-card__version">v1.05</span>
+        <span class="modal-card__version">v1.06</span>
       </div>
 
       <div class="modal-card__body">
@@ -316,8 +434,12 @@
           <summary class="modal-card__changelog-summary">Changelog</summary>
           <ul class="modal-card__changelog">
             <li>
-              <span class="changelog__version">v1.05</span>
+              <span class="changelog__version">v1.06</span>
               <span class="changelog__label">Current</span>
+              <span class="changelog__desc">Benny (Loose Cannon DLC) tab &mdash; skill tree, sidebar pistol, DLC info section with trailer link, outfit row &amp; detail panel. State persisted in URL.</span>
+            </li>
+            <li>
+              <span class="changelog__version">v1.05</span>
               <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/edc45e9" target="_blank" rel="noopener">edc45e9</a>
               <span class="changelog__desc">Clan completion talent icons, clan pattern &amp; selector assets, full keyboard/UI input icon set, 3D weapon &amp; elixir images.</span>
             </li>
@@ -394,6 +516,7 @@
   <script src="js/app.js"></script>
   <script src="js/outfits.js"></script>
   <script src="js/fabien.js"></script>
+  <script src="js/benny.js"></script>
   <script src="js/combos.js"></script>
   <script src="js/pickups.js"></script>
 </body>

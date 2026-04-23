@@ -317,10 +317,18 @@ function renderAlchemyRowIcon(row) {
 function updatePickupsTabLabels() {
   const havenActive = typeof state !== 'undefined' && state.modHaven;
 
+  const secondaryPickupsTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien) .tab-bar__tab[data-subtab="pickups"]');
   const weaponsTab  = document.querySelector('[data-pickuptab="weapons"]');
   const itemsTab    = document.querySelector('[data-pickuptab="items"]');
+  const mahaTab     = document.querySelector('[data-pickuptab="maha"]');
   const weaponsTitle = document.querySelector('#pickups-subpage-weapons .pickups-section-title');
   const itemsTitle   = document.querySelector('#pickups-subpage-items .pickups-section-title');
+  const mahaSubpage  = document.getElementById('pickups-subpage-maha');
+
+  if (secondaryPickupsTab) {
+    secondaryPickupsTab.textContent = havenActive ? 'Haven' : 'Pickups';
+    secondaryPickupsTab.classList.toggle('tab--haven-mod', havenActive);
+  }
 
   if (weaponsTab) {
     weaponsTab.textContent = havenActive ? 'Shadow Broker' : 'Weapons';
@@ -338,10 +346,98 @@ function updatePickupsTabLabels() {
     itemsTitle.textContent = havenActive ? 'Blood Alchemy' : 'Items';
     itemsTitle.classList.toggle('pickups-section-title--blood', havenActive);
   }
+
+  if (mahaTab) {
+    mahaTab.classList.toggle('hidden', !havenActive);
+    mahaTab.classList.toggle('tab--maha-mod', havenActive);
+  }
+
+  if (!havenActive && mahaTab && mahaTab.classList.contains('active')) {
+    mahaTab.classList.remove('active');
+    if (itemsTab) {
+      itemsTab.classList.add('active');
+      document.querySelectorAll('.pickups-subpage').forEach(p => p.classList.add('hidden'));
+      const itemsSubpage = document.getElementById('pickups-subpage-items');
+      if (itemsSubpage) itemsSubpage.classList.remove('hidden');
+    }
+  }
+
+  if (mahaSubpage && !havenActive) {
+    mahaSubpage.classList.add('hidden');
+  }
+}
+
+function updateMahaRequirementState() {
+  const fastWrap = document.getElementById('maha-fasttravel-requires');
+  const reqWrap = document.getElementById('maha-shadow-requires');
+  const decalWrap = document.getElementById('maha-clan-decal-requires');
+  if (fastWrap) {
+    fastWrap.classList.remove('req-state-none', 'req-state-partial', 'req-state-full');
+    fastWrap.classList.add('req-state-none');
+  }
+  if (!reqWrap || typeof state === 'undefined') return;
+
+  const hasCompletionTalents = !!state.completionTalents;
+  const hasLasombraCompletion = state.completedClans instanceof Set && state.completedClans.has('lasombra');
+
+  const completionChip = reqWrap.querySelector('[data-requirement="completion-talents"]');
+  const lasombraChip = reqWrap.querySelector('[data-requirement="lasombra-complete"]');
+  const lasombraIcon = document.getElementById('maha-req-lasombra-icon');
+
+  if (completionChip) completionChip.classList.toggle('req-met', hasCompletionTalents);
+  if (lasombraChip) lasombraChip.classList.toggle('req-met', hasLasombraCompletion);
+
+  if (lasombraIcon && typeof CLANS !== 'undefined' && CLANS.lasombra) {
+    lasombraIcon.src = hasLasombraCompletion ? CLANS.lasombra.logoCompleted : CLANS.lasombra.logo;
+  }
+
+  const metCount = (hasCompletionTalents ? 1 : 0) + (hasLasombraCompletion ? 1 : 0);
+  reqWrap.classList.remove('req-state-none', 'req-state-partial', 'req-state-full');
+  if (metCount === 2) reqWrap.classList.add('req-state-full');
+  else if (metCount === 1) reqWrap.classList.add('req-state-partial');
+  else reqWrap.classList.add('req-state-none');
+
+  if (decalWrap) {
+    const clanKeys = typeof CLAN_ORDER !== 'undefined' ? CLAN_ORDER : ['brujah', 'tremere', 'banuHaqim', 'ventrue', 'lasombra', 'toreador'];
+    const completedCount = clanKeys.filter(k => state.completedClans.has(k)).length;
+    const clanChip = decalWrap.querySelector('[data-requirement="clan-completion-any"]');
+
+    if (clanChip) clanChip.classList.toggle('req-met', completedCount > 0);
+
+    decalWrap.querySelectorAll('.maha-req__clan-list-icon[data-clan-key]').forEach(icon => {
+      const clanId = icon.dataset.clanKey;
+      const clanData = typeof CLANS !== 'undefined' ? CLANS[clanId] : null;
+      const isCompleted = state.completedClans.has(clanId);
+      if (clanData) {
+        icon.src = isCompleted ? clanData.logoCompleted : clanData.logo;
+      }
+      icon.classList.toggle('is-complete', isCompleted);
+    });
+
+    decalWrap.classList.remove('req-state-none', 'req-state-partial', 'req-state-full');
+    if (completedCount === 0) decalWrap.classList.add('req-state-none');
+    else if (completedCount === clanKeys.length) decalWrap.classList.add('req-state-full');
+    else decalWrap.classList.add('req-state-partial');
+  }
+}
+
+function bindMahaFeatureLinks() {
+  document.querySelectorAll('.maha-feature__title-link[data-maha-pickuptab]').forEach(link => {
+    link.onclick = (e) => {
+      e.preventDefault();
+      const target = link.dataset.mahaPickuptab;
+      if (!target) return;
+      if (typeof setActivePickupsSubtab === 'function') {
+        setActivePickupsSubtab(target);
+      }
+    };
+  });
 }
 
 function renderPickupsPage() {
   updatePickupsTabLabels();
+  updateMahaRequirementState();
+  bindMahaFeatureLinks();
   renderWeaponsPage();
   renderItemsPage();
 }
