@@ -1,0 +1,51 @@
+Name,Input,Effect,DAMAGE
+,STANDARD INPUTS,e.g. single button inputs,
+Standard attack,"Attack button
+e.g. M1",A clan-specific light attack that can be repeated into a combo,Low
+Heavy Attack,Hold Attack Button,"After a charge-up, unleash an attack that knocks backs enemies and deals more damage .
+Can break enemy blocks",Moderate
+Feed - Enemy,"Near an enemy that is unaware, stunned or low health - hit the feed button","Against enemies: A lengthy animation that sees Phyre bite the enemy, restoring blood pips, and then kills them normally with a neck-snap or similar.
+Note: You are vulnerable during this.",Finisher
+Feed - Civilian,Near a Civilian - hit the feed button,Against civilians - an even longer animation - especially if the target has full resonance (e.g. they glow fully) - target is left dazed after feeding - masquerade violation (obviously),Non-lethal
+Assassinate,"Near an enemy that is unaware, stunned or low health - hit the Interact button 
+(e.g. E)","A faster animation that will kill an enemy outright - no health or blood pips from this though.
+Note: You are still vulnerable during this.",Finisher
+Telekinetic Pull,"TK button 
+e.g. M5","Pulls an enemy towards you allowing follow-up attacks or pull them off ledges.
+Larger enemies can resist and smaller enemies will resist after the first attempt.
+Also lets you grab items from around the world, including dropped weapons.",N/a
+Dash,"Dash button (+ direction)
+e.g. CTRL","A quick burst of speed in the input direction, can be combined with attack inputs to do ""dash kicks""
+By default you'll hop backwards but with directional inputs you'll go towards that direction.",N/a
+,COMBOS AND COUNTERS,"e.g. multiple buttons or combinations of them, or timed against enemy attacks",
+Standard attack chain,Multiple attack button inputs,"Repeatedly attacking will result in a clan-specific combo of light attacks - these are easily dodged and blocked by enemies.
+These vary a fair bit from faster (Toreador and Banu) to more impactful and purposeful (Brujah and Lasombra) to the most unique of having additional Range (Tremere).",Low-Med
+Shunt,Sprint + Attack,"A very fast elbow attack that can cross distances and disrupt enemies, best used as a closer when you don't want the enemy sent flying.",Low
+Parry,Dash into an attack,"Will block the triggering attack and stagger them, opening them to other attacks and counters (including disarming - see ""ADVANCED COMBOS""
+Notably can send enemies upwards if they were doing their own version of a jump attack.",n/a
+Back Kick,Dash + Back + Attack,"A powerful push-kick that sends enemies flying, often off their feet.
+Can break enemy blocks",Moderate
+Front Knee,Dash + Forward + Attack,A strong and fast-gap closing knee.,Low
+Side-Kick,Dash + Left or Right + Attack,"A roundhouse kick that knocks all enemies within range in the input direction, staggering them - good for crowds.",Moderate
+Slide,Sprint + Crouch,"Slides Phyre along the ground, lowering their profile.",n/a
+Slide kick,Attack while sliding/on your back,"Performed by attacking while sliding/on their back - equivalent to a Back Kick, but can't break guards.",Moderate
+Drop Kick,"Airborne + Crouch + Attack
+(easiest input is Dash+Crouch+Attack)","A two-footed attack that does heavy damage and knockback on enemies, will ""bounce"" Phyre if it hits letting you land on your feet or bounce around the environment - and if it misses you'll be on your back to perform a slide-kick.",High
+TK Fire,Standard attack while holding a loaded gun with TK.,"Fires the gun in quick succession, emptying its current ammo reserves (clip/cylinder/magazine/drum).
+Some weapons have more shots than others.","Weapon dependent, but always Med-high"
+TK Throw,Standard attack while holding any other item with TK.,"Throws any held item, melee weapon, dismembered body part of firearm at a target, either for distraction or to deal direct damage.","Object dependent, but roughly 
+low (bottle) 
+medium (bat) 
+lethal (knife)"
+Drop Assassination,When above an unaware (or stunned/low health) enemy - hit the interact button,Same as a standard assassination but it allows you to perform it from above while in middair - useful to quickly eliminate some enemies by jumping overtop (which is silent and faster than crawling),Lethal
+,ADVANCED COMBOS,Combining inputs,
+Shunt-Disarm,Shunting an enemy that has either been recently Parried or is currently Reloading their weapon.,"You can Shunt weapons out of enemies hands, so far there's two ways I know to do this.
+1. During a reload - this will make the enemy drop their gun.
+2. After blocking a melee attack",
+Dash-Drop Kick,"Dash + Crouch + Attack
+(fash-foward and backwards work best)",Instantly activates the drop kick allowing it to be used as a gap closer or powerful attack against enemies in combat.,High
+"""Death from Above""",Overhead + Dash + Drop Assassination,"Stomp enemies like an Italian Plumber, by jumping, dashing overhead and then performing a drop-assassination before they can notice you're there.",Lethal
+"Kick+Knee+1,2,3","Back Kick + Front Knee + Standard attack chain
+(can be triggered through other kicks - e.g. slide kick, and can replace the front knee with a jump - but this is the most reliable way to trigger)","Knocks a light enemy into the air, closes the distance with a front knee, and then starts middair juggling them with your standard attack combo - you should ""stick"" to the enemy in middair if done correctly, travelling with them.
+Note: Different clans do this slightly differently/easily - Tremere will do it at range while still on the ground and Banu and Toreador will stick to the enemy very effectively, but Ventrue need a little more timing to pull off properly.",Med-High
+Heavy Mixup,Standard attack chain + Heavy attack,"At any point during a standard attack chain you can hold one attack to turn it into a heavy attack, cutting down on the initial charge-up.",Moderate

@@ -110,6 +110,37 @@ body {
     border-color: var(--gold-dim);
 }
 
+.header__patch-btn {
+    position: absolute;
+    left: 110px;
+    background: none;
+    border: 1px solid rgba(255, 120, 160, 0.5);
+    color: rgba(255, 160, 190, 0.85);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+    box-shadow: 0 0 6px rgba(255, 100, 150, 0.3);
+}
+
+.header__patch-btn:hover {
+    color: rgb(255, 180, 210);
+    border-color: rgba(255, 120, 160, 0.9);
+    box-shadow: 0 0 12px rgba(255, 100, 150, 0.55);
+}
+
+.header__patch-build {
+    opacity: 0.55;
+    font-size: 9px;
+    margin-left: 4px;
+}
+
 .header__mods-btn {
     position: absolute;
     right: 24px;
@@ -550,6 +581,52 @@ body {
     background: var(--bg-dark);
 }
 
+.tab-bar__end {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Custom cursor toggle button ─────────────────────────── */
+.cursor-toggle-btn {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, opacity 0.15s;
+}
+
+.cursor-toggle-btn:hover {
+    border-color: var(--gold);
+}
+
+.cursor-toggle-btn__icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(201,168,76,0.7));
+    transition: filter 0.2s, opacity 0.2s;
+}
+
+.cursor-toggle-btn--off .cursor-toggle-btn__icon {
+    filter: none;
+    opacity: 0.3;
+}
+
+/* ── Disable custom cursor ───────────────────────────────── */
+body.no-custom-cursor *,
+body.no-custom-cursor {
+    cursor: auto !important;
+}
+
 .tab-bar__tab {
     background: none;
     border: none;
@@ -623,7 +700,8 @@ body {
 /* ── Pages ────────────────────────────────────────────────── */
 .page.hidden,
 .subpage.hidden,
-.pickups-subpage.hidden {
+.pickups-subpage.hidden,
+.combos-subpage.hidden {
     display: none;
 }
 
@@ -733,10 +811,22 @@ body {
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--text-light);
+    color: var(--gold);
     padding: 0 8px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.benny-sidebar-items__heading-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    flex-shrink: 0;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 5px rgba(201, 168, 76, 0.7));
 }
 
 .benny-sidebar-item {
@@ -803,6 +893,106 @@ body {
     flex: 1;
     min-height: 1px;
 }
+
+/* ── Phyre Innate Abilities Sidebar ─────────────────────────── */
+.phyre-innate-items__heading {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.phyre-innate-items__heading-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(201, 168, 76, 0.6));
+}
+
+.phyre-innate-item__icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+/* Innate detail panel sections (TK) */
+.innate-section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.innate-section {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 6px;
+    align-items: baseline;
+}
+
+.innate-section__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+
+.innate-section__text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+kbd.innate-key-ref {
+    display: inline-block;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid rgba(201, 168, 76, 0.35);
+    border-radius: 3px;
+    padding: 1px 5px;
+    vertical-align: baseline;
+}
+
+/* Innate tip (Glide, Melee) */
+.innate-tip {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.55;
+    margin-top: 12px;
+    padding: 8px 10px;
+    border-left: 2px solid var(--gold-dim);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0 3px 3px 0;
+}
+
+.innate-tip--link {
+    font-style: normal;
+    cursor: pointer;
+    color: var(--gold);
+    transition: color 0.15s;
+}
+
+.innate-tip--link:hover {
+    color: var(--gold-bright);
+}
+
+
 
 .benny-main {
     flex: 1;
@@ -3233,6 +3423,17 @@ body {
     display: none;
 }
 
+.tab-bar--combos {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    justify-content: center;
+}
+
+.tab-bar--combos .tab-bar__tab {
+    font-size: 11px;
+    padding: 5px 20px;
+    letter-spacing: 1px;
+}
+
 .tab-bar--pickups .tab-bar__aside-group--left .pickup-tab--maha {
     opacity: 0.85;
 }
@@ -4548,6 +4749,21 @@ kbd.pickup-key {
     flex-wrap: wrap;
 }
 
+.combos-legend--melee .combos-legend__item {
+    background: rgba(201, 168, 76, 0.08);
+    border-color: rgba(201, 168, 76, 0.3);
+    color: var(--gold);
+    text-decoration: none;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+}
+
+.combos-legend--melee .combos-legend__item:hover {
+    background: rgba(201, 168, 76, 0.16);
+    border-color: rgba(201, 168, 76, 0.6);
+    color: var(--gold-bright);
+}
+
 .combos-legend__item {
     appearance: none;
     background: none;
@@ -4982,4 +5198,1101 @@ kbd.pickup-key {
     color: var(--text-dim);
     opacity: 0.6;
     flex-shrink: 0;
+}
+
+/* ── Melee combos table ──────────────────────────────────────── */
+.combos-table--melee .combos-table__th--melee-name   { width: 16%; }
+.combos-table--melee .combos-table__th--melee-input  { width: 22%; }
+.combos-table--melee .combos-table__th--melee-effect { width: 50%; }
+.combos-table--melee .combos-table__th--melee-damage { width: 12%; text-align: center; }
+
+.combos-table--melee .combos-table__td--melee-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold-bright);
+    vertical-align: middle;
+}
+
+.combos-table--melee .combos-table__td--melee-input {
+    font-size: 12px;
+    color: var(--text-dim);
+    vertical-align: middle;
+}
+
+.combos-table--melee .combos-table__td--melee-damage {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.combos-table__section-header {
+    background: var(--bg-mid);
+    border-top: 1px solid var(--border-accent);
+    border-bottom: 1px solid var(--border-dim);
+    scroll-margin-top: 48px;
+}
+
+.combos-table__section-cell {
+    padding: 8px 12px 6px;
+}
+
+.combos-table__section-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-right: 8px;
+}
+
+.combos-table__section-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.combos-table__row--melee {
+    border-bottom: 1px solid var(--border-dim);
+    transition: background 0.15s;
+}
+
+.combos-table__row--melee:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+/* Damage badges */
+.combo-damage {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.combo-damage--na {
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+.combo-damage--low {
+    color: #7ec87e;
+    background: rgba(80, 160, 80, 0.12);
+}
+
+.combo-damage--low-med {
+    color: #a8c86a;
+    background: rgba(130, 180, 60, 0.12);
+}
+
+.combo-damage--moderate {
+    color: #d4c45a;
+    background: rgba(200, 180, 50, 0.12);
+}
+
+.combo-damage--med-high {
+    color: #d4a040;
+    background: rgba(200, 140, 40, 0.12);
+}
+
+.combo-damage--high {
+    color: #e08040;
+    background: rgba(210, 100, 30, 0.12);
+}
+
+.combo-damage--lethal {
+    color: #e05555;
+    background: rgba(180, 50, 50, 0.15);
+}
+
+.combo-damage--finisher {
+    color: #c070d0;
+    background: rgba(160, 60, 180, 0.13);
+}
+
+.combo-damage--nonlethal {
+    color: #70a8d0;
+    background: rgba(60, 110, 170, 0.13);
+}
+
+.combo-damage__sub {
+    list-style: none;
+    padding: 4px 0 0 0;
+    margin: 0;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-dim);
+    white-space: normal;
+    text-align: left;
+}
+
+.combo-clan-link-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-dim);
+    background: rgba(255,255,255,0.04);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.combo-clan-link-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+/* ── Clan Combos tab ─────────────────────────────────────────── */
+.clan-combos-header {
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.clan-combos-filter-row {
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.crossclan-lozenge {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.crossclan-lozenge[open] {
+    background: rgba(0,0,0,0.12);
+}
+
+.crossclan-lozenge__summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.4px;
+    list-style: none;
+    user-select: none;
+    transition: color 0.15s, background 0.15s;
+}
+
+.crossclan-lozenge__summary::-webkit-details-marker { display: none; }
+
+.crossclan-lozenge__summary::before {
+    content: "▶";
+    font-size: 8px;
+    color: var(--border-accent);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.crossclan-lozenge[open] .crossclan-lozenge__summary::before {
+    transform: rotate(90deg);
+}
+
+.crossclan-lozenge__summary:hover {
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+}
+
+.crossclan-lozenge[open] .crossclan-lozenge__summary {
+    color: var(--gold);
+}
+
+.crossclan-lozenge__body {
+    padding: 10px 16px 14px;
+}
+
+.crossclan-note--sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin: 0 0 8px;
+}
+
+.crossclan-note--foot {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin: 8px 0 0;
+}
+
+.clan-combos-notes-btn {
+    border-color: rgba(201, 168, 76, 0.3);
+    color: var(--gold-dim);
+}
+
+.clan-combos-notes-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+.clan-combos-notes-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.clan-combos-notes-btn:hover img {
+    opacity: 1;
+}
+
+/* Cross-Clan Notes bottom section */
+.crossclan-section-wrap {
+    border-top: 1px solid var(--border-dim);
+    margin-top: 4px;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 120px;
+}
+
+.crossclan-section-wrap--no-pad {
+    padding-bottom: 0;
+}
+
+.crossclan-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 16px 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+}
+
+.crossclan-section-heading__icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(201,168,76,0.35));
+}
+
+.crossclan-section-heading__sub {
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-dim);
+    letter-spacing: 0;
+    margin-left: 2px;
+}
+
+/* ── Kicks table ─────────────────────────────────── */
+.kicks-table__th--name    { width: 8%; }
+.kicks-table__th--input   { width: 16%; }
+.kicks-table__th--len     { width: 8%; text-align: center; }
+.kicks-table__th--dmg     { width: 6%; text-align: center; }
+.kicks-table__th--bonus   { width: 16%; }
+.kicks-table__th--range   { width: 10%; text-align: center; }
+.kicks-table__th--delay   { width: 10%; text-align: center; }
+.kicks-table__th--kb      { width: 16%; }
+.kicks-table__th--cd      { width: 8%; text-align: center; }
+
+.kicks-table__td--name {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+}
+.kicks-table__td--input {
+    color: var(--text-dim);
+    font-size: 11px;
+    vertical-align: middle;
+    line-height: 1.6;
+}
+.kicks-table__td--bonus {
+    color: var(--text-dim);
+    font-size: 11px;
+    cursor: default;
+}
+.kicks-table__td--range {
+    font-size: 11px;
+    text-align: center;
+    cursor: default;
+}
+.kicks-table__td--kb {
+    color: var(--text-dim);
+    font-size: 11px;
+}
+.kicks-table__td--cd {
+    font-size: 11px;
+    text-align: center;
+}
+.kicks-table__td--cd-peak {
+    color: #e05555;
+    font-weight: 700;
+}
+.kicks-table__row--cooldown {
+    background: rgba(224, 85, 85, 0.04);
+    border-bottom: 1px solid rgba(224, 85, 85, 0.12);
+}
+.kicks-table__row--cooldown:hover {
+    background: rgba(224, 85, 85, 0.08);
+}
+
+/* ── DPS & Optimal Patterns table ───────────────────── */
+.dps-table__th--clan    { width: 13%; }
+.dps-table__th--pattern { width: 20%; }
+.dps-table__th--dps     { width: 9%; text-align: center; }
+.dps-table__th--base    { width: 9%; text-align: center; }
+.dps-table__th--dmg     { width: 8%; text-align: center; }
+.dps-table__th--time    { width: 9%; text-align: center; }
+.dps-table__th--burst   { width: 9%; text-align: center; }
+
+.dps-table__td--pattern { vertical-align: middle; }
+.dps-table__td--dps     { font-weight: 700; text-align: center; font-size: 12px; }
+.dps-table__td--dmg     { text-align: center; font-size: 12px; color: var(--text); }
+.dps-table__td--burst   { text-align: center; font-size: 12px; color: var(--text-dim); }
+
+.dps-table__row--top {
+    background: rgba(224, 85, 85, 0.04);
+    border-bottom: 1px solid rgba(224, 85, 85, 0.1);
+}
+.dps-table__row--note td {
+    padding-top: 2px;
+    padding-bottom: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-style: italic;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Step pills */
+.dps-pattern {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 2px 0;
+}
+.dps-pattern__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0;
+    cursor: default;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.dps-pattern__step:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.dps-pattern__step--light {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.dps-pattern__step--heavy {
+    background: rgba(201,168,76,0.18);
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.40);
+}
+
+.clan-combos-filter {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+}
+
+.clan-combos-filter__btn {
+    background: var(--bg-cell);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 4px 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.clan-combos-filter__btn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+
+.clan-combos-filter__btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--text);
+}
+
+.clan-combos-filter__btn.active {
+    background: rgba(201, 168, 76, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.clan-combos-filter__btn.active img {
+    opacity: 1;
+}
+
+.clan-combos-filter__btn.is-selected-clan {
+    box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.4);
+}
+
+.clan-combos-jump-btns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.clan-combos-legend {
+    display: flex;
+    gap: 14px;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.clan-combos-legend__item {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.clan-combos-legend__item--finisher {
+    color: #c070d0;
+}
+
+.clan-combos-legend__item--selected {
+    color: var(--gold-dim);
+}
+
+.clan-combos-tables {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.clan-combo-block {
+    border-bottom: 1px solid var(--border-dim);
+    padding: 14px 16px 12px;
+    transition: background 0.2s;
+}
+
+.clan-combo-block--selected {
+    background: rgba(201, 168, 76, 0.05);
+    border-left: 3px solid var(--gold-dim);
+    padding-left: 13px;
+}
+
+.clan-combo-block__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.clan-combo-block__logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.clan-combo-block--selected .clan-combo-block__logo {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(201, 168, 76, 0.5));
+}
+
+.clan-combo-block__name {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold-bright);
+}
+
+.clan-combo-block--selected .clan-combo-block__name {
+    color: var(--gold-bright);
+}
+
+.clan-combo-block__meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 4px;
+}
+
+/* ── DPS chips in clan heading ───────────────────────────── */
+.dps-chip-group {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.dps-chip {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dps-chip__head,
+.dps-chip__head * {
+    cursor: pointer;
+}
+
+.dps-chip__head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 3px;
+    background: rgba(201,168,76,0.06);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.dps-chip:hover .dps-chip__head,
+.dps-chip--active .dps-chip__head {
+    border-color: rgba(201,168,76,0.55);
+    background: rgba(201,168,76,0.13);
+}
+
+.dps-chip__label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.dps-chip--active .dps-chip__label {
+    color: var(--gold-dim);
+}
+
+.dps-chip__val {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+}
+
+.dps-chip__panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    background: var(--bg-mid);
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    z-index: 20;
+    white-space: nowrap;
+    min-width: 120px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+
+.dps-chip--active .dps-chip__panel {
+    display: flex;
+}
+
+.dps-chip__panel-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.dps-chip__row-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    min-width: 32px;
+}
+
+.dps-chip__row-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+}
+
+.dps-chip__rotation {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+.dps-chip__pat-step {
+    width: 17px;
+    height: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 2px;
+}
+
+.dps-chip__pat-step--l {
+    background: rgba(255,255,255,0.07);
+    color: var(--text-dim);
+}
+
+.dps-chip__pat-step--h {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.45);
+    color: var(--gold);
+}
+
+/* cell highlight when chip is active */
+.dps-cell--highlight {
+    background: rgba(201,168,76,0.18) !important;
+    color: var(--gold-bright) !important;
+    font-weight: 700 !important;
+}
+
+.clan-combos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.clan-combos-table__th--step   { width: 6%; }
+.clan-combos-table__th--ldmg   { width: 11%; text-align: center; }
+.clan-combos-table__th--llen   { width: 9%; text-align: center; }
+.clan-combos-table__th--hdmg   { width: 11%; text-align: center; }
+.clan-combos-table__th--hlen   { width: 9%; text-align: center; }
+.clan-combos-table__th--windup { width: 13%; text-align: center; }
+.clan-combos-table__th--thresh { width: 17%; }
+.clan-combos-table__th--delay  { width: 14%; text-align: center; }
+
+.clan-combos-table__row {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.1s;
+}
+
+.clan-combos-table__row:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.clan-combos-table__row--finisher {
+    background: rgba(160, 60, 180, 0.06);
+    border-bottom: 1px solid rgba(160, 60, 180, 0.15);
+}
+
+.clan-combos-table__row--finisher:hover {
+    background: rgba(160, 60, 180, 0.1);
+}
+
+.clan-combos-table__td--step {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+.clan-combo-star {
+    color: #c070d0;
+    margin-left: 4px;
+    font-size: 11px;
+}
+
+.clan-combos-table__td--dmg {
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    cursor: default;
+}
+
+.clan-combos-table__td--len {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-align: center;
+    cursor: default;
+}
+
+.clan-combos-table__td--windup {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-align: center;
+    cursor: default;
+}
+
+.clan-combo__windup--notable {
+    color: #d4a843;
+    font-weight: 600;
+}
+
+.clan-combo__dmg--peak {
+    color: #e05555;
+    font-weight: 700;
+}
+
+.clan-combos-table__td--thresh {
+    color: var(--text-dim);
+    font-size: 11px;
+}
+
+.clan-combo__thresh--easy {
+    color: #7ec87e;
+    font-weight: 600;
+}
+
+.clan-combo__thresh--hard {
+    color: #e08040;
+    font-weight: 600;
+}
+
+.clan-combos-table__td--delay {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-align: center;
+}
+
+.clan-combo-block__notes {
+    list-style: none;
+    padding: 8px 0 0 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.clan-combo-block__notes li {
+    font-size: 11px;
+    color: var(--text-dim);
+    padding-left: 12px;
+    position: relative;
+}
+
+.clan-combo-block__notes li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--border-accent);
+}
+
+/* Mini table used in innate detail panel */
+.clan-combo-mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.clan-combo-mini-table th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.clan-combo-mini-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+}
+
+.clan-combo-mini-table__row--finisher td {
+    background: rgba(160, 60, 180, 0.06);
+}
+
+.innate-mini-notes {
+    list-style: none;
+    padding: 8px 0 0 0;
+    margin: 0;
+}
+
+.innate-mini-notes li {
+    font-size: 11px;
+    color: var(--text-dim);
+    padding-left: 10px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.innate-mini-notes li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--border-accent);
+}
+
+/* Expandable combo lozenge in Melee innate detail */
+.innate-combo-lozenge {
+    margin: 10px 0 6px;
+    border: 1px solid var(--border-dim);
+    border-radius: 5px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+
+.innate-combo-lozenge[open] {
+    border-color: var(--gold-dim);
+}
+
+.innate-combo-lozenge__summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gold);
+    background: rgba(201, 168, 76, 0.07);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.innate-combo-lozenge__summary::-webkit-details-marker { display: none; }
+
+.innate-combo-lozenge__summary::before {
+    content: "▶";
+    font-size: 9px;
+    color: var(--gold-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.innate-combo-lozenge[open] .innate-combo-lozenge__summary::before {
+    transform: rotate(90deg);
+}
+
+.innate-combo-lozenge__summary:hover {
+    background: rgba(201, 168, 76, 0.13);
+}
+
+.innate-combo-lozenge__meta {
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-dim);
+    letter-spacing: 0;
+}
+
+.innate-lozenge-chips {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.innate-dps-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 3px;
+    background: rgba(201,168,76,0.06);
+}
+
+.innate-dps-badge__label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.innate-dps-badge__val {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+}
+
+.innate-combo-lozenge__body {
+    padding: 8px 10px 10px;
+    background: rgba(0,0,0,0.15);
+}
+
+/* ── Combos tab icon button ──────────────────────────────────── */
+.tab-bar__tab--icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.combotab-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+}
+
+.tab-bar__tab--icon.active .combotab-icon,
+.tab-bar__tab--icon:hover .combotab-icon {
+    opacity: 1;
+}
+
+/* ── Cross-Clan Notes page ───────────────────────────────────── */
+.crossclan-page {
+    padding: 0 16px 24px;
+}
+
+.crossclan-section {
+    margin-top: 24px;
+}
+
+.crossclan-section:first-child {
+    margin-top: 16px;
+}
+
+.crossclan-section__title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.crossclan-section__body {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0 0 10px;
+}
+
+.crossclan-section__body--sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.crossclan-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.crossclan-list li {
+    font-size: 13px;
+    color: var(--text);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.crossclan-list li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--gold-dim);
+    font-size: 10px;
+    top: 3px;
+}
+
+.crossclan-list--notes li {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 8px;
+}
+
+.crossclan-table {
+    width: 100%;
+}
+
+.crossclan-table__td--clan {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.crossclan-table__td--prop {
+    color: var(--text-dim);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.crossclan-clan-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.85;
+}
+
+.crossclan-clan-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.crossclan__dmg--low {
+    color: var(--text-dim);
+}
+
+.crossclan__val--notable {
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.crossclan__val--dim {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.crossclan-note {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-dim);
+    font-family: inherit;
+    letter-spacing: 0;
+}
+
+.crossclan-code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.05);
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.crossclan-code--unique {
+    color: var(--gold-dim);
+    background: rgba(201, 168, 76, 0.08);
 }

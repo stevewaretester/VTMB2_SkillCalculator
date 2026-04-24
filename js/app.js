@@ -21,7 +21,28 @@ const state = {
   // Currently hovered/focused ability for detail panel
   focusedAbility: null,
   clanSelectorCollapsed: false,
+  customCursor: true,
 };
+
+const phyreInnateState = { focused: null };
+
+const PHYRE_INNATE_ITEMS = [
+  {
+    id: "telekinesis",
+    title: "Telekinesis",
+    icon: () => UI.tkIcon,
+  },
+  {
+    id: "glide",
+    title: "Glide",
+    icon: () => UI.phyreMark,
+  },
+  {
+    id: "melee",
+    title: "Melee Combos",
+    icon: () => state.selectedClan ? CLANS[state.selectedClan].logo : UI.phyreMark,
+  },
+];
 
 const STATE_PARAM = "state";
 const STATE_COOKIE = "vtmb2_state";
@@ -131,6 +152,7 @@ function makePersistedState() {
     sp: state.selectedPerTier,
     a: abilityEntries,
     lc: !!bennyState.looseCannon,
+    cx: state.customCursor !== false,
   };
 }
 
@@ -190,6 +212,9 @@ function applyPersistedState(payload) {
   if (typeof bennyState !== "undefined") {
     bennyState.looseCannon = !!payload.lc;
   }
+  if (typeof payload.cx !== "undefined") {
+    state.customCursor = payload.cx !== false;
+  }
 }
 
 function loadPersistedState() {
@@ -225,9 +250,11 @@ function init() {
   renderDetailPanel();
   updateClanPattern();
   applyClanSelectorCollapsed();
+  renderPhyreInnateItems();
   bindToggles();
   bindTabs();
   bindClanSelectorToggle();
+  initCursorToggle();
 
   // Restore tab position after tabs are bound
   const posFromUrl = new URL(window.location.href).searchParams.get(POS_PARAM);
@@ -250,6 +277,48 @@ function setActivePickupsSubtab(tabId) {
   return true;
 }
 
+function setActiveCombosSubtab(tabId) {
+  const tabs = document.querySelectorAll(".tab-bar--combos .tab-bar__tab");
+  const targetTab = document.querySelector(`.tab-bar--combos .tab-bar__tab[data-combotab="${tabId}"]`);
+  const targetSubpage = document.getElementById(`combos-subpage-${tabId}`);
+  if (!targetTab || !targetSubpage) return false;
+
+  tabs.forEach(t => t.classList.remove("active"));
+  targetTab.classList.add("active");
+  document.querySelectorAll(".combos-subpage").forEach(p => p.classList.add("hidden"));
+  targetSubpage.classList.remove("hidden");
+
+  if (tabId === "ability") {
+    renderCombosPage();
+  } else if (tabId === "melee") {
+    renderMeleeCombosPage();
+  } else if (tabId === "clan") {
+    if (typeof renderClanCombosPage === "function") renderClanCombosPage();
+  }
+  return true;
+}
+
+function navigateToClanCombos() {
+  // Ensure Phyre page is visible
+  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab) phyreTab.classList.add("active");
+  document.getElementById("page-phyre").classList.remove("hidden");
+
+  // Ensure Combos secondary tab is visible
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
+  secondaryTabs.forEach(t => t.classList.remove("active"));
+  const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="combos"]');
+  if (combosTab) combosTab.classList.add("active");
+  document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+  document.getElementById("subpage-combos").classList.remove("hidden");
+
+  // Switch to Clan subtab
+  setActiveCombosSubtab("clan");
+  persistPosition();
+}
+
 // ── Tab Navigation ───────────────────────────────────────────
 function bindTabs() {
   // Primary tabs (Phyre, Fabien, Benny, Ysabelle)
@@ -268,7 +337,7 @@ function bindTabs() {
           const subpage = document.getElementById(`subpage-${activeSecondary.dataset.subtab}`);
           if (subpage) subpage.classList.remove("hidden");
           if (activeSecondary.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") refreshOutfitsPage();
-          if (activeSecondary.dataset.subtab === "combos" && typeof renderCombosPage === "function") renderCombosPage();
+          if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("ability");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
         }
       }
@@ -290,8 +359,8 @@ function bindTabs() {
       if (tab.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") {
         refreshOutfitsPage();
       }
-      if (tab.dataset.subtab === "combos" && typeof renderCombosPage === "function") {
-        renderCombosPage();
+      if (tab.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") {
+        setActiveCombosSubtab("ability");
       }
       if (tab.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") {
         renderPickupsPage();
@@ -320,6 +389,14 @@ function bindTabs() {
   pickupsTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       setActivePickupsSubtab(tab.dataset.pickuptab);
+    });
+  });
+
+  // Combos sub-tabs
+  const combosTabs = document.querySelectorAll(".tab-bar--combos .tab-bar__tab");
+  combosTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      setActiveCombosSubtab(tab.dataset.combotab);
     });
   });
 }
@@ -427,6 +504,15 @@ function selectClan(clanId) {
     refreshOutfitsPage();
   }
 
+  // Update innate sidebar so Melee Combos clan icon refreshes
+  renderPhyreInnateItems();
+
+  // Refresh clan combos if visible
+  const clanCombosEl = document.getElementById("combos-subpage-clan");
+  if (clanCombosEl && !clanCombosEl.classList.contains("hidden") && typeof renderClanCombosPage === "function") {
+    renderClanCombosPage();
+  }
+
   // Auto-collapse clan selector on selection
   if (!state.clanSelectorCollapsed) {
     state.clanSelectorCollapsed = true;
@@ -451,6 +537,145 @@ function applyClanSelectorCollapsed() {
   const btn = document.getElementById("clan-selector-toggle");
   if (btn) btn.textContent = state.clanSelectorCollapsed ? "\u25bc Select Clan" : "\u25b2 Hide Clan";
   persistState();
+}
+
+function applyClanSelectorCollapsed() {
+  const sel = document.getElementById("clan-selector");
+  if (sel) sel.classList.toggle("collapsed", state.clanSelectorCollapsed);
+  const btn = document.getElementById("clan-selector-toggle");
+  if (btn) btn.textContent = state.clanSelectorCollapsed ? "\u25bc Select Clan" : "\u25b2 Hide Clan";
+  persistState();
+}
+
+// ── Phyre Innate Abilities Sidebar ──────────────────────────
+function renderPhyreInnateItems() {
+  const container = document.getElementById("phyre-innate-items");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "phyre-innate-items__heading";
+  heading.innerHTML = `Innate Abilities<img class="phyre-innate-items__heading-icon" src="${UI.phyreMark}" alt="Phyre">`;
+  container.appendChild(heading);
+
+  PHYRE_INNATE_ITEMS.forEach(item => {
+    const el = document.createElement("div");
+    el.className = "benny-sidebar-item" + (phyreInnateState.focused === item.id ? " focused" : "");
+    el.dataset.itemId = item.id;
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "benny-sidebar-item__title";
+    titleEl.textContent = item.title;
+    el.appendChild(titleEl);
+
+    const iconSrc = typeof item.icon === "function" ? item.icon() : item.icon;
+    if (iconSrc) {
+      const icon = document.createElement("img");
+      icon.className = "benny-sidebar-item__icon phyre-innate-item__icon";
+      icon.src = iconSrc;
+      icon.alt = item.title;
+      el.appendChild(icon);
+    }
+
+    el.addEventListener("click", () => {
+      const same = phyreInnateState.focused === item.id;
+      phyreInnateState.focused = same ? null : item.id;
+      state.focusedAbility = null;
+      renderPhyreInnateItems();
+      renderDetailPanel();
+    });
+
+    container.appendChild(el);
+  });
+}
+
+function renderPhyreInnateDetail(panel) {
+  const itemId = phyreInnateState.focused;
+  const item = PHYRE_INNATE_ITEMS.find(i => i.id === itemId);
+  if (!item) {
+    panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+    return;
+  }
+
+  const iconSrc = typeof item.icon === "function" ? item.icon() : item.icon;
+  let html = `<div class="detail-panel__tier">Innate</div>`;
+
+  if (iconSrc) {
+    html += `<div class="detail-panel__name-row"><img class="detail-panel__ability-icon" src="${iconSrc}" alt="${item.title}"><div class="detail-panel__name">${item.title}</div></div>`;
+  } else {
+    html += `<div class="detail-panel__name">${item.title}</div>`;
+  }
+
+  if (itemId === "telekinesis") {
+    html += `<div class="detail-panel__subtitle">Telekinetic Pull</div>`;
+    html += `<div class="innate-section-list">`;
+    html += `<div class="innate-section"><span class="innate-section__label">Input</span><span class="innate-section__text">Press <kbd class="innate-key-ref">TK</kbd> to pick up object. Press <kbd class="innate-key-ref">TK</kbd> again to drop it. Press <kbd class="innate-key-ref">Throw</kbd> to throw held objects.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">NPCs</span><span class="innate-section__text">The Nomad can use a Telekinetic Pull on an unaware opponent — brings them within striking distance or opens them to stronger assaults.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">Objects</span><span class="innate-section__text">Pick up an object and throw as a distraction or for light-ranged damage.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">Weapons</span><span class="innate-section__text">Ranged weapons with ammo can be fired back at assailants. Once ammo is empty, they can be Telekinetically thrown.</span></div>`;
+    html += `</div>`;
+  } else if (itemId === "glide") {
+    html += `<div class="detail-panel__desc">After beginning a Jump, hold the Jump button for longer to initiate a Glide. While Gliding, it is possible to change course by pressing a direction.</div>`;
+    html += `<div class="innate-tip">&#8220;Whilst airborne, press Dash (default ${formatCCTInlineText('[ctrl]')}) to get a burst of speed forward. Useful for jumping between rooftops.&#8221;</div>`;
+  } else if (itemId === "melee") {
+    html += `<div class="detail-panel__desc">Phyre uses a full melee combo system — light attacks, heavies, counters, and advanced techniques.</div>`;
+    if (state.selectedClan && typeof CLAN_COMBOS !== "undefined" && CLAN_COMBOS[state.selectedClan]) {
+      const data = CLAN_COMBOS[state.selectedClan];
+      const clan = CLANS[state.selectedClan];
+      html += `<details class="innate-combo-lozenge">`;
+      html += `<summary class="innate-combo-lozenge__summary">${clan.name} combo stats <span class="innate-combo-lozenge__meta">${data.steps} steps &middot; ${data.lightType === "NoLunge" ? "No-Lunge" : "Lunging"}</span>`;
+      if (data.dps) {
+        const dps = data.dps;
+        const allLightDmg = data.rows.reduce((s, r) => s + r.lightDmg, 0);
+        html += `<span class="innate-lozenge-chips">`;
+        html += `<span class="innate-dps-badge innate-dps-badge--opt" title="Optimal DPS (${dps.optimalPattern.join('')})"><span class="innate-dps-badge__label">OPT</span><span class="innate-dps-badge__val">${dps.optimalDps.toFixed(2)}</span></span>`;
+        html += `</span>`; // innate-lozenge-chips
+      }
+      html += `</summary>`;
+      html += `<div class="innate-combo-lozenge__body">`;
+      html += buildClanComboMiniTable(state.selectedClan);
+      if (data.notes && data.notes.length) {
+        html += `<ul class="innate-mini-notes">`;
+        for (const note of data.notes) html += `<li>${note}</li>`;
+        html += `</ul>`;
+      }
+      html += `</div></details>`;
+    }
+    html += `<div class="innate-tip innate-tip--link" id="innate-combos-link">&#8658; Full breakdown in the <strong>Combos → Clan</strong> tab</div>`;
+  }
+
+  panel.innerHTML = html;
+
+  if (itemId === "melee") {
+    const lozenge = panel.querySelector(".innate-combo-lozenge");
+    if (lozenge && state.selectedClan && typeof CLAN_COMBOS !== "undefined") {
+      const cdata = CLAN_COMBOS[state.selectedClan];
+      if (cdata && cdata.dps) {
+        // Auto-apply optimal highlight
+        const pattern = cdata.dps.optimalPattern;
+        lozenge.querySelectorAll("tr[data-step]").forEach(row => {
+          const step = parseInt(row.dataset.step, 10);
+          if (isNaN(step) || step < 0 || step >= pattern.length) return;
+          const cell = row.querySelector(`[data-cell="${pattern[step] === "L" ? "ldmg" : "hdmg"}"]`);
+          if (cell) cell.classList.add("dps-cell--highlight");
+        });
+      }
+    }
+    const link = panel.querySelector("#innate-combos-link");
+    if (link) {
+      link.addEventListener("click", () => {
+        phyreInnateState.focused = null;
+        renderPhyreInnateItems();
+        if (typeof navigateToCombos === "function") {
+          navigateToCombos();
+          // Switch to clan sub-tab after navigation settles
+          setTimeout(() => {
+            if (typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("clan");
+          }, 80);
+        }
+      });
+    }
+  }
 }
 
 // ── Clan Pattern Background ─────────────────────────────────
@@ -1326,6 +1551,10 @@ const CCT_INLINE_KEY_ICONS = {
   rightclick: 'assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png',
   e: 'assets/Keyboard/T_UI_Keyboard_E.png',
   i: 'assets/Keyboard/T_UI_Keyboard_I.png',
+  q: 'assets/Keyboard/T_UI_Keyboard_Q.png',
+  ctrl: 'assets/Keyboard/T_UI_Keyboard_CTRL_Left.png',
+  'left-click': 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
+  c: 'assets/Keyboard/T_UI_Keyboard_C.png',
 };
 
 const CCT_SHIFT_LMB_ICONS = `<img class="cct-inline-key" src="assets/Keyboard/T_UI_Keyboard_Shift_Left.png" alt="Shift"> + <img class="cct-inline-key" src="assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png" alt="LMB">`;
@@ -1466,6 +1695,18 @@ function renderCCTDetailPanel(panel) {
 
 function renderDetailPanel() {
   const panel = document.getElementById("detail-panel");
+
+  // If an innate item is focused and no normal ability has taken over, show innate detail
+  if (phyreInnateState.focused && !state.focusedAbility) {
+    renderPhyreInnateDetail(panel);
+    return;
+  }
+
+  // A normal ability click clears innate focus
+  if (state.focusedAbility && phyreInnateState.focused) {
+    phyreInnateState.focused = null;
+    renderPhyreInnateItems();
+  }
 
   if (!state.focusedAbility) {
     panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
@@ -2026,6 +2267,24 @@ function navigateToAbility(clanId, tier) {
   renderGrid();
   updateCosts();
   renderDetailPanel();
+}
+
+// ── Cursor Toggle ───────────────────────────────────────────
+function applyCursorState() {
+  document.body.classList.toggle('no-custom-cursor', !state.customCursor);
+  const btn = document.getElementById('cursor-toggle-btn');
+  if (btn) btn.classList.toggle('cursor-toggle-btn--off', !state.customCursor);
+}
+
+function initCursorToggle() {
+  applyCursorState();
+  const btn = document.getElementById('cursor-toggle-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    state.customCursor = !state.customCursor;
+    applyCursorState();
+    persistState();
+  });
 }
 
 // ── Start ────────────────────────────────────────────────────

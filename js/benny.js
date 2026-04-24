@@ -53,13 +53,18 @@ function renderBennySidebarItems() {
 
   const heading = document.createElement("div");
   heading.className = "benny-sidebar-items__heading";
-  heading.textContent = "New Features";
+  heading.innerHTML = `New Features<img class="benny-sidebar-items__heading-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="Loose Cannon DLC">`;
   container.appendChild(heading);
 
   BENNY_SIDEBAR_ITEMS.forEach(item => {
     const el = document.createElement("div");
     el.className = "benny-sidebar-item" + (bennyState.sidebarFocused === item.id ? " focused" : "");
     el.dataset.itemId = item.id;
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "benny-sidebar-item__title";
+    titleEl.textContent = item.title;
+    el.appendChild(titleEl);
 
     if (item.icon) {
       const icon = document.createElement("img");
@@ -68,11 +73,6 @@ function renderBennySidebarItems() {
       icon.alt = item.title;
       el.appendChild(icon);
     }
-
-    const titleEl = document.createElement("span");
-    titleEl.className = "benny-sidebar-item__title";
-    titleEl.textContent = item.title;
-    el.appendChild(titleEl);
 
     el.addEventListener("click", () => {
       const same = bennyState.sidebarFocused === item.id;

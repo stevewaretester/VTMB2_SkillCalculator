@@ -12,6 +12,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
+      <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-valentines-update" target="_blank" rel="noopener" title="Game version tested against">Valentine's Update <span class="header__patch-build">21718394</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/about" target="_blank" rel="noopener noreferrer"><img class="header__logo" src="assets/UI_TITLE_VtM_01.png" alt="VtM"></a>
       <div class="header__title-group">
@@ -26,6 +27,11 @@
       <button class="tab-bar__tab" data-tab="fabien">Fabien</button>
       <button class="tab-bar__tab" data-tab="benny">Benny</button>
       <button class="tab-bar__tab" data-tab="ysabelle">Ysabelle</button>
+      <div class="tab-bar__end">
+        <button class="cursor-toggle-btn" id="cursor-toggle-btn" title="Toggle custom cursor">
+          <img src="assets/N_Textures/General/T_UI_MouseCursor_sm.png" alt="cursor" class="cursor-toggle-btn__icon">
+        </button>
+      </div>
     </nav>
 
     <!-- Phyre Section -->
@@ -88,6 +94,9 @@
           </div>
         </div>
         <button class="reset-btn" id="reset-all">Reset All</button>
+
+        <hr class="sidebar-divider">
+        <div id="phyre-innate-items"></div>
 
         <hr class="sidebar-divider">
         <details class="sidebar-help">
@@ -153,11 +162,24 @@
 
     <!-- Sub-page: Combos -->
     <div class="subpage hidden" id="subpage-combos">
-      <main class="combos-layout">
-        <div id="combos-table-container">
-          <!-- Populated by JS -->
-        </div>
-      </main>
+      <nav class="tab-bar tab-bar--combos">
+        <button class="tab-bar__tab" data-combotab="melee">Melee</button>
+        <button class="tab-bar__tab active" data-combotab="ability">Ability</button>
+        <button class="tab-bar__tab" data-combotab="clan">Clan</button>
+      </nav>
+      <div class="combos-subpage hidden" id="combos-subpage-melee">
+        <!-- Populated by JS -->
+      </div>
+      <div class="combos-subpage" id="combos-subpage-ability">
+        <main class="combos-layout">
+          <div id="combos-table-container">
+            <!-- Populated by JS -->
+          </div>
+        </main>
+      </div>
+      <div class="combos-subpage hidden" id="combos-subpage-clan">
+        <!-- Populated by JS -->
+      </div>
     </div><!-- /subpage-combos -->
 
     <!-- Sub-page: Pickups -->
@@ -309,9 +331,6 @@
     <div class="page hidden" id="page-fabien">
       <nav class="tab-bar tab-bar--secondary tab-bar--fabien">
         <button class="tab-bar__tab active" data-fabtab="skills">Skills</button>
-        <div class="tab-bar__aside-group">
-          <button class="tab-bar__tab tab-bar__tab--aside" data-fabtab="map">Map</button>
-        </div>
       </nav>
       <div class="fabien-subpage" id="fabien-subpage-skills">
         <main class="fabien-layout">
@@ -331,12 +350,7 @@
           </aside>
         </main>
       </div>
-      <div class="fabien-subpage hidden" id="fabien-subpage-map">
-        <div class="placeholder-page">
-          <h2>Fabien&rsquo;s Map</h2>
-          <p>Coming soon</p>
-        </div>
-      </div>
+
     </div>
 
     <!-- Page: Benny -->
@@ -424,7 +438,7 @@
       <button class="modal-card__close" id="about-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="about-modal-title">About</h2>
-        <span class="modal-card__version">v1.07</span>
+        <span class="modal-card__version">v1.08</span>
       </div>
 
       <div class="modal-card__body">
@@ -434,8 +448,13 @@
           <summary class="modal-card__changelog-summary">Changelog</summary>
           <ul class="modal-card__changelog">
             <li>
-              <span class="changelog__version">v1.07</span>
+              <span class="changelog__version">v1.08</span>
               <span class="changelog__label">Current</span>
+              <span class="changelog__desc">Benny polish &mdash; Loose Cannon DLC dropdown (trailer link, purchase lozenge persisted in URL), Brujah crest background, pistol sidebar with click detail panel, outfit full image &amp; standard approach tables. Alacrity CCT updated. Melee Standard Attack links to Clan Combos tab.</span>
+            </li>
+            <li>
+              <span class="changelog__version">v1.07</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/de84387" target="_blank" rel="noopener">de84387</a>
               <span class="changelog__desc">Benny sidebar &mdash; New Features panel with Sidearm, Melee Weapons &amp; Soaring Leap entries (screenshots, descriptions, detail panel). URL tab position tracking (?at= param). Tab switching fix (Benny secondary tab no longer breaks Phyre navigation). Titanfist icon updated &amp; rotated. Bloodcraft sub-list formatting fixed.</span>
             </li>
             <li>

@@ -184,9 +184,10 @@ const COMPLETION_TALENTS = {
   toreador:  {
     name: 'Alacrity',
     icon: 'assets/CompletionTalents/toreador_alacrity.png',
+    bloodPips: 0,
     input: 'sprint+TK ([shift]+[Q])',
     lines: [
-      'Siphon speed from a target, slowing them while increasing your speed.',
+      'Your Telekinetic Reach can pull you to distant targets.',
       'Has a short cooldown before it can be used again.',
     ],
   },
@@ -822,6 +823,9 @@ const UI = {
   vidBorder:             `${ASSETS}/T_AbilityTree_VidBorder.png`,
   questionMark:          `${TEX}/N_Textures/AbilityTree/T_UI_QuestionMark.png`,
   columnGradient:        `${COLUMNS}/T_UI_ClanColumn_Gradient.png`,
+
+  // Phyre innate ability icons
+  tkIcon:                `${ICONS}/T_UI_HUD_Ability_Telekinesis_White.png`,
 
   // DLC
   bennyLogo:             `${CLAN_LOGOS}/T_UI_BennyLogo.png`,
