@@ -49,28 +49,50 @@ const STATE_COOKIE = "vtmb2_state";
 const STATE_VERSION = 1;
 const POS_PARAM = "at";
 
-function persistPosition() {
+// ── URL helpers ──────────────────────────────────────────────
+// Always writes ?at=...&state=... in that canonical order.
+function rewriteUrl(atVal, stateVal) {
+  const url = new URL(window.location.href);
+  url.search = "";
+  if (atVal != null)    url.searchParams.set(POS_PARAM, atVal);
+  if (stateVal != null) url.searchParams.set(STATE_PARAM, stateVal);
+  history.replaceState(null, "", url.toString());
+}
+
+function getCurrentPos() {
   const primary = document.querySelector(".tab-bar--primary .tab-bar__tab.active");
-  if (!primary) return;
+  if (!primary) return null;
   const page = primary.dataset.tab;
   let pos = page;
-
   if (page === "phyre") {
     const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active");
-    if (secondary) pos = `phyre.${secondary.dataset.subtab}`;
+    if (secondary) {
+      pos = `phyre.${secondary.dataset.subtab}`;
+      if (secondary.dataset.subtab === "combos") {
+        const combosSub = document.querySelector(".tab-bar--combos .tab-bar__tab.active");
+        if (combosSub) pos += `.${combosSub.dataset.combotab}`;
+      }
+    }
   } else if (page === "fabien") {
     const fabSub = document.querySelector(".tab-bar--fabien .tab-bar__tab.active");
     if (fabSub) pos = `fabien.${fabSub.dataset.fabtab}`;
   }
+  return pos;
+}
 
-  const url = new URL(window.location.href);
-  url.searchParams.set(POS_PARAM, pos);
-  history.replaceState(null, "", url.toString());
+function persistPosition() {
+  const pos = getCurrentPos();
+  if (!pos) return;
+  const stateVal = new URL(window.location.href).searchParams.get(STATE_PARAM);
+  rewriteUrl(pos, stateVal);
 }
 
 function applyPersistedPosition(pos) {
   if (!pos) return;
-  const [page, sub] = pos.split(".");
+  const parts = pos.split(".");
+  const page = parts[0];
+  const sub = parts[1];
+  const subsub = parts[2];
 
   // Activate primary tab
   const primaryTab = document.querySelector(`.tab-bar--primary .tab-bar__tab[data-tab="${page}"]`);
@@ -89,6 +111,9 @@ function applyPersistedPosition(pos) {
       document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
       const subEl = document.getElementById(`subpage-${sub}`);
       if (subEl) subEl.classList.remove("hidden");
+      if (sub === "combos" && typeof setActiveCombosSubtab === "function") {
+        setActiveCombosSubtab(subsub || "ability");
+      }
     }
   } else if (page === "fabien" && sub) {
     const fabTab = document.querySelector(`.tab-bar--fabien .tab-bar__tab[data-fabtab="${sub}"]`);
@@ -174,9 +199,8 @@ function persistState() {
   const encoded = encodeStatePayload(payload);
   if (!encoded) return;
 
-  const url = new URL(window.location.href);
-  url.searchParams.set(STATE_PARAM, encoded);
-  history.replaceState(null, "", url.toString());
+  const atVal = new URL(window.location.href).searchParams.get(POS_PARAM);
+  rewriteUrl(atVal, encoded);
 
   // Keep one-year rolling save for returning visitors.
   setCookie(STATE_COOKIE, encoded, 60 * 60 * 24 * 365);
@@ -255,6 +279,7 @@ function init() {
   bindTabs();
   bindClanSelectorToggle();
   initCursorToggle();
+  bindShareButtons();
 
   // Restore tab position after tabs are bound
   const posFromUrl = new URL(window.location.href).searchParams.get(POS_PARAM);
@@ -296,6 +321,39 @@ function setActiveCombosSubtab(tabId) {
     if (typeof renderClanCombosPage === "function") renderClanCombosPage();
   }
   return true;
+}
+
+// ── Share / Save links ───────────────────────────────────────
+function flashBtn(btn) {
+  btn.classList.add("tab-link-btn--copied");
+  setTimeout(() => btn.classList.remove("tab-link-btn--copied"), 1400);
+}
+
+function buildShareUrl(includeState) {
+  const url = new URL(window.location.href);
+  url.search = "";
+  const pos = getCurrentPos();
+  if (pos) url.searchParams.set(POS_PARAM, pos);
+  if (includeState) {
+    const encoded = encodeStatePayload(makePersistedState());
+    if (encoded) url.searchParams.set(STATE_PARAM, encoded);
+  }
+  return url.toString();
+}
+
+function bindShareButtons() {
+  const viewBtn = document.getElementById("view-link-btn");
+  const saveBtn = document.getElementById("save-link-btn");
+  if (viewBtn) {
+    viewBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(buildShareUrl(false)).then(() => flashBtn(viewBtn));
+    });
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(buildShareUrl(true)).then(() => flashBtn(saveBtn));
+    });
+  }
 }
 
 function navigateToClanCombos() {
@@ -397,6 +455,7 @@ function bindTabs() {
   combosTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       setActiveCombosSubtab(tab.dataset.combotab);
+      persistPosition();
     });
   });
 }
@@ -2289,6 +2348,31 @@ function initCursorToggle() {
 
 // ── Start ────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", init);
+
+// ── Changelog Modal ────────────────────────────────────────
+(function () {
+  const overlay = document.getElementById('changelog-modal');
+  const openBtn = document.getElementById('changelog-open-btn');
+  const closeBtn = document.getElementById('changelog-close-btn');
+
+  function openModal() {
+    overlay.classList.remove('hidden');
+    overlay.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+  });
+}());
 
 // ── About Modal ────────────────────────────────────────────
 (function () {

@@ -110,9 +110,31 @@ body {
     border-color: var(--gold-dim);
 }
 
-.header__patch-btn {
+.header__changelog-btn {
     position: absolute;
     left: 110px;
+    background: none;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: rgba(201,168,76,0.65);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.header__changelog-btn:hover {
+    color: var(--gold);
+    border-color: var(--gold-dim);
+}
+
+.header__patch-btn {
+    position: absolute;
+    left: 180px;
     background: none;
     border: 1px solid rgba(255, 120, 160, 0.5);
     color: rgba(255, 160, 190, 0.85);
@@ -486,13 +508,53 @@ body {
     gap: 8px;
 }
 
-.modal-card__changelog li {
+.modal-card__changelog--flat {
+    padding: 0 0 4px;
+    gap: 0;
+}
+
+.changelog__entry {
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.changelog__entry:last-child {
+    border-bottom: none;
+}
+
+.changelog__summary {
     display: flex;
     align-items: baseline;
     gap: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.changelog__summary::-webkit-details-marker { display: none; }
+
+.changelog__summary::before {
+    content: '▶';
+    font-size: 8px;
+    color: var(--text-dim);
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+.changelog__entry[open] > .changelog__summary::before {
+    transform: rotate(90deg);
+}
+
+.changelog__summary:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.changelog__entry .changelog__desc {
+    margin: 0 0 10px 24px;
     font-size: 13px;
     color: var(--text-dim);
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .changelog__version {
@@ -592,6 +654,45 @@ body {
 }
 
 /* ── Custom cursor toggle button ─────────────────────────── */
+.tab-link-btn {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(201,168,76,0.55);
+    transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.tab-link-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.tab-link-btn--save {
+    border-color: rgba(201,168,76,0.22);
+    color: rgba(201,168,76,0.38);
+}
+
+.tab-link-btn--save:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.tab-link-btn--copied {
+    border-color: rgba(100,220,120,0.7) !important;
+    color: rgba(100,220,120,0.9) !important;
+    box-shadow: 0 0 6px rgba(80,200,100,0.35);
+}
+
+.tab-link-btn__icon {
+    width: 15px;
+    height: 15px;
+}
+
 .cursor-toggle-btn {
     background: none;
     border: 1px solid rgba(201,168,76,0.35);
