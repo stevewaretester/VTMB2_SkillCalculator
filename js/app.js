@@ -42,6 +42,11 @@ const PHYRE_INNATE_ITEMS = [
     title: "Melee Combos",
     icon: () => state.selectedClan ? CLANS[state.selectedClan].logo : UI.phyreMark,
   },
+  {
+    id: "vampiricSprint",
+    title: "Vampiric Sprint",
+    icon: () => UI.vampiricSprintIcon,
+  },
 ];
 
 const STATE_PARAM = "state";
@@ -280,6 +285,7 @@ function init() {
   bindClanSelectorToggle();
   initCursorToggle();
   bindShareButtons();
+  updatePhyreClanCrest();
 
   // Restore tab position after tabs are bound
   const posFromUrl = new URL(window.location.href).searchParams.get(POS_PARAM);
@@ -577,9 +583,23 @@ function selectClan(clanId) {
     state.clanSelectorCollapsed = true;
     applyClanSelectorCollapsed();
   }
+
+  updatePhyreClanCrest();
 }
 
 // ── Clan Selector Toggle ─────────────────────────────────────
+function updatePhyreClanCrest() {
+  const img = document.getElementById("phyre-clan-crest");
+  if (!img) return;
+  if (state.selectedClan && CLANS[state.selectedClan]) {
+    img.src = CLANS[state.selectedClan].logo;
+    img.hidden = false;
+  } else {
+    img.src = "";
+    img.hidden = true;
+  }
+}
+
 function bindClanSelectorToggle() {
   const toggle = document.getElementById("clan-selector-toggle");
   if (toggle) {
@@ -668,7 +688,7 @@ function renderPhyreInnateDetail(panel) {
   if (itemId === "telekinesis") {
     html += `<div class="detail-panel__subtitle">Telekinetic Pull</div>`;
     html += `<div class="innate-section-list">`;
-    html += `<div class="innate-section"><span class="innate-section__label">Input</span><span class="innate-section__text">Press <kbd class="innate-key-ref">TK</kbd> to pick up object. Press <kbd class="innate-key-ref">TK</kbd> again to drop it. Press <kbd class="innate-key-ref">Throw</kbd> to throw held objects.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">Input</span><span class="innate-section__text">Press <kbd class="innate-key-ref">TK</kbd> (${formatCCTInlineText('[Q]')}) to pick up object. Press <kbd class="innate-key-ref">TK</kbd> (${formatCCTInlineText('[Q]')}) again to drop it. Press <kbd class="innate-key-ref">Throw</kbd> (${formatCCTInlineText('[M1]')}) to throw held objects.</span></div>`;
     html += `<div class="innate-section"><span class="innate-section__label">NPCs</span><span class="innate-section__text">The Nomad can use a Telekinetic Pull on an unaware opponent — brings them within striking distance or opens them to stronger assaults.</span></div>`;
     html += `<div class="innate-section"><span class="innate-section__label">Objects</span><span class="innate-section__text">Pick up an object and throw as a distraction or for light-ranged damage.</span></div>`;
     html += `<div class="innate-section"><span class="innate-section__label">Weapons</span><span class="innate-section__text">Ranged weapons with ammo can be fired back at assailants. Once ammo is empty, they can be Telekinetically thrown.</span></div>`;
@@ -701,6 +721,13 @@ function renderPhyreInnateDetail(panel) {
       html += `</div></details>`;
     }
     html += `<div class="innate-tip innate-tip--link" id="innate-combos-link">&#8658; Full breakdown in the <strong>Combos → Clan</strong> tab</div>`;
+  } else if (itemId === "vampiricSprint") {
+    html += `<div class="detail-panel__desc">Phyre can sprint at supernatural speed by holding the sprint button. Vampiric Sprint is a passive innate ability — it requires no Blood and is always available.</div>`;
+    html += `<div class="innate-section-list">`;
+    html += `<div class="innate-section"><span class="innate-section__label">Input</span><span class="innate-section__text">Hold <kbd class="innate-key-ref">Sprint</kbd> (${formatCCTInlineText('[Shift]')}) to activate. Release to return to normal movement.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">Effect</span><span class="innate-section__text">Greatly increases movement speed. Can be chained with a Jump or Dash for extended traversal.</span></div>`;
+    html += `<div class="innate-section"><span class="innate-section__label">Combat</span><span class="innate-section__text">Sprinting into a melee engagement opens up additional attack options. Pairs well with Telekinetic Pull to close distance before engaging.</span></div>`;
+    html += `</div>`;
   }
 
   panel.innerHTML = html;
@@ -1196,6 +1223,46 @@ function positionTooltip(e) {
   tip.style.top = y + 'px';
 }
 
+// ── Ability lozenge helpers ──────────────────────────────────
+function buildAbilityLozengesHtml(ability) {
+  let html = '';
+  if (ability.duration) {
+    html += `<div class="detail-panel__duration">`;
+    html += `<img class="detail-panel__duration-icon" src="${UI.splitSecondIcon}" alt="Duration">`;
+    html += `<span>${ability.duration}</span>`;
+    html += `</div>`;
+  }
+  if (ability.tags && ability.tags.length) {
+    html += `<details class="detail-panel__tags">`;
+    html += `<summary class="detail-panel__tags-summary"><span class="masq-summary__arrow">▶</span><img class="detail-panel__tags-icon" src="${UI.tagsIcon}" alt="Tags">Tags</summary>`;
+    html += `<ul class="detail-panel__tags-list">`;
+    for (const t of ability.tags) html += `<li>${t}</li>`;
+    html += `</ul></details>`;
+  }
+  if (ability.notes && ability.notes.length) {
+    html += `<details class="detail-panel__notes">`;
+    html += `<summary class="detail-panel__notes-summary"><span class="masq-summary__arrow">▶</span><img class="detail-panel__notes-icon" src="${UI.notesIcon}" alt="Notes">Notes</summary>`;
+    html += `<ul class="detail-panel__notes-list">`;
+    for (const n of ability.notes) html += `<li>${n}</li>`;
+    html += `</ul></details>`;
+  }
+  return html;
+}
+
+function buildAbilityTooltipLozengesHtml(ability) {
+  let html = '';
+  if (ability.duration) {
+    html += `<div class="tooltip__duration">`;
+    html += `<img class="tooltip__duration-icon" src="${UI.splitSecondIcon}" alt="Duration">`;
+    html += `<span>${ability.duration}</span>`;
+    html += `</div>`;
+  }
+  if (ability.tags && ability.tags.length) {
+    html += `<img class="tooltip__tags-icon" src="${UI.tagsIcon}" alt="Has mechanic data">`;
+  }
+  return html;
+}
+
 function buildTooltipContent(clanId, tier, ability, abilityState) {
   const isOwnClan = clanId === state.selectedClan;
   const isPassive = tier === "passive";
@@ -1214,6 +1281,9 @@ function buildTooltipContent(clanId, tier, ability, abilityState) {
       <span>${disc.name}</span>
     </div>`;
   }
+
+  // Duration + Notes lozenges
+  html += buildAbilityTooltipLozengesHtml(ability);
 
   html += `<div class="tooltip__costs">`;
 
@@ -1604,13 +1674,16 @@ function applyFocusedSelection() {
 
 const CCT_INLINE_KEY_ICONS = {
   shift: 'assets/Keyboard/T_UI_Keyboard_Shift_Left.png',
+  sprint: 'assets/Keyboard/T_UI_Keyboard_Shift_Left.png',
   f: 'assets/Keyboard/T_UI_Keyboard_F.png',
   m1: 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
   lmb: 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
+  throw: 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
   rightclick: 'assets/Keyboard/T_UI_Keyboard_Mouse_Right_Click.png',
   e: 'assets/Keyboard/T_UI_Keyboard_E.png',
   i: 'assets/Keyboard/T_UI_Keyboard_I.png',
   q: 'assets/Keyboard/T_UI_Keyboard_Q.png',
+  tk: 'assets/Keyboard/T_UI_Keyboard_Q.png',
   ctrl: 'assets/Keyboard/T_UI_Keyboard_CTRL_Left.png',
   'left-click': 'assets/Keyboard/T_UI_Keyboard_Mouse_Left_Click.png',
   c: 'assets/Keyboard/T_UI_Keyboard_C.png',
@@ -1698,6 +1771,17 @@ function renderCCTDetailPanel(panel) {
 
   if (inputText) {
     html += `<div class="detail-panel__cct-input"><span class="detail-panel__cct-input-label">Input:</span> ${formatCCTInlineText(inputText)}</div>`;
+  }
+
+  // Cooldown lozenge (CCTs)
+  if (cctKey !== 'bloodHeal') {
+    const talentObj = COMPLETION_TALENTS[cctKey];
+    if (talentObj && talentObj.cooldown) {
+      html += `<div class="detail-panel__duration">`;
+      html += `<img class="detail-panel__duration-icon" src="${UI.splitSecondIcon}" alt="Cooldown">`;
+      html += `<span>${talentObj.cooldown} cooldown</span>`;
+      html += `</div>`;
+    }
   }
 
   if (detailLines.length > 0) {
@@ -1992,6 +2076,9 @@ function renderDetailPanel() {
     html += `</div>`;
   }
 
+  // Duration + Tags lozenges (below blood pips / AP)
+  html += buildAbilityLozengesHtml(ability);
+
   // State info
   html += `<div style="margin-top:12px; font-size:11px; color:var(--text-dim);">
     Status: ${abilityState.charAt(0).toUpperCase() + abilityState.slice(1)}
@@ -2005,7 +2092,7 @@ function renderDetailPanel() {
     const isUnlocked = isOutfitUnlocked(clanId, tier);
     html += `<div class="detail-panel__outfit-link">
       <span class="detail-panel__outfit-link-label">Outfit:</span>
-      <button class="detail-panel__outfit-btn" data-clan="${clanId}" data-idx="${outfitTierIdx}">${isUnlocked ? '← ' : ''}${outfit.name}${!isUnlocked ? ' (locked)' : ''}</button>
+      <button class="detail-panel__outfit-btn" data-clan="${clanId}" data-idx="${outfitTierIdx}"><img class="detail-panel__outfit-btn-icon" src="${UI.outfitNotifIcon}" alt="">${outfit.name}${!isUnlocked ? ' (locked)' : ''}</button>
     </div>`;
   }
 
@@ -2236,7 +2323,7 @@ function renderCompletionTalentRows(grid) {
   bhCell.innerHTML = `
     <div class="comp-talent__icon-wrap">
       <img class="ability-cell__btn-bg" src="assets/N_Textures/AbilityTree/Assets/T_AbilityTree_ButtonBg_Equipped.png" alt="">
-      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt="">` : ''}
+      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt=""><img class="comp-talent__container-bg" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_COMPLETED_Selected.png" alt="">` : ''}
       <img class="comp-talent__icon" src="${BLOOD_HEAL_TALENT.icon}" alt="${bhName}">
     </div>
     ${buildCCTPipsMarkup(BLOOD_HEAL_TALENT.bloodPips, true)}
@@ -2275,6 +2362,7 @@ function renderCompletionTalentRows(grid) {
     cell.dataset.cctKey = clanId;
     cell.innerHTML = `
       <div class="comp-talent__icon-wrap">
+        ${isCompleted ? `<img class="comp-talent__container-bg comp-talent__container-bg--back" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Background_COMPLETED_Selected.png" alt="">` : ''}
         ${isCompleted ? `<img class="comp-talent__container-bg" src="${CLAN_PATTERN_BG[clanId]}" alt="">` : ''}
         <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}"${talent.iconRotate ? ` style="transform:rotate(${talent.iconRotate}deg)"` : ''}>
       </div>
@@ -2303,10 +2391,17 @@ function createEl(tag, className) {
 
 // Navigate to the outfits tab and focus a specific outfit
 function navigateToOutfit(clanId, tierIdx) {
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary .tab-bar__tab");
+  // Ensure Phyre primary tab is active
+  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab) phyreTab.classList.add("active");
+  document.getElementById("page-phyre").classList.remove("hidden");
+
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
   secondaryTabs.forEach(t => t.classList.remove("active"));
   document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-  const outfitsTab = document.querySelector(".tab-bar--secondary .tab-bar__tab[data-subtab='outfits']");
+  const outfitsTab = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab='outfits']");
   if (outfitsTab) outfitsTab.classList.add("active");
   document.getElementById("subpage-outfits").classList.remove("hidden");
   outfitState.selectedClan = clanId;

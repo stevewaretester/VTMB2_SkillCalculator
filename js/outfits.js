@@ -230,7 +230,19 @@ function renderOutfitDetail() {
       panel.querySelector(".outfit-detail__thumb").addEventListener("click", () => openImageLightbox(outfit.fullImg, outfit.name));
     }
     panel.querySelector("#benny-dlc-unlock-link")?.addEventListener("click", () => {
-      if (typeof navigateToBennyDLC === "function") navigateToBennyDLC();
+      if (typeof navigateToBennyDLC === "function") {
+        navigateToBennyDLC();
+        // Focus the outfit sidebar item after navigation
+        setTimeout(() => {
+          if (typeof bennyState !== 'undefined' && typeof renderBennySidebarItems === 'function' && typeof renderBennyDetail === 'function') {
+            bennyState.sidebarFocused = 'outfit';
+            bennyState.focused = null;
+            renderBennySidebarItems();
+            const detail = document.getElementById('benny-detail');
+            if (detail) renderBennyDetail(detail);
+          }
+        }, 50);
+      }
     });
     return;
   }
@@ -294,7 +306,7 @@ function renderOutfitDetail() {
   // Skill tree link
   html += `<div class="outfit-detail__req">
     <button class="outfit-detail__skilltree-btn" data-clan="${clanId}" data-tier="${outfit.tier}">
-      View in Skill Tree: ${ability.name} →
+      <img src="${ability.icon}" alt="${ability.name}">${ability.name}
     </button>
   </div>`;
 
@@ -415,10 +427,12 @@ function renderReactionsTable() {
       const isUnlocked = unlockedNames.has(a.name);
       const meta = unlockedMeta[a.name];
       const loc = ABILITY_LOCATION[a.lookup];
+      const icon = loc ? ABILITIES[loc.clan][loc.tier].icon : null;
+      const iconHtml = icon ? `<img class="affect-ability-icon" src="${icon}" alt="">` : '';
 
       if (isUnlocked && meta) {
         h += `<tr>`;
-        h += `<td><button class="affect-link-btn" style="color:var(${a.resVar})" data-clan="${meta.clanId}" data-tier="${meta.tier}">${a.name}</button></td>`;
+        h += `<td><button class="affect-link-btn" style="color:var(${a.resVar})" data-clan="${meta.clanId}" data-tier="${meta.tier}">${iconHtml}${a.name}</button></td>`;
         h += `<td class="convo-affect-option" style="color:var(${a.resVar})">&ldquo;${a.convo}&rdquo;</td>`;
         for (const r of resTypes) {
           const val = res ? res[r.id] : false;
@@ -427,8 +441,8 @@ function renderReactionsTable() {
         h += `</tr>`;
       } else {
         const linkBtn = loc
-          ? `<button class="affect-link-btn affect-link-btn--locked" data-clan="${loc.clan}" data-tier="${loc.tier}">🔒 ${a.name}</button>`
-          : `<span class="affect-locked-name">🔒 ${a.name}</span>`;
+          ? `<button class="affect-link-btn affect-link-btn--locked" data-clan="${loc.clan}" data-tier="${loc.tier}">${iconHtml}🔒 ${a.name}</button>`
+          : `<span class="affect-locked-name">${iconHtml}🔒 ${a.name}</span>`;
         h += `<tr class="affect-row--locked">`;
         h += `<td>${linkBtn}</td>`;
         h += `<td class="convo-affect-option convo-affect-option--locked">—</td>`;

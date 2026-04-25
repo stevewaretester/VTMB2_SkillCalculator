@@ -155,10 +155,10 @@ const COMPLETION_TALENTS = {
     name: 'Distraction',
     icon: 'assets/CompletionTalents/banu_distraction.png',
     input: 'With nothing in hand, sprint+abilities ([shift]+[rightclick])',
+    cooldown: '5s',
     lines: [
       'Creates a small distraction at the location, drawing NPCs toward it.',
       'Does not influence targets in combat or otherwise preoccupied.',
-      'Has a short cooldown.',
     ],
   },
   ventrue:   {
@@ -182,13 +182,13 @@ const COMPLETION_TALENTS = {
     ],
   },
   toreador:  {
-    name: 'Alacrity',
-    icon: 'assets/CompletionTalents/toreador_alacrity.png',
+    name: 'Silken Grasp',
+    icon: 'assets/CompletionTalents/toreador_silkengrasp.png',
     bloodPips: 0,
     input: 'sprint+TK ([shift]+[Q])',
+    cooldown: '5s',
     lines: [
-      'Your Telekinetic Reach can pull you to distant targets.',
-      'Has a short cooldown before it can be used again.',
+      "Your telekinetic Reach can pull you to distant targets at great speed, wrapped in Presence so mortals are not made suspicious and enemies can't bring themselves to harm you.",
     ],
   },
 };
@@ -391,6 +391,8 @@ const ABILITIES = {
       bloodPips: 0, channeled: false,
       resonance: { san: 0, mel: 0, cho: 0 },
       video: `${VIDS}/Brujah/Brujah_Brutality.mp4`,
+      duration: "3s (on proc)",
+      tags: ["WalkSpeed ×1.2, SprintSpeed ×1.2, MaxAmmo ×0.7 while active", "Damage boost via C++ BrutalityMultiplier (Blueprint-only magnitude); AttackPower ×1.0 in GE is a no-op marker", "Timer resets on each qualifying hit — can be sustained indefinitely in combat"],
     },
     strike: {
       name: "Lightning Strike",
@@ -400,6 +402,7 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 50, mel: 0, cho: 100 },
       video: `${VIDS}/Brujah/Brujah_LightningStrike.mp4`,
+      duration: "3s cooldown",
     },
     relocate: {
       name: "Charge",
@@ -409,6 +412,8 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 0, mel: 100, cho: 250 },
       video: `${VIDS}/Brujah/Brujah_Charge.mp4`,
+      duration: "3s cooldown",
+      tags: ["Grabbed target: NoMove + NoDeath for 20s"],
     },
     affect: {
       name: "Taunt",
@@ -418,6 +423,8 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 400, mel: 150, cho: 0 },
       video: `${VIDS}/Brujah/Brujah_Taunt.mp4`,
+      duration: "3s cooldown",
+      tags: ["WalkSpeed Override 500, SprintSpeed Override 700, AttackPower ×2.0 on target", "StunFragility ×1.5; grants Combat.Status.Fragile + Combat.Status.Anger", "Enemy tags: Anger, AttackArmor"],
     },
     mastery: {
       name: "Earthshock",
@@ -427,6 +434,8 @@ const ABILITIES = {
       bloodPips: 5, channeled: false,
       resonance: { san: 0, mel: 300, cho: 650 },
       video: `${VIDS}/Brujah/Brujah_Earthshock.mp4`,
+      duration: "15s cooldown",
+      tags: ["Damage ticks every 1s within blast radius"],
     },
     perk: {
       name: "Spark of Rage",
@@ -467,6 +476,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 250, mel: 100, cho: 0 },
       video: `${VIDS}/Tremere/Tremer_Recall.mp4`,
+      tags: ["Marker persists 0.5s at spawn point", "2s return window after teleporting back"],
+      notes: ["Blood is only consumed when returning, not when placing the glyph — but you still need full pips to place it.", "Can be used across the entire map."],
     },
     affect: {
       name: "Cauldron of Blood",
@@ -476,6 +487,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 400, mel: 0, cho: 150 },
       video: `${VIDS}/Tremere/Tremer_CauldronOfBlood.mp4`,
+      tags: ["Target tags: Feedable, Disarmable, NoMove, NoTurn, Torture, vulnerable", "Feeding on target triggers BoilingBlood — damage ticks every 0.3s (0.5s at low blood); magnitude is Blueprint-only"],
+      notes: ["Feeding on the affected target grants the Boiling Blood buff — damages you each tick but restores blood pips.", "Damage and pip rate both slow over time, and it automatically stops before reducing you to near 0 HP."],
     },
     mastery: {
       name: "Blood Salvo",
@@ -507,6 +520,8 @@ const ABILITIES = {
       bloodPips: 0, channeled: false,
       resonance: { san: 0, mel: 0, cho: 0 },
       video: `${VIDS}/BanuHaqim/Banu_SilenceOfDeath.mp4`,
+      duration: "10s (on proc)",
+      tags: ["Noticeability ×0.8 while active", "Grants Combat.Status.Mute on self — suppresses AI sound detection"],
     },
     strike: {
       name: "Bladed Hand",
@@ -516,6 +531,7 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 100, mel: 50, cho: 0 },
       video: `${VIDS}/BanuHaqim/Banu_BladedHand.mp4`,
+      notes: ["Does heavy damage, and decapitates nearby small enemies.", "Heads can be TK thrown for decent damage and stagger."],
     },
     relocate: {
       name: "Split Second",
@@ -525,6 +541,9 @@ const ABILITIES = {
       bloodPips: 2, channeled: true,
       resonance: { san: 100, mel: 0, cho: 250 },
       video: `${VIDS}/BanuHaqim/Banu_SplitSecond.mp4`,
+      duration: "7s freeze",
+      tags: ["Enemy time dilation ×0.7 — enemies perceived at 70% speed"],
+      notes: ["Ends early if you perform an assassination or feed.", "Seems to extend the duration of other active buffs, as time has dilated."],
     },
     affect: {
       name: "Mute",
@@ -534,6 +553,7 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 150, mel: 400, cho: 0 },
       video: `${VIDS}/BanuHaqim/Banu%20Mute.mp4`,
+      tags: ["Grants Combat.Status.Mute on target", "Removed if target is Stunned or is a Boss"],
     },
     mastery: {
       name: "Unseen Aura",
@@ -543,6 +563,8 @@ const ABILITIES = {
       bloodPips: 5, channeled: true,
       resonance: { san: 300, mel: 650, cho: 0 },
       video: `${VIDS}/BanuHaqim/Banu%20Unseen%20Aura.mp4`,
+      duration: "up to 30s (channeled)",
+      tags: ["Noticeability ×0.3 (70% stealth reduction) while channeled", "Breaks early if speed > 200 units/s or on melee, feed, hit-react, or interaction animations", "GE_UnseenAuraEnding_MasqueradeBreach (1s) fires on end — grants Masquerade.UnseenAura.Ending"],
     },
     perk: {
       name: "Unseen Passage",
@@ -565,6 +587,8 @@ const ABILITIES = {
       bloodPips: 0, channeled: false,
       resonance: { san: 0, mel: 0, cho: 0 },
       video: `${VIDS}/Ventrue/Ventrue_FleshOFMarble.mp4`,
+      duration: "6s (on proc)",
+      tags: ["80% DR (HealthFragility ×0.2) per stack", "DR scales dynamically with blood level — Blueprint re-applies blood-based Override (GE_Ventrue_Passive_bloodbased DurationMagnitude 5.0 is dead data)", "Grants Combat.General.Shield while primed"],
     },
     strike: {
       name: "Terminal Decree",
@@ -574,6 +598,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 0, mel: 50, cho: 100 },
       video: `${VIDS}/Ventrue/Ventrue_TerminalDecree.mp4`,
+      tags: ["Target tags: vulnerable, NoMove, NoTurn"],
+      notes: ["Kills smaller enemies like Ghouls outright. Disarms and locks larger enemies in place, opening them up for assassination or a feed."],
     },
     relocate: {
       name: "Possession",
@@ -583,6 +609,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 0, mel: 100, cho: 250 },
       video: `${VIDS}/Ventrue/Ventrue_Posession.mp4`,
+      tags: ["Per-action tick (0.8s): WalkSpeed ×1.2, SprintSpeed ×1.2, AccelerationRate Override 5000", "AI detection paused while possessing", "Possession duration tracked by GA — no time limit in GE"],
+      notes: ["Immediately puts you into first-person perspective of the target — you can move, jump, and look around freely.", "Target someone else to make the possessed immediately aggro on them."],
     },
     affect: {
       name: "Cloud Memory",
@@ -592,6 +620,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 0, mel: 150, cho: 400 },
       video: `${VIDS}/Ventrue/Ventrue_CloudMemory.mp4`,
+      duration: "4s cooldown",
+      tags: ["Target tags: Blind, Deaf, Disarmable, NoMove, NoTurn, vulnerable"],
     },
     mastery: {
       name: "Mass Manipulation",
@@ -601,6 +631,7 @@ const ABILITIES = {
       bloodPips: 4, channeled: false,
       resonance: { san: 650, mel: 0, cho: 300 },
       video: `${VIDS}/Ventrue/Ventrue_MassManipulaion.mp4`,
+      tags: ["StunResistance ×0.7 on subdued enemies", "Grants AbilityEvent.Manipulation.Subdue tag", "Subdued target state: vulnerable, NoMove, NoTurn"],
     },
     perk: {
       name: "Resilience",
@@ -623,6 +654,8 @@ const ABILITIES = {
       bloodPips: 0, channeled: false,
       resonance: { san: 0, mel: 0, cho: 0 },
       video: `${VIDS}/Lasombra/Lasombra_ShadowCloak.mp4`,
+      duration: "8s (on proc)",
+      tags: ["WalkSpeed ×1.1, CrouchSpeed ×1.1", "Noticeability ×0.2 (80% less detectable)"],
     },
     strike: {
       name: "Arms of Ahriman",
@@ -632,6 +665,8 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 100, mel: 50, cho: 0 },
       video: `${VIDS}/Lasombra/Lasombra_ArmsOfArhiman.mp4`,
+      tags: ["Trapped target tags: Feedable, Disarmable, NoMove, NoTurn, vulnerable"],
+      notes: ["Hits multiple targets.", "Targets trapped in Oblivion are instantly defeated when you exit — works on heavies."],
     },
     relocate: {
       name: "Shadow Step",
@@ -641,6 +676,8 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 0, mel: 250, cho: 100 },
       video: `${VIDS}/Lasombra/Lasombra_ShadowStep.mp4`,
+      duration: "4s cooldown",
+      notes: ["Teleports you to the OPPOSITE side of the target, immediately opening them up to sneak attacks and feeds."],
     },
     affect: {
       name: "Glimpse of Oblivion",
@@ -650,6 +687,7 @@ const ABILITIES = {
       bloodPips: 3, channeled: false,
       resonance: { san: 0, mel: 150, cho: 400 },
       video: `${VIDS}/Lasombra/Lasombra_GlimpseOfOblivion.mp4`,
+      tags: ["Target tags: Fear, Disarmable, vulnerable, NoMove, NoTurn"],
     },
     mastery: {
       name: "Enter Oblivion",
@@ -659,6 +697,7 @@ const ABILITIES = {
       bloodPips: 4, channeled: true,
       resonance: { san: 0, mel: 650, cho: 300 },
       video: `${VIDS}/Lasombra/Lasombra_EnterOblivion.mp4`,
+      tags: ["State tracked via Combat.Status.InOblivion GA tag — no duration limit in GE"],
     },
     perk: {
       name: "Stygian Shroud",
@@ -681,6 +720,8 @@ const ABILITIES = {
       bloodPips: 0, channeled: false,
       resonance: { san: 0, mel: 0, cho: 0 },
       video: `${VIDS}/Toreador/Toreador_Fleetness.mp4`,
+      duration: "6s (on proc)",
+      tags: ["WalkSpeed ×1.8, SprintSpeed ×1.5, CrouchSpeed ×1.6"],
     },
     strike: {
       name: "Entrancing Kiss",
@@ -690,6 +731,7 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 50, mel: 0, cho: 100 },
       video: `${VIDS}/Toreador/Toreador_EntrancingKiss.mp4`,
+      tags: ["Target: StunFragility ×0.7, WalkSpeed ×1.2, SprintSpeed ×1.2, Noticeability Override 0.3", "Phyre gains AttackPower ×2.0 while Kiss is active", "Target tag: Disarmable while Entranced"],
     },
     relocate: {
       name: "Blink",
@@ -699,6 +741,7 @@ const ABILITIES = {
       bloodPips: 1, channeled: false,
       resonance: { san: 0, mel: 100, cho: 250 },
       video: `${VIDS}/Toreador/Toreador_Blink.mp4`,
+      notes: ["Targeting an enemy teleports you into a kick that deals knockback and damage."],
     },
     affect: {
       name: "Beckon",
@@ -708,6 +751,8 @@ const ABILITIES = {
       bloodPips: 2, channeled: false,
       resonance: { san: 400, mel: 150, cho: 0 },
       video: `${VIDS}/Toreador/Toreador_Beckon.mp4`,
+      tags: ["Target tags: Feedable, Disarmable while in trance"],
+      notes: ["Target moves towards you, or towards the spot where they last saw you."],
     },
     mastery: {
       name: "Blurred Momentum",
@@ -717,6 +762,8 @@ const ABILITIES = {
       bloodPips: 5, channeled: true,
       resonance: { san: 0, mel: 300, cho: 650 },
       video: `${VIDS}/Toreador/Toreador_BlurredMomentum.mp4`,
+      duration: "7s cooldown",
+      tags: ["Phyre: CrouchSpeed ×1.5, WalkSpeed ×1.6, SprintSpeed ×1.2", "Grants Combat.Status.DamageImmune — removed on Feed or PauseImmunity"],
     },
     perk: {
       name: "Fleetness",
@@ -756,6 +803,7 @@ const FABIEN_ABILITIES = [
     discipline: "dominate",
     description: "Remove inconvenient memories from an individual.",
     bloodPips: 1, channeled: false,
+    tags: ["Enemy tags: Disarmable, Blind, Deaf, NoMove"],
   },
   {
     tier: "strike",
@@ -826,6 +874,11 @@ const UI = {
 
   // Phyre innate ability icons
   tkIcon:                `${ICONS}/T_UI_HUD_Ability_Telekinesis_White.png`,
+  vampiricSprintIcon:    `${ICONS}/T_UI_Assets_RPGMenu_SkillTree_Nodes_Icons_RapidReflexes_Hover.png`,
+  splitSecondIcon:       `${ICONS}/T_UI_SplitSecond.png`,
+  tagsIcon:              `${TEX}/N_Textures/HUD/EnemyStatus/T_UI_HUD_EnemyStatus_Detected.png`,
+  notesIcon:             `assets/T_UI_Icons_Codex_ConversationAvailable.png`,
+  outfitNotifIcon:       `${TEX}/N_Textures/Notifications/T_UI_Icon_Notification_Outfit.png`,
 
   // DLC
   bennyLogo:             `${CLAN_LOGOS}/T_UI_BennyLogo.png`,

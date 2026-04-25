@@ -2,7 +2,7 @@
 // All abilities are always unlocked – display only, no toggling.
 // ====================================================================
 
-const fabienState = { focusedIndex: null };
+const fabienState = { focusedIndex: null, notesCardFocused: false };
 
 function initFabien() {
   renderFabienTree();
@@ -54,6 +54,7 @@ function renderFabienTree() {
     if (fabienState.focusedIndex === realIdx) cell.classList.add("focused");
 
     cell.addEventListener("click", () => {
+      fabienState.notesCardFocused = false;
       fabienState.focusedIndex = fabienState.focusedIndex === realIdx ? null : realIdx;
       renderFabienTree();
     });
@@ -98,11 +99,31 @@ function renderFabienTree() {
     }
   });
 
+  // Update notes item active state
+  const notesItem = document.getElementById("fabien-notes-phlegmatic");
+  if (notesItem) notesItem.classList.toggle("focused", fabienState.notesCardFocused);
+
   // Detail panel
   renderFabienDetail(detail);
 }
 
+function renderNotesDetail(panel) {
+  let html = '';
+  html += `<div class="detail-panel__tier">Blood Resonance</div>`;
+  html += `<div class="detail-panel__name-row">`;
+  html += `<img class="detail-panel__ability-icon" src="assets/N_Textures/General/T_UI_Icon_PhlegmaticSymbol.png" alt="Phlegmatic" style="filter:brightness(0) invert(44%) sepia(1) saturate(6) hue-rotate(148deg) brightness(0.9);">`;
+  html += `<div class="detail-panel__name">Phlegmatic Resonance</div>`;
+  html += `</div>`;
+  html += `<div class="detail-panel__desc"><em>Phlegmatic blood resonates with calm, detachment, and focus.</em></div>`;
+  html += `<div class="detail-panel__desc" style="margin-top:8px;">Fabien has various helpers around the city denoted with the <img style="width:20px;height:20px;vertical-align:middle;position:relative;top:-2px;" src="assets/N_Textures/MapIcons/T_UI_Icon_Map_Phlegmatic.png" alt="Phlegmatic"> symbol. Speak with them to request a feed and fuel his abilities.</div>`;
+  panel.innerHTML = html;
+}
+
 function renderFabienDetail(panel) {
+  if (fabienState.notesCardFocused) {
+    renderNotesDetail(panel);
+    return;
+  }
   if (fabienState.focusedIndex === null) {
     panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
     return;
@@ -185,6 +206,15 @@ document.addEventListener("DOMContentLoaded", () => {
   initFabien();
 
   // Wire the Phyre skill tree arrow button → navigate to Fabien + focus Fast Forward
+  const notesItem = document.getElementById("fabien-notes-phlegmatic");
+  if (notesItem) {
+    notesItem.addEventListener("click", () => {
+      fabienState.notesCardFocused = !fabienState.notesCardFocused;
+      if (fabienState.notesCardFocused) fabienState.focusedIndex = null;
+      renderFabienTree();
+    });
+  }
+
   const goBtn = document.getElementById("fabien-phlegmatic-go");
   if (goBtn) {
     goBtn.addEventListener("click", () => {

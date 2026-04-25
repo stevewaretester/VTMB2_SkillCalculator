@@ -28,6 +28,12 @@ const BENNY_SIDEBAR_ITEMS = [
     image: "assets/screenshot/BennySoar.png",
     subtitle: "Replaces Phyre's Glide",
     desc: "Benny's approach to rooftop traversal is more forceful, using Soaring Leap to jump great heights, and Air Dash to quickly cover large distances in the air."
+  },
+  {
+    id: "outfit",
+    icon: UI.outfitNotifIcon,
+    iconClass: "benny-sidebar-item__pistol-icon",
+    title: "Outfit for Phyre",
   }
 ];
 
@@ -153,7 +159,8 @@ function makeBennyCell(ability, isFocused, onClick, tier, fallbackIcon) {
   cell.addEventListener("click", onClick);
 
   const tierLabel = tier && TIERS[tier] ? TIERS[tier].label : "";
-  const tooltipHtml = `<div class="tooltip__tier">${tierLabel}</div><div class="tooltip__name">${ability.name}</div>`;
+  const lozenges = typeof buildAbilityTooltipLozengesHtml === 'function' ? buildAbilityTooltipLozengesHtml(ability) : '';
+  const tooltipHtml = `<div class="tooltip__tier">${tierLabel}</div><div class="tooltip__name">${ability.name}</div>${lozenges}`;
   cell.addEventListener("mouseenter", (e) => {
     sharedTooltip.innerHTML = tooltipHtml;
     sharedTooltip.classList.add("tooltip--visible");
@@ -280,6 +287,35 @@ function renderBennyDetail(panel) {
   if (bennyState.sidebarFocused) {
     const item = BENNY_SIDEBAR_ITEMS.find(i => i.id === bennyState.sidebarFocused);
     if (item) {
+      if (item.id === 'outfit') {
+        const isUnlocked = bennyState.looseCannon;
+        const thumbSrc = isUnlocked ? BENNY_OUTFIT.fullImg : BENNY_OUTFIT.thumb;
+        let html = `<div class="detail-panel__tier">Outfit for Phyre</div>`;
+        html += `<div class="detail-panel__name-row"><img class="detail-panel__ability-icon" src="${item.icon}" alt="Outfit"><div class="detail-panel__name">${item.title}</div></div>`;
+        html += `<div class="detail-panel__video"><img src="${thumbSrc}" alt="${BENNY_OUTFIT.name}" style="width:100%; border-radius:4px; cursor:${isUnlocked ? 'pointer' : 'default'};"></div>`;
+        html += `<div class="detail-panel__desc"><button class="outfit-detail__skilltree-btn" id="benny-sidebar-outfit-link"><img src="${UI.outfitNotifIcon}" alt="">${BENNY_OUTFIT.name}</button></div>`;
+        // DLC purchase lozenge
+        html += `<div class="benny-dlc-purchase-wrap"><label class="benny-dlc-purchase${isUnlocked ? ' active' : ''}" id="benny-sidebar-dlc-label"><input type="checkbox" id="benny-sidebar-dlc-toggle"${isUnlocked ? ' checked' : ''}>Purchase DLC</label></div>`;
+        panel.innerHTML = html;
+        if (isUnlocked) {
+          panel.querySelector('.detail-panel__video img').addEventListener('click', () => openImageLightbox(BENNY_OUTFIT.fullImg, BENNY_OUTFIT.name));
+        }
+        panel.querySelector('#benny-sidebar-outfit-link').addEventListener('click', () => {
+          if (typeof navigateToOutfit === 'function') navigateToOutfit('benny', 0);
+        });
+        const toggle = panel.querySelector('#benny-sidebar-dlc-toggle');
+        const lbl = panel.querySelector('#benny-sidebar-dlc-label');
+        toggle.addEventListener('change', () => {
+          bennyState.looseCannon = toggle.checked;
+          lbl.classList.toggle('active', toggle.checked);
+          if (!toggle.checked && outfitState.focusedOutfit?.clanId === 'benny') outfitState.focusedOutfit = null;
+          persistState();
+          renderOutfitGrid();
+          renderOutfitDetail();
+          renderBennySidebarItems();
+        });
+        return;
+      }
       let html = `<div class="detail-panel__tier">${item.tier}</div>`;
       if (item.image) {
         html += `<div class="detail-panel__video"><img src="${item.image}" alt="${item.title}" style="width:100%; border-radius:4px; cursor:pointer;"></div>`;
@@ -356,6 +392,9 @@ function renderBennyDetail(panel) {
     }
     html += `</div>`;
   }
+
+  // Duration + Tags lozenges (below blood pips / AP)
+  if (typeof buildAbilityLozengesHtml === 'function') html += buildAbilityLozengesHtml(ability);
 
   panel.innerHTML = html;
 

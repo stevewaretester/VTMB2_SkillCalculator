@@ -12,7 +12,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.09</button>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.10</button>
       <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-valentines-update" target="_blank" rel="noopener" title="Game version tested against">Valentine's Update <span class="header__patch-build">21718394</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/about" target="_blank" rel="noopener noreferrer"><img class="header__logo" src="assets/UI_TITLE_VtM_01.png" alt="VtM"></a>
@@ -24,9 +24,9 @@
 
     <!-- Primary Tab Bar -->
     <nav class="tab-bar tab-bar--primary">
-      <button class="tab-bar__tab active" data-tab="phyre">Phyre</button>
-      <button class="tab-bar__tab" data-tab="fabien">Fabien</button>
-      <button class="tab-bar__tab" data-tab="benny">Benny</button>
+      <button class="tab-bar__tab active" data-tab="phyre"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" alt="">Phyre</button>
+      <button class="tab-bar__tab" data-tab="fabien"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">Fabien</button>
+      <button class="tab-bar__tab" data-tab="benny"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="">Benny</button>
       <button class="tab-bar__tab" data-tab="ysabelle">Ysabelle</button>
       <div class="tab-bar__end">
         <button class="tab-link-btn" id="view-link-btn" title="Copy link to current view">
@@ -50,6 +50,8 @@
 
     <!-- Phyre Section -->
     <div class="page" id="page-phyre">
+    <img class="phyre-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" alt="">
+    <img class="phyre-layout__crest-right" id="phyre-clan-crest" src="" alt="" hidden>
 
     <!-- Clan Selector (shared between Skill Tree & Outfits) -->
     <section class="clan-selector" id="clan-selector">
@@ -343,14 +345,22 @@
 
     <!-- Page: Fabien -->
     <div class="page hidden" id="page-fabien">
+      <img class="fabien-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">
       <nav class="tab-bar tab-bar--secondary tab-bar--fabien">
         <button class="tab-bar__tab active" data-fabtab="skills">Skills</button>
       </nav>
       <div class="fabien-subpage" id="fabien-subpage-skills">
         <main class="fabien-layout">
+
           <!-- Left decorative sidebar -->
           <div class="fabien-sidebar">
-            <img class="fabien-sidebar__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">
+            <div class="benny-sidebar-items fabien-notes-items">
+              <div class="benny-sidebar-items__heading">Detective Notes:</div>
+              <div class="benny-sidebar-item" id="fabien-notes-phlegmatic">
+                <span class="benny-sidebar-item__title">Phlegmatic Resonance</span>
+                <img class="benny-sidebar-item__icon benny-sidebar-item__pistol-icon" src="assets/N_Textures/General/T_UI_Icon_PhlegmaticSymbol.png" alt="Phlegmatic">
+              </div>
+            </div>
           </div>
           <!-- Ability column -->
           <div class="fabien-column-wrapper">
@@ -369,6 +379,8 @@
 
     <!-- Page: Benny -->
     <div class="page hidden" id="page-benny">
+      <img class="benny-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="">
+      <img class="benny-layout__crest-right" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Bruhjan.png" alt="">
       <div class="clan-selector" id="benny-dlc-section">
         <!-- Populated by JS -->
       </div>
@@ -377,7 +389,6 @@
         <button class="tab-bar__tab active" data-bennytab="skills">Skills</button>
       </nav>
       <div class="benny-layout">
-        <img class="benny-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Bruhjan.png" alt="">
         <aside class="benny-sidebar">
         <div id="benny-sidebar-items" class="benny-sidebar-items"></div>
       </aside>
@@ -503,15 +514,21 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.09</span>
+        <span class="modal-card__version">v1.10</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
+              <span class="changelog__version">v1.10</span>
+              <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc">Benny outfit detail panel &mdash; &ldquo;Outfit for Phyre&rdquo; sidebar item now opens a detail panel showing the Maverick Cop thumbnail, a link to the outfit page, and an inline DLC purchase lozenge. <code>benny-dlc-unlock-link</code> button on the outfit page now navigates to the Benny tab and focuses the outfit panel. All icon assets moved from <code>UI_export/</code> to <code>assets/</code>. <code>navigateToOutfit</code> now correctly switches the primary Phyre tab before showing the outfits sub-tab.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
               <span class="changelog__version">v1.09</span>
               <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/eddb7ad" target="_blank" rel="noopener">eddb7ad</a>
-              <span class="changelog__label">Current</span>
             </summary>
             <p class="changelog__desc">Share &amp; URL tools &mdash; Copy View Link button (tab bar) copies the current tab position with no selections; Save Link encodes the full build into a shareable URL. Combos sub-tab depth now tracked in <code>?at=</code> (e.g. <code>phyre.combos.clan</code>). URL param order normalised: <code>?at=</code> always precedes <code>?state=</code>. Changelog moved to its own header lozenge.</p>
           </details>
