@@ -507,7 +507,32 @@ function renderWeaponsPage() {
     return `${weapon.projDmg}x${weapon.pelletCount} (${total})`;
   };
 
-  let html = `<table class="pickups-table">
+  let html = '';
+
+  if (document.body.classList.contains('is-mobile')) {
+    // ── Mobile: card view ─────────────────────────────────────
+    html = `<div class="pickup-card-list">`;
+    weaponsRows.forEach(w => {
+      const typeLabel = w.type || '';
+      const projDmgStr = w.projDmgNote
+        ? `<span class="pickup-special-dmg" title="${w.projDmgNote}">${formatProjDamage(w)}</span>`
+        : formatProjDamage(w);
+      html += `<div class="pickup-card">
+        <div class="pickup-card__name">${w.name}
+          <span class="pickup-card__type">${typeLabel}</span>
+        </div>
+        <dl class="pickup-card__stats">
+          <dt>Proj. Dmg</dt><dd>${projDmgStr}</dd>
+          <dt>Thrown</dt><dd>${w.thrownDmg}</dd>
+          <dt>Clip</dt><dd>${w.type === 'Ranged' ? w.ammo : '—'}</dd>
+          ${havenActive && w.shadowKey ? `<dt>Mirror</dt><dd><kbd class="pickup-key">${w.shadowKey}</kbd> ${formatMirrorCost(w.shadowCost)}</dd>` : ''}
+        </dl>
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    // ── Desktop: table view ───────────────────────────────────
+    html = `<table class="pickups-table">
     <thead><tr>
       ${havenActive ? `<th class="pickup-sortable" data-sort="shadowKey">Mirror Key${sortIndicator(tableSort, 'shadowKey')}</th>` : ''}
       <th class="col-img"></th>
@@ -519,42 +544,44 @@ function renderWeaponsPage() {
       ${havenActive ? `<th class="pickup-sortable" data-sort="shadowCost">Mirror Cost${sortIndicator(tableSort, 'shadowCost')}</th>` : ''}
     </tr></thead><tbody>`;
 
-  weaponsRows.forEach((w, i) => {
-    let keyCell = '';
-    let costCell = '';
+    weaponsRows.forEach((w, i) => {
+      let keyCell = '';
+      let costCell = '';
 
-    if (havenActive) {
-      if (!w.shadowKey || !w.shadowCost) {
-        keyCell = '<td>—</td>';
-        costCell = '<td class="pickup-cost">—</td>';
-      } else {
-        const span = mergedMirrorStarts.get(i);
-        if (span) {
-          const rowspan = span > 1 ? ` rowspan="${span}"` : '';
-          const requestText = SHADOW_MIRROR_REQUEST_BY_KEY[w.shadowKey];
-          keyCell = `<td${rowspan} class="pickup-merge-cell"><kbd class="pickup-key">${w.shadowKey}</kbd>${requestText ? `<div class="pickup-key-note">"${requestText}"</div>` : ''}</td>`;
-          costCell = `<td${rowspan} class="pickup-cost pickup-merge-cell">${formatMirrorCost(w.shadowCost)}</td>`;
+      if (havenActive) {
+        if (!w.shadowKey || !w.shadowCost) {
+          keyCell = '<td>—</td>';
+          costCell = '<td class="pickup-cost">—</td>';
+        } else {
+          const span = mergedMirrorStarts.get(i);
+          if (span) {
+            const rowspan = span > 1 ? ` rowspan="${span}"` : '';
+            const requestText = SHADOW_MIRROR_REQUEST_BY_KEY[w.shadowKey];
+            keyCell = `<td${rowspan} class="pickup-merge-cell"><kbd class="pickup-key">${w.shadowKey}</kbd>${requestText ? `<div class="pickup-key-note">"${requestText}"</div>` : ''}</td>`;
+            costCell = `<td${rowspan} class="pickup-cost pickup-merge-cell">${formatMirrorCost(w.shadowCost)}</td>`;
+          }
         }
       }
-    }
 
-    html += `<tr>
-      ${havenActive ? keyCell : ''}
-      <td class="col-img">
-        <div class="pickup-img-slot" title="No image yet">
-          <span class="pickup-img-slot__placeholder">?</span>
-        </div>
-      </td>
-      <td>${w.type}</td>
-      <td class="pickup-name">${w.name}</td>
-      <td>${w.projDmgNote ? `<span class="pickup-special-dmg" data-tooltip="${w.projDmgNote}">${formatProjDamage(w)}</span>` : formatProjDamage(w)}</td>
-      <td>${w.thrownDmg}</td>
-      <td>${w.type === 'Ranged' ? w.ammo : '—'}</td>
-      ${havenActive ? costCell : ''}
-    </tr>`;
-  });
+      html += `<tr>
+        ${havenActive ? keyCell : ''}
+        <td class="col-img">
+          <div class="pickup-img-slot" title="No image yet">
+            <span class="pickup-img-slot__placeholder">?</span>
+          </div>
+        </td>
+        <td>${w.type}</td>
+        <td class="pickup-name">${w.name}</td>
+        <td>${w.projDmgNote ? `<span class="pickup-special-dmg" data-tooltip="${w.projDmgNote}">${formatProjDamage(w)}</span>` : formatProjDamage(w)}</td>
+        <td>${w.thrownDmg}</td>
+        <td>${w.type === 'Ranged' ? w.ammo : '—'}</td>
+        ${havenActive ? costCell : ''}
+      </tr>`;
+    });
 
-  html += '</tbody></table>';
+    html += '</tbody></table>';
+  }
+
   container.innerHTML = html;
 
   // Attach tooltip handlers to special damage cells
@@ -646,7 +673,57 @@ function renderItemsPage() {
     })
     .map(({ row }) => row);
 
-  let html = `<table class="pickups-table">
+  let html = '';
+
+  if (document.body.classList.contains('is-mobile')) {
+    // ── Mobile: card view ─────────────────────────────────────
+    html = `<div class="pickup-card-list">`;
+    for (const row of sortedItemRows) {
+      if (row.rowKind === 'elixir') {
+        const e = row.source;
+        const iconHtml = row.iconSil
+          ? `<div class="pickup-img-slot pickup-img-slot--elixir pickup-card__icon"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
+              <img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">
+             </div>`
+          : '';
+        html += `<div class="pickup-card${row.missionOnly ? ' pickup-card--mission' : ''}">
+          <div class="pickup-card__header">
+            ${iconHtml}
+            <div class="pickup-card__name">${row.name}
+              ${row.missionOnly ? '<span class="elixir-card__badge">Mission Only</span>' : ''}
+            </div>
+          </div>
+          <dl class="pickup-card__stats">
+            <dt>Effect</dt><dd>${row.effect}</dd>
+            <dt>Magnitude</dt><dd>${row.magnitude}</dd>
+            <dt>Duration</dt><dd>${row.duration}</dd>
+            ${row.key ? `<dt>Key</dt><dd><kbd class="pickup-key">${row.key}</kbd></dd>` : ''}
+            ${havenActive && row.costTokens ? `<dt>Cost</dt><dd class="pickup-cost">${formatResourceTokens(row.costTokens)}</dd>` : ''}
+            ${havenActive && !row.costTokens && row.costText && row.costText !== '—' ? `<dt>Cost</dt><dd class="pickup-cost">${row.costText}</dd>` : ''}
+          </dl>
+        </div>`;
+        continue;
+      }
+      const r = row.source;
+      const costHtml   = row.costTokens   ? formatResourceTokens(row.costTokens)   : row.costText;
+      const resultHtml = r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—');
+      html += `<div class="pickup-card pickup-card--alchemy">
+        <div class="pickup-card__header">
+          <div class="pickup-card__icon pickup-card__icon--alchemy">${renderAlchemyRowIcon(r)}</div>
+          <div class="pickup-card__name">${row.name}</div>
+        </div>
+        <dl class="pickup-card__stats">
+          <dt>Key</dt><dd><kbd class="pickup-key">${row.key}</kbd></dd>
+          <dt>Result</dt><dd>${resultHtml}</dd>
+          <dt>Duration</dt><dd>${row.duration}</dd>
+          <dt>Cost</dt><dd class="pickup-cost">${costHtml}</dd>
+        </dl>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    // ── Desktop: table view ───────────────────────────────────
+    html = `<table class="pickups-table">
     <thead><tr>
       ${havenActive ? `<th class="pickup-sortable" data-sort="alchemyKey">Alchemy Key${sortIndicator(tableSort, 'alchemyKey')}</th>` : ''}
       <th class="col-img"></th>
@@ -657,46 +734,48 @@ function renderItemsPage() {
       ${havenActive ? `<th class="pickup-sortable" data-sort="cost">Alchemy Cost${sortIndicator(tableSort, 'cost')}</th>` : ''}
     </tr></thead><tbody>`;
 
-  for (const row of sortedItemRows) {
-    if (row.rowKind === 'elixir') {
-      const e = row.source;
-      html += `<tr class="${row.missionOnly ? 'elixir-card--mission' : ''}">
-      ${havenActive ? `<td>${row.key ? `<kbd class="pickup-key">${row.key}</kbd>` : '—'}</td>` : ''}
-      <td class="col-img">
-        <div class="pickup-img-slot pickup-img-slot--elixir"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
-          ${row.iconSil
-            ? `<img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">`
-            : `<span class="pickup-img-slot__placeholder">?</span>`}
-        </div>
-      </td>
-      <td class="pickup-name">${row.name}${row.missionOnly ? ' <span class="elixir-card__badge">Mission Only</span>' : ''}</td>
-      <td>${row.effect}</td>
-      <td>${row.magnitude}</td>
-      <td>${row.duration}</td>
-      ${havenActive
-        ? `<td class="pickup-cost">${row.costTokens ? formatResourceTokens(row.costTokens) : row.costText}</td>`
-        : ''}
-    </tr>`;
-      continue;
+    for (const row of sortedItemRows) {
+      if (row.rowKind === 'elixir') {
+        const e = row.source;
+        html += `<tr class="${row.missionOnly ? 'elixir-card--mission' : ''}">
+        ${havenActive ? `<td>${row.key ? `<kbd class="pickup-key">${row.key}</kbd>` : '—'}</td>` : ''}
+        <td class="col-img">
+          <div class="pickup-img-slot pickup-img-slot--elixir"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
+            ${row.iconSil
+              ? `<img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">`
+              : `<span class="pickup-img-slot__placeholder">?</span>`}
+          </div>
+        </td>
+        <td class="pickup-name">${row.name}${row.missionOnly ? ' <span class="elixir-card__badge">Mission Only</span>' : ''}</td>
+        <td>${row.effect}</td>
+        <td>${row.magnitude}</td>
+        <td>${row.duration}</td>
+        ${havenActive
+          ? `<td class="pickup-cost">${row.costTokens ? formatResourceTokens(row.costTokens) : row.costText}</td>`
+          : ''}
+      </tr>`;
+        continue;
+      }
+
+      const r = row.source;
+      const costHtml = row.costTokens ? formatResourceTokens(row.costTokens) : row.costText;
+      const resultHtml = row.name === 'XP collectible' ? row.magnitude : (r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—'));
+      html += `<tr class="pickups-row--alchemy">
+        <td><kbd class="pickup-key">${row.key}</kbd></td>
+        <td class="col-img">
+          ${renderAlchemyRowIcon(r)}
+        </td>
+        <td class="pickup-name">${row.name}</td>
+        <td>${row.effect}</td>
+        <td>${resultHtml}</td>
+        <td>${row.duration}</td>
+        <td class="pickup-cost">${costHtml}</td>
+      </tr>`;
     }
 
-    const r = row.source;
-    const costHtml = row.costTokens ? formatResourceTokens(row.costTokens) : row.costText;
-    const resultHtml = row.name === 'XP collectible' ? row.magnitude : (r.resultTokens ? formatResourceTokens(r.resultTokens) : (r.result || '—'));
-    html += `<tr class="pickups-row--alchemy">
-      <td><kbd class="pickup-key">${row.key}</kbd></td>
-      <td class="col-img">
-        ${renderAlchemyRowIcon(r)}
-      </td>
-      <td class="pickup-name">${row.name}</td>
-      <td>${row.effect}</td>
-      <td>${resultHtml}</td>
-      <td>${row.duration}</td>
-      <td class="pickup-cost">${costHtml}</td>
-    </tr>`;
+    html += '</tbody></table>';
   }
 
-  html += '</tbody></table>';
   container.innerHTML = html;
 
   container.querySelectorAll('th[data-sort]').forEach((th) => {

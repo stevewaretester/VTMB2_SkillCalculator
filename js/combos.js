@@ -147,6 +147,8 @@ function renderCombosPage() {
   const container = document.getElementById("combos-table-container");
   if (!container) return;
 
+  const isMobile = document.body.classList.contains('is-mobile');
+
   let html = `
     <div class="combos-header">
       <img class="combos-header__icon" src="${COMBO_ICON}" alt="Combos">
@@ -159,8 +161,41 @@ function renderCombosPage() {
       <button class="combos-legend__item combos-legend__item--all ${COMBOS_FILTER.selected === 'all' ? 'is-active' : ''}" data-combo-filter="all" aria-pressed="${COMBOS_FILTER.selected === 'all'}">All unlocked</button>
       <button class="combos-legend__item combos-legend__item--partial ${COMBOS_FILTER.selected === 'partial' ? 'is-active' : ''}" data-combo-filter="partial" aria-pressed="${COMBOS_FILTER.selected === 'partial'}">Partially unlocked</button>
       <button class="combos-legend__item combos-legend__item--locked ${COMBOS_FILTER.selected === 'locked' ? 'is-active' : ''}" data-combo-filter="locked" aria-pressed="${COMBOS_FILTER.selected === 'locked'}">Not started</button>
-    </div>
-    <table class="combos-table" role="table">
+    </div>`;
+
+  if (isMobile) {
+    // ── Mobile: card view ─────────────────────────────────────
+    html += `<div class="combo-card-list">`;
+    for (const combo of COMBOS) {
+      const unlockState = getComboUnlockState(combo);
+      if (!comboPassesFilter(unlockState)) continue;
+      const abilitiesHtml = combo.abilities.map(buildComboAbilityIcon).join("");
+      const explanationHtml = combo.explanation.replace(/\n/g, "<br>");
+      let refHtml = '';
+      if (combo.referenceUrl) {
+        refHtml = `<div class="combo-card__ref">Ref: <a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a></div>`;
+      } else if (combo.reference) {
+        refHtml = `<div class="combo-card__ref">Ref: <em>${combo.reference}</em></div>`;
+      }
+      html += `<article class="combo-card combo-card--${unlockState}" id="combo-row-${combo.id}">
+        <div class="combo-card__header">
+          <div>
+            <div class="combo-card__name">${combo.name}</div>
+            ${combo.subtitle ? `<div class="combo-card__subtitle">${combo.subtitle}</div>` : ""}
+            ${combo.patched  ? `<div class="combo-card__patched">PATCHED</div>` : ""}
+          </div>
+          <span class="combo-rank ${RANK_CLASS[combo.rank] || ""}">${combo.rank}</span>
+        </div>
+        <div class="combo-card__abilities">${abilitiesHtml}</div>
+        <div class="combo-card__cost">${buildComboCostCell(combo)}</div>
+        <div class="combo-card__body">${explanationHtml}</div>
+        ${refHtml}
+      </article>`;
+    }
+    html += `</div>`;
+  } else {
+    // ── Desktop: table view ───────────────────────────────────
+    html += `<table class="combos-table" role="table">
       <thead>
         <tr>
           <th class="combos-table__th combos-table__th--name">Combo</th>
@@ -172,50 +207,48 @@ function renderCombosPage() {
       </thead>
       <tbody>`;
 
-  for (const combo of COMBOS) {
-    const unlockState = getComboUnlockState(combo);
-    if (!comboPassesFilter(unlockState)) continue;
-    const rowClass = `combos-table__row combos-table__row--${unlockState}`;
+    for (const combo of COMBOS) {
+      const unlockState = getComboUnlockState(combo);
+      if (!comboPassesFilter(unlockState)) continue;
+      const rowClass = `combos-table__row combos-table__row--${unlockState}`;
 
-    // Name cell — <details> to expand reference
-    let nameCell = `<details class="combo-name">
-      <summary class="combo-name__summary">
-        <span class="combo-name__text">${combo.name}</span>
-        ${combo.subtitle ? `<span class="combo-name__subtitle">${combo.subtitle}</span>` : ""}
-        ${combo.patched ? `<span class="combo-name__patched">PATCHED</span>` : ""}
-      </summary>`;
-    if (combo.reference || combo.referenceUrl) {
-      nameCell += `<div class="combo-name__ref">`;
-      if (combo.referenceUrl) {
-        nameCell += `<span class="combo-name__ref-label">Ref: </span><a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a>`;
-      } else if (combo.reference) {
-        nameCell += `<span class="combo-name__ref-label">Ref: </span><em>${combo.reference}</em>`;
+      let nameCell = `<details class="combo-name">
+        <summary class="combo-name__summary">
+          <span class="combo-name__text">${combo.name}</span>
+          ${combo.subtitle ? `<span class="combo-name__subtitle">${combo.subtitle}</span>` : ""}
+          ${combo.patched ? `<span class="combo-name__patched">PATCHED</span>` : ""}
+        </summary>`;
+      if (combo.reference || combo.referenceUrl) {
+        nameCell += `<div class="combo-name__ref">`;
+        if (combo.referenceUrl) {
+          nameCell += `<span class="combo-name__ref-label">Ref: </span><a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a>`;
+        } else if (combo.reference) {
+          nameCell += `<span class="combo-name__ref-label">Ref: </span><em>${combo.reference}</em>`;
+        }
+        nameCell += `</div>`;
       }
-      nameCell += `</div>`;
+      nameCell += `</details>`;
+
+      const abilitiesHtml  = combo.abilities.map(buildComboAbilityIcon).join("");
+      const explanationHtml = combo.explanation.replace(/\n/g, "<br>");
+
+      html += `
+        <tr class="${rowClass}" id="combo-row-${combo.id}">
+          <td class="combos-table__td combos-table__td--name">${nameCell}</td>
+          <td class="combos-table__td combos-table__td--abilities">
+            <div class="combo-abilities">${abilitiesHtml}</div>
+          </td>
+          <td class="combos-table__td combos-table__td--cost">${buildComboCostCell(combo)}</td>
+          <td class="combos-table__td combos-table__td--explanation">${explanationHtml}</td>
+          <td class="combos-table__td combos-table__td--rank">
+            <span class="combo-rank ${RANK_CLASS[combo.rank] || ""}">${combo.rank}</span>
+          </td>
+        </tr>`;
     }
-    nameCell += `</details>`;
 
-    // Abilities cell
-    const abilitiesHtml = combo.abilities.map(buildComboAbilityIcon).join("");
-
-    // Explanation cell — newlines → line breaks
-    const explanationHtml = combo.explanation.replace(/\n/g, "<br>");
-
-    html += `
-      <tr class="${rowClass}" id="combo-row-${combo.id}">
-        <td class="combos-table__td combos-table__td--name">${nameCell}</td>
-        <td class="combos-table__td combos-table__td--abilities">
-          <div class="combo-abilities">${abilitiesHtml}</div>
-        </td>
-        <td class="combos-table__td combos-table__td--cost">${buildComboCostCell(combo)}</td>
-        <td class="combos-table__td combos-table__td--explanation">${explanationHtml}</td>
-        <td class="combos-table__td combos-table__td--rank">
-          <span class="combo-rank ${RANK_CLASS[combo.rank] || ""}">${combo.rank}</span>
-        </td>
-      </tr>`;
+    html += `</tbody></table>`;
   }
 
-  html += `</tbody></table>`;
   container.innerHTML = html;
 
   // Bind ability icon buttons — hover tooltip + click to navigate skill tree
@@ -273,6 +306,7 @@ function navigateToCombos(comboId) {
       }
     }, 60);
   }
+  if (typeof updateMobileChrome === "function") updateMobileChrome();
 }
 
 // ── Re-render combos if the tab is currently visible ─────────
@@ -727,6 +761,8 @@ function renderClanCombosPage() {
 
   // Filter bar
   let html = `<div class="combos-layout"><div class="clan-combos-header">`;
+  html += `<h2 class="combos-header__title">Clan Attack Data</h2>`;
+  html += `<p class="combos-header__sub">Detailed data for each clan's light and heavy attack chains, alongside Phyre's universal combat actions — kicks, dashes, and shunts.</p>`;
   html += `<div class="clan-combos-filter-row">`;
   html += `<div class="clan-combos-filter">`;
   html += `<button class="clan-combos-filter__btn${!clanCombosFilter ? " active" : ""}" data-filter="">All</button>`;
@@ -746,6 +782,10 @@ function renderClanCombosPage() {
   html += `</div>`; // clan-combos-jump-btns
   html += `<div class="clan-combos-legend"><span class="clan-combos-legend__item clan-combos-legend__item--finisher">★ Finisher step</span><span class="clan-combos-legend__item clan-combos-legend__item--selected">Highlighted = your clan</span></div>`;
   html += `</div>`; // filter-row
+  html += `<ul class="combos-header__primer">
+    <li><strong class="combos-header__primer-label combos-header__primer-label--light">Light attacks:</strong> Fast, low-commitment swings — easy for enemies to block, but excellent for juggling airborne targets and chaining hit-confirms.</li>
+    <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Heavy attacks:</strong> Slower wind-up, but bypass guard — they break blocks outright and can knock enemies back or launch them into the air.</li>
+  </ul>`;
   html += `</div>`; // clan-combos-header
 
   // Per-clan tables
@@ -848,6 +888,7 @@ function renderClanCombosPage() {
     <th class="combos-table__th kicks-table__th--range" title="Hit trace range (units)">Trace</th>
     <th class="combos-table__th kicks-table__th--delay" title="Time before next combo input is accepted">Combo Delay</th>
     <th class="combos-table__th kicks-table__th--kb" title="Knockback impulse applied to target">Knockback</th>
+    <th class="combos-table__th kicks-table__th--block" title="Behaviour against an actively blocking enemy">vs. Block</th>
     <th class="combos-table__th kicks-table__th--cd" title="Cooldown before kick can be used again">Cooldown</th>
   </tr></thead><tbody>`;
 
@@ -855,11 +896,11 @@ function renderClanCombosPage() {
   const _lmb = _ki('T_UI_Keyboard_Mouse_Left_Click.png', 'LMB');
 
   const kickRows = [
-    { name: "Front",   context: "Ground, moving forward",  input: `Forward + Kick<br>(${_ki('T_UI_Keyboard_W.png','W')}+${_lmb})`,                                                                              animLen: "1.17s", dmg: 5,  dmgPeak: false, bonus: "+5 vs Stunned",   bonusTip: "Doubles to 10 vs Combat.Status.Stunned", range: 180, radius: 35, comboDelay: "0.50s", kb: "H: 300",           hitReact: "Stumble", cooldown: "0.3s", cdPeak: false },
-    { name: "Back",    context: "Ground, moving backward", input: `Back + Kick<br>(${_ki('T_UI_Keyboard_S.png','S')}+${_lmb})`,                                                                                animLen: "1.83s", dmg: 7,  dmgPeak: false, bonus: "+1.5 (always?)", bonusTip: "No condition tag on SpecialDamageBonus — may always apply; also applies GE_BackKickenemyaffect (5s stat debuff)", range: 250, radius: 35, comboDelay: "1.00s", kb: "H: 800",           hitReact: "—",       cooldown: "0.3s", cdPeak: false },
-    { name: "Side",    context: "Ground, left or right",   input: `Left/Right + Kick<br>(${_ki('T_UI_Keyboard_A.png','A')}/${_ki('T_UI_Keyboard_D.png','D')}+${_lmb})`,                                        animLen: "1.20s", dmg: 7,  dmgPeak: false, bonus: "+4 vs TK-Pulled",bonusTip: "+4 vs Combat.Status.Hitreact.TkPull (TK combo synergy) — trace radius 60 vs standard 35", range: 270, radius: 60, comboDelay: "0.80s", kb: "H: 800",           hitReact: "Stumble", cooldown: "0.3s", cdPeak: false },
-    { name: "Sliding", context: "Sprinting",               input: `Sprint + Kick<br>(${_ki('T_UI_Keyboard_CTRL_Left.png','ctrl')}+${_lmb})`,                                                                     animLen: "1.50s", dmg: 15, dmgPeak: false, bonus: "—",              bonusTip: "",  range: 300, radius: 40, comboDelay: "1.00s", kb: "H: 1400, V: +400", hitReact: "Stumble", cooldown: "0.3s", cdPeak: false },
-    { name: "Drop",    context: "Airborne",                input: `Airborne + Kick<br>(${_ki('T_UI_Keyboard_SpaceBar.png','Space')} &#8594; ${_lmb})`,                                                           animLen: "1.50s", dmg: 25, dmgPeak: true,  bonus: "—",              bonusTip: "",  range: 200, radius: 35, comboDelay: "1.00s", kb: "H: 2000, V: −200", hitReact: "Stumble", cooldown: "6.0s", cdPeak: true  },
+    { name: "Front",   context: "Ground, moving forward",  input: `Forward + Kick<br>(${_ki('T_UI_Keyboard_W.png','W')}+${_lmb})`,                                                                              animLen: "1.17s", dmg: "5",     dmgPeak: false, dmgTip: "",                                                                                  bonus: "+5 vs Stunned",   bonusTip: "Doubles to 10 vs Combat.Status.Stunned", range: 180, radius: 35, comboDelay: "0.50s", kb: "H: 300",           hitReact: "Stumble", block: "Connects (flinch)", blockBreak: false, blockTip: "Combat.Ability.Melee.Block is in FlinchOnlyTags — the kick lands but produces only a flinch reaction, not a stumble.", cooldown: "0.3s", cdPeak: false },
+    { name: "Back",    context: "Ground, moving backward", input: `Back + Kick<br>(${_ki('T_UI_Keyboard_S.png','S')}+${_lmb})`,                                                                                animLen: "1.83s", dmg: "7",     dmgPeak: false, dmgTip: "",                                                                                  bonus: "+1.5 (always?)", bonusTip: "No condition tag on SpecialDamageBonus — may always apply; also applies GE_BackKickenemyaffect (5s stat debuff)", range: 250, radius: 35, comboDelay: "1.00s", kb: "H: 800",           hitReact: "—",       block: "Bypasses",          blockBreak: true,  blockTip: "Block tag is not in FlinchOnlyTags — kick goes through guard.",                                                            cooldown: "0.3s", cdPeak: false },
+    { name: "Side",    context: "Ground, left or right",   input: `Left/Right + Kick<br>(${_ki('T_UI_Keyboard_A.png','A')}/${_ki('T_UI_Keyboard_D.png','D')}+${_lmb})`,                                        animLen: "1.20s", dmg: "7",     dmgPeak: false, dmgTip: "",                                                                                  bonus: "+4 vs TK-Pulled",bonusTip: "+4 vs Combat.Status.Hitreact.TkPull (TK combo synergy) — trace radius 60 vs standard 35", range: 270, radius: 60, comboDelay: "0.80s", kb: "H: 800",           hitReact: "Stumble", block: "Bypasses",          blockBreak: true,  blockTip: "Block tag is not in FlinchOnlyTags — kick goes through guard.",                                                            cooldown: "0.3s", cdPeak: false },
+    { name: "Sliding", context: "Sprinting",               input: `Sprint + Kick<br>(${_ki('T_UI_Keyboard_CTRL_Left.png','ctrl')}+${_lmb})`,                                                                     animLen: "1.50s", dmg: "15",    dmgPeak: false, dmgTip: "",                                                                                  bonus: "—",              bonusTip: "",  range: 300, radius: 40, comboDelay: "1.00s", kb: "H: 1400, V: +400", hitReact: "Stumble", block: "Bypasses",          blockBreak: true,  blockTip: "Damage Should Execute: true — same mechanism as heavy punch, which is confirmed to bypass block.",                          cooldown: "0.3s", cdPeak: false },
+    { name: "Drop",    context: "Airborne",                input: `Airborne + Kick<br>(${_ki('T_UI_Keyboard_SpaceBar.png','Space')} &#8594; ${_lmb})`,                                                           animLen: "1.50s", dmg: "15–70", dmgPeak: true,  dmgTip: "Velocity-scaled: 15 base + up to 55 bonus depending on fall speed (Hit Damage 25 listed in CDO).", bonus: "—",              bonusTip: "",  range: 200, radius: 35, comboDelay: "1.00s", kb: "H: 2000, V: −200", hitReact: "Stumble", block: "Bypasses",          blockBreak: true,  blockTip: "Damage Should Execute: true — bypasses block entirely.",                                                                    cooldown: "6.0s", cdPeak: true  },
   ];
 
   for (const k of kickRows) {
@@ -867,11 +908,12 @@ function renderClanCombosPage() {
     html += `<td class="combos-table__td kicks-table__td--name">${k.name}</td>`;
     html += `<td class="combos-table__td kicks-table__td--input" title="${k.context}">${k.input}</td>`;
     html += `<td class="combos-table__td clan-combos-table__td--len">${k.animLen}</td>`;
-    html += `<td class="combos-table__td clan-combos-table__td--dmg${k.dmgPeak ? " clan-combo__dmg--peak" : ""}">${k.dmg}</td>`;
+    html += `<td class="combos-table__td clan-combos-table__td--dmg${k.dmgPeak ? " clan-combo__dmg--peak" : ""}"${k.dmgTip ? ` title="${k.dmgTip}"` : ""}>${k.dmg}</td>`;
     html += `<td class="combos-table__td kicks-table__td--bonus"${k.bonusTip ? ` title="${k.bonusTip}"` : ""}>${k.bonus}</td>`;
     html += `<td class="combos-table__td kicks-table__td--range" title="Trace range: ${k.range} | Radius: ${k.radius}">${k.range} <span class="crossclan-note">(r:${k.radius})</span></td>`;
     html += `<td class="combos-table__td clan-combos-table__td--delay">${k.comboDelay}</td>`;
     html += `<td class="combos-table__td kicks-table__td--kb">${k.kb}</td>`;
+    html += `<td class="combos-table__td kicks-table__td--block${k.blockBreak ? " kicks-table__td--block-break" : ""}"${k.blockTip ? ` title="${k.blockTip}"` : ""}>${k.block}</td>`;
     html += `<td class="combos-table__td kicks-table__td--cd${k.cdPeak ? " kicks-table__td--cd-peak" : ""}">${k.cooldown}</td>`;
     html += `</tr>`;
   }
@@ -881,7 +923,9 @@ function renderClanCombosPage() {
     <li><strong>Side kick</strong> synergises with Telekinesis — bonus damage vs TK-pulled enemies; also has a wider trace radius (60 vs 35).</li>
     <li><strong>Back kick</strong> applies a 5s multiplicative stat debuff (<code>GE_BackKickenemyaffect</code>) on the target.</li>
     <li><strong>Sliding kick</strong> launches the enemy upward (V: +400); <strong>drop kick</strong> pins them downward (V: −200).</li>
-    <li><strong>Drop kick</strong> is the strongest single hit (25 dmg) but has a 6s cooldown — reset on landing — all others share a 0.3s cooldown.</li>
+    <li><strong>Drop kick</strong> damage scales with fall speed: <strong>15</strong> at minimum, up to <strong>70</strong> at terminal velocity (formula: 15 + velocity-factor × 55). The faster Phyre is falling on impact, the harder the hit.</li>
+    <li><strong>Drop kick</strong> has a 6s cooldown — but it expires the moment Phyre lands, so in practice you can chain drop kicks as fast as you can jump again. All other kicks share a 0.3s cooldown.</li>
+    <li><strong>Block-breaking:</strong> Back, Side, Sliding, and Drop kicks all <strong>bypass</strong> blocking enemies — they punch straight through guard. Only the front kick is partially absorbed (it connects but produces a flinch reaction rather than a full stumble).</li>
     <li><strong>Side kick</strong> uses <code>Kick_Right</code> mirrored for left input — <code>Kick_Left</code> exists in exports but is not referenced.</li>
   </ul>`;
   html += `</div></details>`;
@@ -957,6 +1001,29 @@ function renderClanCombosPage() {
     <li>The 0.2s movement phase is short — the rest of the animation is a recovery roll (F/B ~1.08s of recovery; L/R ~0.57s).</li>
     <li>Kicks fire during the <code>GE_MidDash_Notify</code> 0.5s window, not the full dash tag duration.</li>
     <li>Three rapid dashes triggers a 0.5s lock — <code>GE_LockDash</code> prevents a 4th until it expires.</li>
+  </ul>`;
+  html += `</div></details>`;
+
+  // Lozenge: Parry
+  html += `<details class="crossclan-lozenge"><summary class="crossclan-lozenge__summary">Parry</summary><div class="crossclan-lozenge__body">`;
+  html += `<p class="crossclan-note--sub">Triggered by dashing <em>into</em> an incoming enemy <strong>light</strong> attack — Phyre absorbs the hit with no damage, and the attacker is left vulnerable.</p>`;
+  html += `<table class="combos-table crossclan-table"><thead><tr><th class="combos-table__th" style="width:18%">Property</th><th class="combos-table__th" style="width:82%">Value</th></tr></thead><tbody>`;
+  const parryRows = [
+    { prop: "Trigger",        val: `Dash directly into an enemy <strong>light</strong> attack as it lands. Heavy attacks cannot be parried — they bypass guard.` },
+    { prop: "Damage taken",   val: `<span class="clan-combo__thresh--easy">None</span> — incoming damage is fully negated` },
+    { prop: "Attacker reaction", val: `Staggered briefly; flagged with <code class="crossclan-code">Combat.Status.Disarmable</code>` },
+    { prop: "Follow-up",      val: `<strong>Shunt-Disarm</strong> within the disarm window strips the enemy's weapon (see <em>Shunt</em> above).` },
+    { prop: "Vertical parry", val: `Parrying a jump-attack launches the attacker upward — sets up aerial juggles.` },
+  ];
+  for (const r of parryRows) {
+    html += `<tr class="combos-table__tr"><td class="combos-table__td" style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text-dim);white-space:nowrap">${r.prop}</td><td class="combos-table__td" style="font-size:11px">${r.val}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  html += `<ul class="crossclan-list crossclan-list--notes">
+    <li>Only <strong>light</strong> attacks can be parried — heavies still connect (and bypass block entirely).</li>
+    <li>The dash i-frames cover the parry, so a mistimed parry still avoids damage as long as the dash is active.</li>
+    <li>The disarm window is the same flag the Shunt-Disarm checks for (<code>SpecialHitFilter</code>: <code>HitReact.Countered</code>, <code>Status.Disarmable</code>, <code>Ability.Ranged.Reload</code>).</li>
+    <li><button class="affect-link-btn" data-clan="toreador" data-tier="mastery">Blurred Momentum</button> allows for auto-parrying — incoming light attacks are deflected automatically while the ability is active.</li>
   </ul>`;
   html += `</div></details>`;
 
@@ -1160,6 +1227,15 @@ function renderClanCombosPage() {
       }
     });
   }
+
+  // Ability cross-links inside lozenges (e.g. Blurred Momentum)
+  container.querySelectorAll(".affect-link-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (typeof navigateToAbility !== "function") return;
+      if (!state.selectedClan && typeof selectClan === "function") selectClan(btn.dataset.clan);
+      navigateToAbility(btn.dataset.clan, btn.dataset.tier);
+    });
+  });
 }
 
 // ── Cross-Clan Notes Page ─────────────────────────────────────

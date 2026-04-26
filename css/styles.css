@@ -165,7 +165,7 @@ body {
 
 .header__mods-btn {
     position: absolute;
-    right: 24px;
+    right: 96px; /* shifted left to make room for layout-toggle-btn */
     background: none;
     border: 1px solid var(--border-accent);
     color: var(--text-dim);
@@ -688,6 +688,13 @@ body {
     box-shadow: 0 0 6px rgba(80,200,100,0.35);
 }
 
+/* Force mobile view button — glows gold when active */
+.tab-link-btn--view-toggle.is-active {
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 6px rgba(201,168,76,0.4);
+}
+
 .tab-link-btn__icon {
     width: 15px;
     height: 15px;
@@ -721,6 +728,61 @@ body {
     filter: none;
     opacity: 0.3;
 }
+
+/* ── Universal layout toggle (lives inside .header; absolute on desktop, fixed on mobile) ── */
+.layout-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    z-index: 350;
+    width: 64px;
+    height: 32px;
+    padding: 0;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+.layout-toggle-btn:hover { border-color: var(--gold); }
+.layout-toggle-btn::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 24px;
+    border-radius: 12px;
+    background: rgba(201,168,76,0.25);
+    box-shadow: 0 0 6px rgba(201,168,76,0.35);
+    transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), background 0.15s;
+    pointer-events: none;
+}
+body.is-mobile .layout-toggle-btn::before { transform: translateX(32px); }
+.layout-toggle-btn__side {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(201,168,76,0.45);
+    transition: color 0.15s;
+    pointer-events: none;
+}
+.layout-toggle-btn__side svg { width: 16px; height: 16px; }
+body:not(.is-mobile) .layout-toggle-btn__side--desktop,
+body.is-mobile .layout-toggle-btn__side--mobile { color: var(--gold); }
+.layout-toggle-btn.is-forced { border-color: var(--gold); box-shadow: 0 0 6px rgba(201,168,76,0.4); }
+
+/* Push Mods button further left when toggle is wider now */
 
 /* ── Disable custom cursor ───────────────────────────────── */
 body.no-custom-cursor *,
@@ -1242,6 +1304,14 @@ kbd.innate-key-ref {
         flex-direction: column;
         align-items: center;
     }
+
+    /* Detail panel drops below tree on narrow widths — drop the reserved
+       right margin so the grid can center fully and tier labels don't
+       collide with ability cells. */
+    #benny-tree {
+        margin-right: 0;
+        column-gap: 18px;
+    }
 }
 
 /* ── Clan Selector ────────────────────────────────────────── */
@@ -1569,8 +1639,8 @@ kbd.innate-key-ref {
 }
 
 .sidebar-help__toggle img {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
     flex-shrink: 0;
     opacity: 0.8;
@@ -2943,6 +3013,188 @@ kbd.innate-key-ref {
     color: var(--text);
     line-height: 1.5;
 }
+
+/* ── Reset Ability button ─────────────────────────── */
+.detail-panel__reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: rgba(180, 60, 60, 0.08);
+    border: 1px solid rgba(180, 60, 60, 0.45);
+    border-radius: 4px;
+    color: #d77;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.detail-panel__reset-btn:hover {
+    background: rgba(180, 60, 60, 0.18);
+    color: #f99;
+    border-color: rgba(220, 90, 90, 0.7);
+}
+
+.detail-panel__reset-btn:active {
+    transform: translateY(1px);
+}
+
+/* ── Ability Status Row (inline status + action) ──────────── */
+.ability-status-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 12px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ability-status-row__reset {
+    flex-shrink: 0;
+    width: 36px;
+    background: rgba(180, 40, 40, 0.18);
+    border: none;
+    border-right: 1px solid rgba(180, 40, 40, 0.35);
+    color: #d77;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.ability-status-row__reset:hover {
+    background: rgba(200, 55, 55, 0.32);
+    color: #f99;
+}
+
+.ability-status-row__reset:active {
+    background: rgba(210, 65, 65, 0.45);
+}
+
+.ability-status-row__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
+    padding: 7px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: default;
+    text-align: left;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ability-status-row__main:not([disabled]) {
+    cursor: pointer;
+}
+
+.ability-status-row__main:not([disabled]):hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ability-status-row__main:not([disabled]):active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.ability-status-row__main[disabled] {
+    opacity: 0.6;
+}
+
+.ability-status-row__main--locked .ability-status-row__label { color: var(--text-dim); }
+.ability-status-row__main--awakened .ability-status-row__label { color: var(--green-affinity, #7ec27e); }
+.ability-status-row__main--unlocked .ability-status-row__label { color: var(--gold); }
+
+.ability-status-row__hint {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+    opacity: 0.8;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Mobile stepper: minus / status / plus ─────────── */
+.ability-status-row__minus,
+.ability-status-row__plus {
+    flex-shrink: 0;
+    width: 42px;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+    color: var(--text-dim);
+    opacity: 0.25;
+}
+
+/* Minus — enabled = red */
+.ability-status-row__minus:not([disabled]) {
+    opacity: 1;
+    color: #c66;
+    cursor: pointer;
+    background: rgba(180, 40, 40, 0.15);
+    border-right: 1px solid rgba(180, 40, 40, 0.25);
+}
+.ability-status-row__minus:not([disabled]):hover  { background: rgba(200, 55, 55, 0.28); color: #f99; }
+.ability-status-row__minus:not([disabled]):active { background: rgba(210, 65, 65, 0.42); }
+
+/* Plus — green when can progress, gold when fully unlocked */
+.ability-status-row__plus:not([disabled]).can-progress {
+    opacity: 1;
+    color: var(--green-affinity);
+    cursor: pointer;
+    background: rgba(40, 120, 60, 0.15);
+    border-left: 1px solid rgba(40, 120, 60, 0.28);
+}
+.ability-status-row__plus:not([disabled]).can-progress:hover  { background: rgba(50, 150, 70, 0.28); color: #7dda94; }
+.ability-status-row__plus:not([disabled]).can-progress:active { background: rgba(60, 170, 80, 0.42); }
+.ability-status-row__plus.is-done {
+    opacity: 1;
+    color: var(--gold);
+    border-left: 1px solid rgba(201, 168, 76, 0.25);
+}
+
+.ability-status-row__status {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 7px 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+.ability-status-row__status--locked   .ability-status-row__label { color: var(--text-dim); }
+.ability-status-row__status--awakened .ability-status-row__label { color: var(--green-affinity, #7ec27e); }
+.ability-status-row__status--unlocked .ability-status-row__label { color: var(--gold); }
 
 /* ── Duration lozenge ──────────────────────────────── */
 .detail-panel__duration {
@@ -4773,7 +5025,7 @@ kbd.pickup-key {
 
 .outfit-grid {
     display: grid;
-    grid-template-columns: 48px repeat(4, 1fr);
+    grid-template-columns: 48px repeat(4, minmax(0, 1fr));
     gap: 8px;
     max-width: 750px;
     margin: 0 auto;
@@ -4790,6 +5042,10 @@ kbd.pickup-key {
     letter-spacing: 1px;
     text-align: center;
     padding-bottom: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .outfit-grid__clan-logo {
@@ -5186,6 +5442,32 @@ kbd.pickup-key {
     color: var(--text-dim);
     font-size: 12px;
     margin: 0;
+}
+
+.combos-header__primer {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 10px 14px;
+    background: rgba(201, 168, 76, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.18);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+}
+.combos-header__primer li + li {
+    margin-top: 6px;
+}
+.combos-header__primer-label {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+}
+.combos-header__primer-label--light {
+    color: var(--gold-bright, #d9b96a);
+}
+.combos-header__primer-label--heavy {
+    color: #e05555;
 }
 
 /* Legend */
@@ -5939,13 +6221,14 @@ kbd.pickup-key {
 
 /* ── Kicks table ─────────────────────────────────── */
 .kicks-table__th--name    { width: 8%; }
-.kicks-table__th--input   { width: 16%; }
+.kicks-table__th--input   { width: 13%; }
 .kicks-table__th--len     { width: 8%; text-align: center; }
 .kicks-table__th--dmg     { width: 6%; text-align: center; }
-.kicks-table__th--bonus   { width: 16%; }
+.kicks-table__th--bonus   { width: 13%; }
 .kicks-table__th--range   { width: 10%; text-align: center; }
 .kicks-table__th--delay   { width: 10%; text-align: center; }
-.kicks-table__th--kb      { width: 16%; }
+.kicks-table__th--kb      { width: 12%; }
+.kicks-table__th--block   { width: 12%; text-align: center; }
 .kicks-table__th--cd      { width: 8%; text-align: center; }
 
 .kicks-table__td--name {
@@ -5980,6 +6263,15 @@ kbd.pickup-key {
 }
 .kicks-table__td--cd-peak {
     color: #e05555;
+    font-weight: 700;
+}
+.kicks-table__td--block {
+    font-size: 11px;
+    text-align: center;
+    color: var(--text-dim);
+}
+.kicks-table__td--block-break {
+    color: var(--gold);
     font-weight: 700;
 }
 .kicks-table__row--cooldown {
@@ -6742,4 +7034,2161 @@ kbd.pickup-key {
 .crossclan-code--unique {
     color: var(--gold-dim);
     background: rgba(201, 168, 76, 0.08);
+}
+
+/* ============================================================
+   MOBILE / TABLET RESPONSIVE — Phases 1–6
+   Mobile ≤768px | Tablet 769–1023px | Desktop ≥1024px (locked)
+   ============================================================ */
+
+/* ── New CSS Variables (mobile additions) ─────────────────── */
+:root {
+    --touch-min: 44px;
+    --mobile-pad: 12px;
+    --mobile-appbar-h: 56px;
+    --mobile-subtab-h: 44px;
+    --mobile-stats-h: 48px;
+    --mobile-bottom-tabs-h: 52px;
+    --sheet-peek: 30vh;
+    --sheet-default: 55vh;
+    --sheet-expanded: 95vh;
+}
+
+/* ── Phase 2: Mobile Chrome (hidden above 768px) ─────────── */
+.mobile-chrome { display: none; }
+
+/* Mobile stats strip and sheet are also hidden above 768px */
+.mobile-stats-strip { display: none; }
+.mobile-sheet { display: none; }
+.mobile-sheet-scrim { display: none; }
+.mobile-feature-strip { display: none; }
+.mobile-detail-hint { display: none; }
+
+/* Rotate-to-portrait prompt — only shown on phones held in landscape */
+.mobile-rotate-prompt { display: none; }
+body.is-mobile-landscape .mobile-rotate-prompt {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg, #0d0c10);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+}
+body.is-mobile-landscape #app,
+body.is-mobile-landscape #mobile-chrome,
+body.is-mobile-landscape .mobile-bottom-tabs,
+body.is-mobile-landscape .mobile-stats-strip,
+body.is-mobile-landscape .mobile-sheet,
+body.is-mobile-landscape .mobile-sheet-scrim,
+body.is-mobile-landscape .mobile-clan-bar,
+body.is-mobile-landscape .mobile-detail-hint {
+    display: none !important;
+}
+.mobile-rotate-prompt__inner {
+    max-width: 360px;
+    color: var(--text);
+}
+.mobile-rotate-prompt__icon {
+    font-size: 56px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    animation: rotate-prompt-spin 2.4s ease-in-out infinite;
+    display: inline-block;
+}
+@keyframes rotate-prompt-spin {
+    0%   { transform: rotate(0deg); }
+    50%  { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+.mobile-rotate-prompt__title {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold-bright, #d9b96a);
+    margin: 0 0 8px;
+    letter-spacing: 0.5px;
+}
+.mobile-rotate-prompt__body {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Mobile App Bar */
+.mobile-app-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--mobile-appbar-h);
+    background: var(--bg-mid);
+    border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    align-items: center;
+    padding: 0 88px 0 var(--mobile-pad); /* reserve right space for layout-toggle-btn */
+    gap: 8px;
+    z-index: 300;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-app-bar__menu {
+    width: var(--touch-min);
+    height: var(--touch-min);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-app-bar__hamburger,
+.mobile-app-bar__hamburger::before,
+.mobile-app-bar__hamburger::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 1px;
+    transition: all 0.2s;
+}
+
+.mobile-app-bar__hamburger {
+    position: relative;
+}
+
+.mobile-app-bar__hamburger::before,
+.mobile-app-bar__hamburger::after {
+    content: '';
+    position: absolute;
+}
+
+.mobile-app-bar__hamburger::before { top: -7px; }
+.mobile-app-bar__hamburger::after  { top: 7px; }
+
+.mobile-app-bar__title {
+    flex: 1;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: center;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+/* Mobile Drawer Scrim */
+.mobile-drawer-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 390;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+.mobile-drawer-scrim.is-open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Mobile Side Drawer */
+.mobile-drawer {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-dim);
+    z-index: 395;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-drawer.is-open {
+    transform: translateX(0);
+}
+
+.mobile-drawer__header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 16px 16px 14px;
+    border-bottom: 1px solid var(--border-dim);
+    margin-top: var(--mobile-appbar-h);
+}
+
+.mobile-drawer__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+.mobile-drawer__close:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.mobile-drawer__logo {
+    height: 56px;
+    width: auto;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.mobile-drawer__title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    width: 100%;
+}
+
+.mobile-drawer__title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.mobile-drawer__byline {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.mobile-drawer__byline a {
+    color: var(--text-dim);
+    text-decoration: none;
+}
+
+.mobile-drawer__byline a:hover {
+    color: var(--gold);
+}
+
+.mobile-drawer__item {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: var(--touch-min);
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    text-decoration: none;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-drawer__item:hover,
+.mobile-drawer__item:active {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-bright);
+}
+
+.mobile-drawer__item--dim { color: var(--text-dim); font-size: 12px; }
+.mobile-drawer__item--view-toggle { color: rgba(201,168,76,0.7); }
+.mobile-drawer__item--view-toggle:hover,
+.mobile-drawer__item--view-toggle:active { color: var(--gold); background: rgba(201,168,76,0.08); }
+
+.mobile-drawer__footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border-dim);
+    padding: 4px 0 8px;
+}
+.mobile-drawer__item--patch {
+    color: rgba(255, 160, 190, 0.95);
+    text-shadow: 0 0 6px rgba(255, 100, 150, 0.35);
+}
+.mobile-drawer__item--patch:hover,
+.mobile-drawer__item--patch:active {
+    color: rgb(255, 180, 210);
+    background: rgba(255, 100, 150, 0.08);
+}
+.mobile-drawer__build { opacity: 0.5; font-size: 10px; margin-left: 3px; }
+.mobile-drawer__item-icon { vertical-align: middle; margin-right: 7px; opacity: 0.75; flex-shrink: 0; }
+
+.mobile-drawer__divider {
+    border: none;
+    border-top: 1px solid var(--border-dim);
+    margin: 4px 0;
+}
+
+/* Mobile Subtab Pill Bar */
+.mobile-subtab-bar {
+    position: fixed;
+    top: var(--mobile-appbar-h);
+    left: 0; right: 0;
+    height: var(--mobile-subtab-h);
+    background: var(--bg-mid);
+    border-bottom: 1px solid var(--border-dim);
+    z-index: 290;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 0 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-subtab-bar::-webkit-scrollbar { display: none; }
+
+.mobile-subtab-pill {
+    flex-shrink: 0;
+    padding: 0 14px;
+    height: 30px;
+    border-radius: 15px;
+    border: 1px solid var(--border-dim);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-subtab-pill.is-active {
+    background: var(--bg-cell);
+    color: var(--gold);
+    border-color: var(--gold-dim);
+}
+
+.subtab-pill__arrow {
+    opacity: 0.55;
+    font-size: 13px;
+    margin-left: 1px;
+    vertical-align: middle;
+    line-height: 1;
+}
+.mobile-subtab-pill.has-deep-nav.is-active .subtab-pill__arrow {
+    opacity: 0.9;
+}
+
+.mobile-subtab-back {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-dim);
+    background: var(--bg-cell);
+    color: var(--gold);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0 2px 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, border-color 0.15s;
+}
+.mobile-subtab-back:active {
+    background: rgba(201, 168, 76, 0.15);
+}
+
+/* Mobile Bottom Tab Bar — pinned to viewport bottom regardless of scroll */
+.mobile-bottom-tabs {
+    display: none; /* default; revealed inside @media (max-width: 900px) */
+}
+.mobile-bottom-tabs.mobile-bottom-tabs {
+    /* doubled selector for extra specificity over the default hide above */
+}
+
+.mobile-bottom-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.15s;
+    min-width: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-bottom-tab img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    opacity: 0.45;
+    transition: opacity 0.15s;
+    filter: grayscale(0.6);
+}
+
+.mobile-bottom-tab.is-active,
+.mobile-bottom-tab:active {
+    color: var(--gold);
+}
+
+.mobile-bottom-tab.is-active img,
+.mobile-bottom-tab:active img {
+    opacity: 1;
+    filter: none;
+}
+
+/* ── Phase 1+2: Base layout at ≤900px (or landscape phone) ─────── */
+@media (max-width: 900px), (max-height: 500px) {
+
+    /* Show mobile chrome */
+    .mobile-chrome {
+        display: contents;
+    }
+
+    /* Don't force #app to fill the viewport on mobile. #app is the single
+       document-level scroll container — sized to fill body's content area
+       (body height − fixed chrome padding) and scrolling its own content
+       internally when (and only when) that content overflows. */
+    #app {
+        min-height: 0;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Bottom tab bar — pinned to viewport bottom regardless of scroll.
+       Lives as a direct child of <body> in markup so no transformed/contained
+       ancestor can ever break its `position: fixed` containing block. */
+    .mobile-bottom-tabs {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        height: var(--mobile-bottom-tabs-h);
+        background: var(--bg-mid);
+        border-top: 1px solid var(--border-dim);
+        display: flex;
+        z-index: 300;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-sizing: content-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Push page content below fixed app bar + subtab bar.
+       The user wants ONLY inner containers (cardified tables, skill-tree pan)
+       to scroll. So we lock the document scroll entirely on mobile:
+         - html: no overflow at all
+         - body: fixed to viewport, padding inside via border-box
+         - #app: takes the remaining space and is the single document-level
+                 scroll container with `overflow-y: auto`. Pages that don't
+                 need scrolling simply won't scroll because #app's content
+                 doesn't exceed its height. */
+    html {
+        overflow: hidden;
+        height: 100%;
+    }
+    body.is-mobile {
+        box-sizing: border-box;
+        height: 100%;
+        min-height: 0;
+        padding-top: calc(var(--mobile-appbar-h) + var(--mobile-subtab-h));
+        padding-bottom: calc(var(--mobile-bottom-tabs-h) + env(safe-area-inset-bottom, 0px));
+        overflow: hidden;
+        overscroll-behavior: contain;
+    }
+
+    /* Disable custom cursor on touch */
+    body.is-mobile,
+    body.is-mobile * {
+        cursor: default !important;
+    }
+
+    /* Hide logo + title group from header — they live in the drawer on mobile */
+    .header__logo,
+    .header__title-group {
+        display: none !important;
+    }
+
+    /* Hide desktop chrome (keep .header rendered so its position:fixed toggle child stays visible) */
+    .header {
+        height: 0;
+        min-height: 0;
+        padding: 0 !important;
+        margin: 0;
+        border: none !important;
+        overflow: visible;
+    }
+    .header > *:not(#layout-toggle-btn) { display: none !important; }
+    /* Float toggle above mobile chrome since the header is collapsed */
+    .header { z-index: 400 !important; }
+    .layout-toggle-btn {
+        position: fixed !important;
+        top: 12px !important;
+        right: 16px !important;
+        transform: none !important;
+        z-index: 400 !important;
+    }
+    .tab-bar--primary,
+    .tab-bar--secondary,
+    .tab-bar--fabien,
+    .tab-bar--benny,
+    .tab-bar--combos,
+    .tab-bar--pickups,
+    .clan-selector-toggle {
+        display: none !important;
+    }
+
+    /* Page crest decorations — smaller */
+    .phyre-layout__crest,
+    .phyre-layout__crest-right,
+    .benny-layout__crest,
+    .benny-layout__crest-right {
+        width: 200px;
+        top: 5vh;
+    }
+
+    /* ── Phase 3: Skill Tree Mobile ──────────────────── */
+    .main-layout {
+        display: block;
+        padding: 0 0 var(--mobile-pad);
+        max-width: 100%;
+    }
+
+    /* Hide sidebar and detail panel */
+    .sidebar { display: none; }
+    .detail-panel { display: none; }
+
+    /* Hide clan selector from page on mobile — it lives in #mobile-clan-bar instead */
+    .clan-selector,
+    .clan-selector.collapsed {
+        display: none !important;
+    }
+
+    /* Mobile Clan Bar — slides up from above bottom tabs */
+    .mobile-clan-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        overflow-x: auto;
+        overflow-y: visible; /* allow affinity chip to poke up */
+        flex-wrap: nowrap;
+        padding: 44px 10px 10px; /* extra top room for the colorised affinity chip */
+        background: var(--bg-mid);
+        border-top: 1px solid var(--border-dim);
+        position: fixed;
+        bottom: var(--mobile-bottom-tabs-h);
+        left: 0; right: 0;
+        z-index: 290;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* closed by default */
+        transform: translateY(100%);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-clan-bar::-webkit-scrollbar { display: none; }
+    .mobile-clan-bar.is-open {
+        transform: translateY(0);
+    }
+
+    /* Close handle lip at top of clan bar */
+    .clan-bar-handle {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+    .clan-bar-handle__drag {
+        width: 36px;
+        height: 4px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 2px;
+    }
+    .clan-bar-handle__close {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: all;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border-dim);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s;
+        padding: 0;
+    }
+    .clan-bar-handle__close img {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+        /* arrow points up by default — rotate 180° to point down (close) */
+        transform: rotate(180deg);
+        opacity: 0.65;
+        transition: opacity 0.15s;
+    }
+    .clan-bar-handle__close:active {
+        background: rgba(255,255,255,0.14);
+    }
+    .clan-bar-handle__close:active img { opacity: 1; }
+
+    /* Bottom sheet: same close icon positioned at top-right of the handle strip */
+    .mobile-sheet__handle-close {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border-dim);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s;
+        padding: 0;
+    }
+    .mobile-sheet__handle-close img {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+        transform: rotate(180deg);
+        opacity: 0.65;
+        transition: opacity 0.15s;
+    }
+    .mobile-sheet__handle-close:active { background: rgba(255,255,255,0.14); }
+    .mobile-sheet__handle-close:active img { opacity: 1; }
+
+    /* Compact clan cards for mobile */
+    .clan-card {
+        width: 60px;
+        min-width: 60px;
+        padding: 6px 4px;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .clan-card.selected {
+        width: 80px;
+        min-width: 80px;
+    }
+    .clan-card__logo { width: 48px; height: 48px; }
+    .clan-card__name { font-size: 9px; }
+    .clan-card__complete-btn { font-size: 10px; }
+
+    /* Floating affinity chip — appears above the selected clan card */
+    .clan-card__affinity-chip {
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 5px;
+        background: var(--bg-cell);
+        border: 1px solid var(--gold-dim);
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 2;
+    }
+
+    /* Each badge inside the chip inherits is-affinity colour gradients
+       but is resized to fit compactly */
+    .clan-card__affinity-badge.affinity-badge {
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 10px;
+        font-size: 10px;
+        letter-spacing: 0.3px;
+    }
+    .clan-card__affinity-badge .affinity-badge__icon {
+        width: 14px;
+        height: 14px;
+    }
+    .clan-card__affinity-name {
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        letter-spacing: 0.3px;
+        color: var(--text-light);
+    }
+    .clan-card.completed .clan-card__affinity-chip {
+        border-color: var(--gold);
+    }
+
+    /* ── Mobile Detail Hint Pill ────────────────────── */
+    /* Floats above the bottom tab bar to advertise that the sheet has
+       a description ready. Tapping the centre opens the sheet.
+       Minus / Plus buttons advance or revert the ability inline. */
+    .mobile-detail-hint {
+        display: none;
+    }
+    .mobile-detail-hint.is-visible {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        position: fixed;
+        bottom: calc(var(--mobile-bottom-tabs-h) + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+        max-width: calc(100vw - 24px);
+        background: var(--bg-panel);
+        border: 1px solid var(--gold-dim);
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+        color: var(--text-light);
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        z-index: 295;
+        overflow: hidden;
+        animation: mobileHintIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes mobileHintIn {
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Centre region — opens the sheet */
+    .mobile-detail-hint__body {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        background: transparent;
+        border: none;
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        min-width: 0;
+    }
+    .mobile-detail-hint__body:active {
+        background: rgba(201, 168, 76, 0.14);
+    }
+
+    /* Minus (left) and Plus (right) step buttons */
+    .mobile-detail-hint__minus,
+    .mobile-detail-hint__plus {
+        flex-shrink: 0;
+        width: 40px;
+        border: none;
+        background: transparent;
+        font-size: 22px;
+        font-weight: 300;
+        font-family: 'Inter', sans-serif;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s, color 0.15s, opacity 0.15s;
+        color: var(--text-dim);
+        opacity: 0.25;
+        cursor: default;
+    }
+
+    /* Minus — enabled = red */
+    .mobile-detail-hint__minus:not([disabled]) {
+        opacity: 1;
+        color: #c66;
+        cursor: pointer;
+        border-right: 1px solid rgba(180, 40, 40, 0.2);
+    }
+    .mobile-detail-hint__minus:not([disabled]):active {
+        background: rgba(180, 40, 40, 0.18);
+    }
+
+    /* Plus — green when can progress, gold when fully unlocked */
+    .mobile-detail-hint__plus:not([disabled]).can-progress {
+        opacity: 1;
+        color: var(--green-affinity);
+        cursor: pointer;
+        border-left: 1px solid rgba(40, 120, 60, 0.25);
+    }
+    .mobile-detail-hint__plus:not([disabled]).can-progress:active {
+        background: rgba(40, 120, 60, 0.18);
+    }
+    .mobile-detail-hint__plus.is-done {
+        opacity: 1;
+        color: var(--gold);
+        border-left: 1px solid rgba(201, 168, 76, 0.25);
+    }
+
+    .mobile-detail-hint__icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        object-fit: contain;
+        border-radius: 50%;
+        background: var(--bg-cell);
+        padding: 3px;
+    }
+
+    .mobile-detail-hint__text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1px;
+        min-width: 0;
+    }
+
+    .mobile-detail-hint__title {
+        font-weight: 600;
+        color: var(--gold);
+        letter-spacing: 0.5px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 44vw;
+    }
+
+    .mobile-detail-hint__status {
+        font-size: 10px;
+        color: var(--text-dim);
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+    }
+
+    .mobile-detail-hint__status.is-locked    { color: var(--text-dim); }
+    .mobile-detail-hint__status.is-awakened  { color: var(--green-affinity, #7ec27e); }
+    .mobile-detail-hint__status.is-unlocked  { color: var(--gold); }
+
+    /* When the clan bar is open, push the hint up so it doesn't hide behind it */
+    .mobile-clan-bar.is-open ~ .mobile-detail-hint.is-visible,
+    body:has(.mobile-clan-bar.is-open) .mobile-detail-hint.is-visible {
+        bottom: calc(var(--mobile-bottom-tabs-h) + 110px);
+    }
+
+    /* Mobile Stats Strip */
+    .mobile-stats-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--mobile-pad);
+        height: var(--mobile-stats-h);
+        background: var(--bg-mid);
+        border-bottom: 1px solid var(--border-dim);
+        position: fixed;
+        top: calc(var(--mobile-appbar-h) + var(--mobile-subtab-h));
+        left: 0;
+        right: 0;
+        z-index: 200;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    /* Push skill-tree content down to account for fixed stats strip.
+       Trim the bottom pad — body already has space reserved for the bottom
+       tab bar, so any extra here just forces an unnecessary scroll. */
+    #subpage-skilltree .main-layout {
+        padding-top: var(--mobile-stats-h);
+        padding-bottom: 0;
+    }
+
+    /* Outfits + cardified table subpages: add breathing room below the last
+       row so the bottom card can be scrolled up to a comfortable reading
+       position above the bottom tab bar. */
+    #subpage-outfits,
+    #subpage-combos,
+    #subpage-pickups,
+    #subpage-elixir,
+    #subpage-crafting,
+    #subpage-reactions {
+        padding-bottom: 40vh;
+    }
+
+    .mobile-stats-strip__costs {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        /* Centered: take up remaining space and center contents */
+        flex: 1;
+        justify-content: center;
+    }
+
+    .mobile-stat {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-bright);
+    }
+
+    .mobile-stat img {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+    }
+
+    .mobile-stat__diamond {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 1.5px solid var(--gold);
+        transform: rotate(45deg);
+        flex-shrink: 0;
+    }
+
+    .mobile-stats-strip__reset {
+        width: 28px;
+        height: 28px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border-dim);
+        border-radius: 50%;
+        color: var(--text-dim);
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-stats-strip__reset:active { background: rgba(255,255,255,0.14); }
+
+    .mobile-stats-strip__innates {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Single Phyre-mark toggle button */
+    .mobile-innate-toggle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid var(--border-dim);
+        background: var(--bg-cell);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        transition: border-color 0.15s, background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+        flex-shrink: 0;
+    }
+
+    /* Mobile feature strip — host for Benny/Fabien single-icon toggles */
+    .mobile-feature-strip {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 8px var(--mobile-pad);
+    }
+    .mobile-feature-strip:empty {
+        display: none;
+    }
+
+    .mobile-innate-toggle.is-active {
+        border-color: var(--gold);
+        background: rgba(201, 168, 76, 0.12);
+    }
+
+    .mobile-innate-toggle img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    /* Help button — same as innate toggle but slightly larger icon */
+    .mobile-help-btn img {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        opacity: 0.75;
+    }
+    .mobile-help-btn:active img { opacity: 1; }
+
+    /* Help sheet content */
+    .mobile-help-sheet {
+        padding: 4px 0 8px;
+    }
+    .mobile-help-sheet__title {
+        font-family: 'Cinzel', serif;
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: var(--gold);
+        margin: 0 0 16px;
+        text-align: center;
+        text-transform: uppercase;
+    }
+    .mobile-help-sheet__section {
+        margin-bottom: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border-dim);
+    }
+    .mobile-help-sheet__section:last-of-type { border-bottom: none; }
+    .mobile-help-sheet__section h4,
+    .mobile-help-sheet__tips h4 {
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--text);
+        margin: 0 0 8px;
+    }
+    .mobile-help-sheet__section p,
+    .mobile-help-sheet__section ol,
+    .mobile-help-sheet__section ul,
+    .mobile-help-sheet__tips ul {
+        font-size: 12px;
+        color: var(--text-dim);
+        line-height: 1.65;
+        margin: 0;
+        padding-left: 18px;
+    }
+    .mobile-help-sheet__section p { padding-left: 0; }
+    .mobile-help-sheet__seq {
+        display: inline-block;
+        font-size: 11px;
+        color: var(--text);
+        letter-spacing: 0.2px;
+    }
+    .mobile-help-sheet__tips {
+        margin-top: 14px;
+    }
+    .mobile-help-sheet__tips ul {
+        list-style: disc;
+    }
+    .mobile-help-sheet__tips li { margin-bottom: 6px; }
+    .mobile-help-sheet strong { color: var(--text); }
+    .mobile-help-sheet em { color: var(--gold-dim); font-style: normal; }
+
+    /* Innate picker list inside the sheet */
+    .mobile-innate-picker {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 8px 0;
+    }
+
+    .mobile-innate-picker__item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: var(--text);
+        font-size: 14px;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+        min-height: var(--touch-min);
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.12s;
+    }
+
+    .mobile-innate-picker__item:active,
+    .mobile-innate-picker__item:hover {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .mobile-innate-picker__item.is-active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+    }
+
+    .mobile-innate-picker__item img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    /* Mobile-only stats strip hidden on non-skilltree subpages */
+    .mobile-stats-strip {
+        display: flex;
+    }
+
+    /* ── Skill Grid compact: all 6 clans visible at once ─ */
+    .skill-grid-wrapper {
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        /* Snap to every column so scrolling reveals 3 clans at a time */
+        scroll-snap-type: x mandatory;
+        scroll-padding-left: 64px; /* account for sticky tier-label column */
+    }
+
+    .skill-grid {
+        min-width: unset;
+        /* tier-label col (sticky) + 6 clan cols each 1/3 of remaining viewport width */
+        grid-template-columns: 64px repeat(6, calc((100vw - 64px) / 3));
+        gap: 3px;
+        padding: 4px 0;
+    }
+
+    .tier-label {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background: var(--bg-dark);
+        padding-right: 4px;
+        font-size: 9px;
+        min-height: var(--touch-min);
+    }
+
+    /* Snap anchor on each clan column header */
+    .clan-col-header {
+        scroll-snap-align: start;
+    }
+
+    .clan-col-header__name {
+        font-size: 9px;
+    }
+
+    /* Touch-friendly ability cells */
+    .ability-cell {
+        min-height: var(--touch-min);
+        touch-action: manipulation;
+        padding: 2px;
+    }
+
+    .ability-cell__btn {
+        width: clamp(52px, calc((100vw - 64px) / 3 - 8px), 80px);
+        height: clamp(52px, calc((100vw - 64px) / 3 - 8px), 80px);
+    }
+
+    .ability-cell__btn-bg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .ability-cell__icon {
+        width: clamp(30px, calc((100vw - 64px) / 3 - 30px), 48px);
+        height: clamp(30px, calc((100vw - 64px) / 3 - 30px), 48px);
+    }
+
+    /* Match passive-column icon to the mobile btn size */
+    .ability-cell__passive-column {
+        width: clamp(52px, calc((100vw - 64px) / 3 - 8px), 80px);
+        height: clamp(52px, calc((100vw - 64px) / 3 - 8px), 80px);
+    }
+
+    /* Affinity bar compact */
+    .affinity-bar {
+        /* Hidden on mobile — affinities are now shown as a floating chip near the selected clan */
+        display: none !important;
+    }
+
+    /* Clan selector compact on mobile */
+    .clan-cell {
+        padding: 4px;
+    }
+
+    .clan-cell__name {
+        font-size: 9px;
+    }
+
+    /* ── Phase 3: Bottom Sheet ───────────────────────── */
+    .mobile-sheet-scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 398;
+    }
+
+    .mobile-sheet {
+        position: fixed;
+        bottom: 0;
+        left: 0; right: 0;
+        height: var(--sheet-expanded);
+        background: var(--bg-panel);
+        border-radius: 16px 16px 0 0;
+        border-top: 1px solid var(--border-dim);
+        z-index: 399;
+        transform: translateY(var(--sheet-expanded));
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        will-change: transform;
+    }
+
+    .mobile-sheet.is-dragging {
+        transition: none;
+    }
+
+    .mobile-sheet[data-snap="default"] {
+        transform: translateY(calc(var(--sheet-expanded) - var(--sheet-default)));
+    }
+
+    .mobile-sheet[data-snap="peek"] {
+        transform: translateY(calc(var(--sheet-expanded) - var(--sheet-peek)));
+    }
+
+    .mobile-sheet[data-snap="expanded"] {
+        transform: translateY(0);
+    }
+
+    .mobile-sheet[data-snap="closed"],
+    .mobile-sheet:not([data-snap]) {
+        transform: translateY(var(--sheet-expanded));
+    }
+
+    .mobile-sheet__handle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 36px;
+        cursor: grab;
+        flex-shrink: 0;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+    }
+
+    .mobile-sheet__handle:active { cursor: grabbing; }
+
+    .mobile-sheet__handle-bar {
+        width: 40px;
+        height: 4px;
+        background: var(--border-dim);
+        border-radius: 2px;
+    }
+
+    .mobile-sheet__header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 2px 4px 6px;
+        min-height: 28px;
+        flex-shrink: 0;
+    }
+
+    /* Hide the header entirely when it has no title and no back button */
+    .mobile-sheet__header.is-empty { display: none; }
+
+    .mobile-sheet__title {
+        position: absolute;
+        left: 0; right: 0;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        pointer-events: none;
+    }
+
+    .mobile-sheet__title:empty { display: none; }
+
+    .mobile-sheet__back {
+        position: relative;
+        z-index: 1;
+        width: 36px;
+        height: 28px;
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 0 4px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* HTML hidden attribute defeated by display:flex above — force hide */
+    .mobile-sheet__back[hidden] { display: none; }
+
+    .mobile-sheet__back:active { color: var(--text); }
+
+    .mobile-sheet__action-row {
+        display: flex;
+        gap: 8px;
+        padding: 6px var(--mobile-pad);
+        border-bottom: 1px solid var(--border-dim);
+        flex-shrink: 0;
+    }
+
+    .mobile-sheet__action-row:empty { display: none; }
+
+    .mobile-sheet__action-btn {
+        flex: 1;
+        height: 36px;
+        border-radius: 6px;
+        border: 1px solid var(--border-dim);
+        background: var(--bg-cell);
+        color: var(--text-dim);
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-sheet__action-btn.is-primary {
+        border-color: var(--gold-dim);
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+    }
+
+    .mobile-sheet__action-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .mobile-sheet__body {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: var(--mobile-pad);
+        /* Generous bottom padding so the last element (e.g. View Reactions button)
+           can scroll fully into view above the sheet's bottom edge */
+        padding-bottom: calc(var(--mobile-pad) + 96px);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Compact detail panel inside sheet */
+    .mobile-sheet__body .detail-panel__video {
+        max-height: 180px;
+    }
+
+    .mobile-sheet__body .detail-panel__video video {
+        max-height: 180px;
+    }
+
+    /* ── Outfit sheet: View Reactions footer ─────────── */
+    .outfit-sheet__footer {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-dim);
+    }
+
+    .outfit-sheet__reactions-btn {
+        width: 100%;
+        background: var(--bg-cell);
+        border: 1px solid var(--gold-dim);
+        border-radius: 6px;
+        color: var(--gold);
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 14px 12px;
+        cursor: pointer;
+        min-height: var(--touch-min);
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .outfit-sheet__reactions-btn:active {
+        background: rgba(201, 168, 76, 0.12);
+        border-color: var(--gold);
+    }
+
+    .outfit-sheet__reactions-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border-dim);
+    }
+
+    .outfit-sheet__back-btn {
+        flex-shrink: 0;
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-radius: 4px;
+        color: var(--gold);
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        padding: 6px 10px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .outfit-sheet__back-btn:active {
+        background: rgba(201, 168, 76, 0.12);
+    }
+
+    .outfit-sheet__reactions-header .reactions-section__title {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    /* Reactions tables when shown inside sheet — let them scroll horizontally */
+    .outfit-sheet__reactions-tables {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .outfit-sheet__reactions-tables .reactions-table {
+        font-size: 11px;
+        min-width: 100%;
+    }
+
+    .outfit-sheet__reactions-tables .reactions-section__subtitle {
+        font-size: 12px;
+        margin-top: 14px;
+    }
+
+    /* ── Phase 4: Combo Cards ────────────────────────── */
+
+    /* Clan combos filter bar — restructured for mobile:
+       Row 1: "All" button full-width
+       Row 2+3: 6 clans in a 3-column grid
+       Row 4: Kicks / Mobility / Notes spanning full width */
+    .clan-combos-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 8px var(--mobile-pad);
+    }
+
+    .clan-combos-filter {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 5px;
+        flex: unset;
+        width: 100%;
+    }
+
+    /* "All" button spans the full 3-column width on its own row */
+    .clan-combos-filter__btn[data-filter=""] {
+        grid-column: 1 / -1;
+        justify-content: center;
+        min-height: var(--touch-min);
+    }
+
+    /* Clan logo buttons: larger touch targets, center the logo */
+    .clan-combos-filter__btn[data-filter]:not([data-filter=""]) {
+        justify-content: center;
+        min-height: var(--touch-min);
+        padding: 6px;
+    }
+
+    .clan-combos-filter__btn img {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* Jump buttons row: full-width, each button shares equal space */
+    .clan-combos-jump-btns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        width: 100%;
+    }
+
+    .clan-combos-jump-btns .clan-combos-filter__btn {
+        justify-content: center;
+        min-height: var(--touch-min);
+    }
+
+    /* Legend hides on mobile — too cramped */
+    .clan-combos-legend {
+        display: none;
+    }
+    .combo-card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 4px 0;
+    }
+
+    .combo-card {
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .combo-card--all     { border-left: 3px solid var(--green-affinity); }
+    .combo-card--partial { border-left: 3px solid var(--gold-dim); }
+    .combo-card--locked  { border-left: 3px solid var(--border-dim); opacity: 0.8; }
+
+    .combo-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .combo-card__name {
+        font-family: 'Cinzel', serif;
+        font-size: 13px;
+        color: var(--text-bright);
+        font-weight: 600;
+    }
+
+    .combo-card__subtitle {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 2px;
+    }
+
+    .combo-card__patched {
+        font-size: 10px;
+        color: var(--red);
+        font-weight: 600;
+        margin-top: 2px;
+    }
+
+    .combo-card__abilities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 8px 0;
+    }
+
+    .combo-card__body {
+        font-size: 12px;
+        color: var(--text);
+        line-height: 1.5;
+        margin-top: 6px;
+    }
+
+    .combo-card__cost {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .combo-card__ref {
+        font-size: 10px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+} /* end mobile @media — pickup card rules below apply globally so force-mobile-on-desktop keeps cards */
+
+    /* ── Phase 4: Pickup Cards ───────────────────────── */
+    .pickup-card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 4px 0;
+    }
+
+    .pickup-card {
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-left: 3px solid var(--gold-dim);
+        border-radius: 6px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pickup-card--alchemy {
+        border-left-color: rgb(180, 80, 200);
+    }
+
+    .pickup-card--mission {
+        border-left-color: rgb(150, 90, 60);
+        opacity: 0.92;
+    }
+
+    /* Header: icon + name side by side */
+    .pickup-card__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pickup-card__icon {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .pickup-card__icon .pickup-img-slot {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        border: none;
+        box-shadow: none;
+    }
+
+    .pickup-card__icon .pickup-img-slot img,
+    .pickup-card__icon .pickup-img-slot .elixir-icon-sil {
+        width: 26px;
+        height: 26px;
+    }
+
+    .pickup-card__icon--alchemy .pickup-img-slot {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Header row: name + type/badge */
+    .pickup-card__name {
+        font-family: 'Cinzel', serif;
+        font-size: 13px;
+        color: var(--text-bright);
+        line-height: 1.25;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .pickup-card__name img {
+        flex-shrink: 0;
+    }
+
+    .pickup-card__type {
+        font-family: 'Inter', sans-serif;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--text-dim);
+        background: var(--bg-panel);
+        border: 1px solid var(--border-dim);
+        border-radius: 10px;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
+    .elixir-card__badge {
+        font-family: 'Inter', sans-serif;
+        font-size: 9px;
+        font-weight: 600;
+        color: rgb(220, 150, 70);
+        background: rgba(220, 150, 70, 0.1);
+        border: 1px solid rgba(220, 150, 70, 0.4);
+        border-radius: 10px;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        white-space: nowrap;
+    }
+
+    /* Stats: 2-column grid for label/value pairs */
+    .pickup-card__stats {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        column-gap: 12px;
+        row-gap: 4px;
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .pickup-card__stats dt {
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        align-self: center;
+    }
+
+    .pickup-card__stats dd {
+        margin: 0;
+        color: var(--text);
+        font-size: 12px;
+        line-height: 1.4;
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .pickup-card__stats dd.pickup-cost {
+        color: var(--gold);
+    }
+
+    /* Keyboard glyph used inline in cards */
+    .pickup-card .pickup-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border-accent);
+        border-radius: 4px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+    }
+
+    .pickup-card .pickup-special-dmg {
+        text-decoration: underline dotted;
+        cursor: help;
+    }
+
+    .pickup-card__img {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border: 1px dashed var(--border-dim);
+        border-radius: 4px;
+        background: var(--bg-panel);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dim);
+        font-size: 11px;
+    }
+
+    .pickup-sort-select {
+        display: block;
+        max-width: 220px;
+        margin-bottom: 10px;
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 10px;
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+    }
+
+@media (max-width: 900px), (max-height: 500px) { /* reopen mobile @media */
+
+    /* ── Phase 4: Reactions cards ────────────────────── */
+    .reactions-card {
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .reactions-card__outfit-type {
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        color: var(--gold);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ── Phase 4: Outfits Mobile ─────────────────────── */
+    .outfit-layout {
+        display: block;
+    }
+
+    .outfit-right-panel {
+        display: none;
+    }
+
+    .outfit-grid-wrapper {
+        padding: 0 var(--mobile-pad) var(--mobile-pad);
+    }
+
+    .outfit-mobile-section {
+        margin-bottom: 20px;
+    }
+
+    .outfit-mobile-section__heading {
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        color: var(--gold-dim);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border-dim);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .outfit-mobile-section__heading img {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+    }
+
+    .outfit-mobile-row {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .outfit-mobile-row::-webkit-scrollbar { display: none; }
+
+    .outfit-mobile-row .outfit-cell {
+        flex-shrink: 0;
+        width: 90px;
+        min-height: 100px;
+    }
+
+    /* ── Phase 5: Fabien mobile ──────────────────────── */
+    .fabien-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .fabien-sidebar { display: none; }
+    .fabien-detail  { display: none; }
+
+    .fabien-column-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* ── Phase 5: Benny mobile ───────────────────────── */
+    .benny-layout {
+        flex-direction: column;
+    }
+
+    .benny-sidebar { display: none; }
+
+    .benny-mobile-features {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px var(--mobile-pad);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .benny-mobile-features::-webkit-scrollbar { display: none; }
+
+    .benny-mobile-feature-btn {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        background: var(--bg-cell);
+        border: 1px solid var(--border-dim);
+        border-radius: 20px;
+        color: var(--text-dim);
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: var(--touch-min);
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .benny-mobile-feature-btn img {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+    }
+
+    .benny-mobile-feature-btn:active {
+        background: rgba(255,255,255,0.08);
+        color: var(--text-bright);
+    }
+
+    /* Hide benny detail panel — use bottom sheet */
+    .benny-main .fabien-detail { display: none; }
+
+    /* ── Phase 6: Tooltip suppression on touch ───────── */
+    @media (hover: none) {
+        .tooltip { display: none !important; }
+    }
+
+    /* Compact scrollbars */
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 2px; }
+
+    /* Pickup page layout fix */
+    .pickups-layout {
+        flex-direction: column;
+        padding: 0 var(--mobile-pad);
+    }
+
+    .pickups-station {
+        display: none;
+    }
+
+    .pickups-tables {
+        width: 100%;
+    }
+
+    .pickup-card-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    /* Combos layout padding */
+    .combos-layout {
+        padding: 0 var(--mobile-pad);
+    }
+
+    /* Hide clan selector toggle on mobile */
+    #clan-selector-toggle {
+        display: none;
+    }
+
+    /* Ensure #app has no overflow issues */
+    #app {
+        overflow-x: hidden;
+    }
+
+} /* end @media (max-width: 900px), (max-height: 500px) */
+
+/* ── Force-mobile overrides ──────────────────────────────────
+   Only needed on desktop viewports (>900px) where the @media
+   block doesn't fire. Wrapped in min-width: 901px so these rules
+   never interfere with real mobile where @media already handles
+   everything correctly. ─────────────────────────────────────── */
+@media (min-width: 901px) {
+  body.is-mobile .mobile-chrome { display: contents; }
+  body.is-mobile .mobile-bottom-tabs {
+      position: fixed !important;
+      left: 0 !important; right: 0 !important; bottom: 0 !important;
+      height: var(--mobile-bottom-tabs-h);
+      background: var(--bg-mid);
+      border-top: 1px solid var(--border-dim);
+      display: flex;
+      z-index: 300;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      box-sizing: content-box;
+  }
+  body.is-mobile .header {
+      height: 0 !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      overflow: visible !important;
+  }
+  body.is-mobile .header > *:not(#layout-toggle-btn) { display: none !important; }
+  body.is-mobile .header { z-index: 400 !important; }
+  /* html must be height:100% with overflow:hidden so body.is-mobile's height:100%
+     and #app's overflow-y:auto can establish the proper scroll container.
+     Without this, force-mobile-on-desktop pages don't scroll. */
+  html:has(body.is-mobile) {
+      height: 100% !important;
+      overflow: hidden !important;
+  }
+  body.is-mobile .layout-toggle-btn {
+      position: fixed !important;
+      top: 12px !important;
+      right: 16px !important;
+      transform: none !important;
+      z-index: 400 !important;
+  }
+  body.is-mobile .tab-bar--primary,
+  body.is-mobile .tab-bar--secondary,
+  body.is-mobile .tab-bar--fabien,
+  body.is-mobile .tab-bar--benny,
+  body.is-mobile .tab-bar--combos,
+  body.is-mobile .tab-bar--pickups,
+  body.is-mobile .clan-selector-toggle { display: none !important; }
+  body.is-mobile .sidebar,
+  body.is-mobile .clan-selector,
+  body.is-mobile .clan-selector.collapsed { display: none !important; }
+  body.is-mobile .detail-panel { display: none; }
+  body.is-mobile .fabien-sidebar,
+  body.is-mobile .benny-sidebar { display: none !important; }
+  body.is-mobile .mobile-feature-strip {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 8px var(--mobile-pad);
+  }
+  body.is-mobile .mobile-feature-strip:empty { display: none; }
+  body.is-mobile .main-layout { display: block; padding: 0 0 var(--mobile-pad); max-width: 100%; }
+  body.is-mobile {
+      box-sizing: border-box;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      padding-top: calc(var(--mobile-appbar-h) + var(--mobile-subtab-h));
+      padding-bottom: calc(var(--mobile-bottom-tabs-h) + env(safe-area-inset-bottom, 0px));
+      overscroll-behavior: contain;
+  }
+  body.is-mobile #app {
+      min-height: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+  }
+  /* Clan bar: replicate the @media positioning for forced-mobile desktop */
+  body.is-mobile .mobile-clan-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: visible;
+      flex-wrap: nowrap;
+      padding: 44px 10px 10px;
+      background: var(--bg-mid);
+      border-top: 1px solid var(--border-dim);
+      position: fixed;
+      bottom: var(--mobile-bottom-tabs-h);
+      left: 0; right: 0;
+      z-index: 290;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.is-mobile .mobile-clan-bar.is-open { transform: translateY(0); }
+  /* Clan bar handle: position:absolute needs to be declared here too since
+     the rules in @media(max-width:900px) don't fire on a desktop viewport */
+  body.is-mobile .clan-bar-handle {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+  }
+  body.is-mobile .clan-bar-handle__drag {
+      width: 36px; height: 4px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 2px;
+  }
+  body.is-mobile .clan-bar-handle__close {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      pointer-events: all;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-dim);
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+  }
+  /* Affinity bar is desktop-only; hide it in force-mobile */
+  body.is-mobile .affinity-bar { display: none !important; }
+} /* end @media (min-width: 901px) force-mobile */
+
+/* ── Force-desktop overrides (body.is-force-desktop) ────────
+   Applied when the user force-toggles desktop view on a mobile
+   viewport. The @media block still matches, so we use !important
+   to win the specificity war on the key show/hide rules. ───── */
+body.is-force-desktop .mobile-chrome,
+body.is-force-desktop .mobile-bottom-tabs,
+body.is-force-desktop .mobile-stats-strip,
+body.is-force-desktop .mobile-sheet,
+body.is-force-desktop .mobile-sheet-scrim,
+body.is-force-desktop .mobile-clan-bar,
+body.is-force-desktop .mobile-detail-hint { display: none !important; }
+body.is-force-desktop .header { display: flex !important; }
+body.is-force-desktop .tab-bar--primary,
+body.is-force-desktop .tab-bar--secondary,
+body.is-force-desktop .tab-bar--fabien,
+body.is-force-desktop .tab-bar--benny,
+body.is-force-desktop .tab-bar--combos,
+body.is-force-desktop .tab-bar--pickups { display: flex !important; }
+body.is-force-desktop .clan-selector-toggle { display: block !important; }
+body.is-force-desktop .sidebar { display: flex !important; }
+body.is-force-desktop .detail-panel { display: flex !important; }
+body.is-force-desktop .clan-selector,
+body.is-force-desktop .clan-selector.collapsed { display: flex !important; }
+body.is-force-desktop .main-layout { display: flex !important; padding: 16px !important; max-width: 1400px !important; }
+body.is-force-desktop {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: auto !important;
+    overflow: auto !important;
+}
+body.is-force-desktop #app {
+    min-height: 100vh !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+}
+
+/* ── Tablet Hybrid (769–1023px) ──────────────────────────── */
+@media (min-width: 769px) and (max-width: 1023px) {
+    /* Keep desktop chrome, but reduce layout column widths */
+    .main-layout {
+        padding: 12px;
+    }
+
+    .sidebar {
+        width: 160px;
+    }
+
+    .detail-panel {
+        width: 300px;
+    }
+
+    .skill-grid {
+        min-width: 0;
+    }
+
+    /* Fabien/Benny detail panels: allow side-scroll */
+    .fabien-detail,
+    .benny-main .fabien-detail {
+        width: 280px;
+    }
 }

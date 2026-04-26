@@ -87,6 +87,17 @@ function renderBennySidebarItems() {
       renderBennySidebarItems();
       const detail = document.getElementById("benny-detail");
       if (detail) renderBennyDetail(detail);
+      if (document.body.classList.contains('is-mobile')) {
+        if (bennyState.sidebarFocused) {
+          const sheetBody = document.getElementById('mobile-sheet-body');
+          if (sheetBody) renderBennyDetail(sheetBody);
+          if (typeof showMobileDetailHintRaw === 'function') {
+            showMobileDetailHintRaw(item.title, item.icon || '');
+          }
+        } else if (typeof hideMobileDetailHint === 'function') {
+          hideMobileDetailHint();
+        }
+      }
     });
 
     container.appendChild(el);
@@ -98,12 +109,15 @@ function refreshBennyPage() {
 }
 
 function navigateToBennyDLC() {
-  // Switch to Benny tab
-  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  // Switch to Benny tab via click so mobile chrome (title, drawer, subtabs) syncs
   const bennyTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="benny"]');
-  if (bennyTab) bennyTab.classList.add("active");
-  document.getElementById("page-benny").classList.remove("hidden");
+  if (bennyTab) {
+    bennyTab.click();
+  } else {
+    document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+    document.getElementById("page-benny").classList.remove("hidden");
+  }
 
   // Open the DLC dropdown
   bennyState.dlcInfoOpen = true;
@@ -281,6 +295,40 @@ function renderBennyTree() {
   });
 
   renderBennyDetail(detail);
+
+  // Mobile: pre-render detail into the sheet body and show the hint pill.
+  // Tapping the pill opens the sheet — avoids the sheet auto-popping on
+  // every quick tap through the tree.
+  if (document.body.classList.contains('is-mobile')) {
+    if (bennyState.focused || bennyState.sidebarFocused) {
+    const sheetBody = document.getElementById('mobile-sheet-body');
+    if (sheetBody) {
+      renderBennyDetail(sheetBody);
+      let _title = '';
+      let _icon  = '';
+      if (bennyState.sidebarFocused) {
+        const _si = BENNY_SIDEBAR_ITEMS && BENNY_SIDEBAR_ITEMS.find(i => i.id === bennyState.sidebarFocused);
+        if (_si) {
+          _title = _si.title || '';
+          _icon  = _si.icon || '';
+        }
+      } else if (bennyState.focused) {
+        const ab = bennyState.focused.column === 'side'
+          ? getBennySideAbility(bennyState.focused.tier)
+          : getBennyCoreAbility(bennyState.focused.tier);
+        if (ab) {
+          _title = ab.name || '';
+          _icon  = ab.icon || '';
+        }
+      }
+      if (typeof showMobileDetailHintRaw === 'function') {
+        showMobileDetailHintRaw(_title, _icon);
+      }
+    }
+    } else if (typeof hideMobileDetailHint === 'function') {
+      hideMobileDetailHint();
+    }
+  }
 }
 
 function renderBennyDetail(panel) {

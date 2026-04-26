@@ -36,6 +36,18 @@ function renderFabienTree() {
   });
   logo.addEventListener("mousemove", positionTooltip);
   logo.addEventListener("mouseleave", () => sharedTooltip.classList.remove("tooltip--visible"));
+  // Mobile tap → open description in bottom sheet
+  logo.addEventListener("click", () => {
+    if (!document.body.classList.contains('is-mobile') || typeof openMobileSheet !== 'function') return;
+    const html = `
+      <div class="detail-panel__name-row">
+        <img class="detail-panel__ability-icon" src="${CLAN_LOGOS}/T_UI_ClanLogo_Malkavian.png" alt="Malkavian">
+        <div class="detail-panel__name">Malkavian</div>
+      </div>
+      <div class="detail-panel__desc">Malkavians possess unsettling insight, seeing the world askew. Some call them mad, others prophetic.</div>`;
+    openMobileSheet(html, '', 'Clan');
+  });
+  logo.style.cursor = 'pointer';
   grid.appendChild(logo);
 
   const clanName = document.createElement("div");
@@ -105,6 +117,33 @@ function renderFabienTree() {
 
   // Detail panel
   renderFabienDetail(detail);
+
+  // Mobile: pre-render detail into the sheet body and show the hint pill.
+  // Tapping the pill opens the sheet — avoids the sheet auto-popping on
+  // every quick tap through the tree.
+  if (document.body.classList.contains('is-mobile')) {
+    if (fabienState.focusedIndex !== null || fabienState.notesCardFocused) {
+    const sheetBody = document.getElementById('mobile-sheet-body');
+    if (sheetBody) {
+      renderFabienDetail(sheetBody);
+      let _title = '';
+      let _icon  = '';
+      if (fabienState.notesCardFocused) {
+        _title = 'Detective Notes';
+        _icon  = 'assets/N_Textures/General/T_UI_Icon_PhlegmaticSymbol.png';
+      } else if (FABIEN_ABILITIES && fabienState.focusedIndex !== null) {
+        const a = FABIEN_ABILITIES[fabienState.focusedIndex] || {};
+        _title = a.name || '';
+        _icon  = a.icon || '';
+      }
+      if (typeof showMobileDetailHintRaw === 'function') {
+        showMobileDetailHintRaw(_title, _icon);
+      }
+    }
+    } else if (typeof hideMobileDetailHint === 'function') {
+      hideMobileDetailHint();
+    }
+  }
 }
 
 function renderNotesDetail(panel) {
@@ -115,6 +154,7 @@ function renderNotesDetail(panel) {
   html += `<div class="detail-panel__name">Phlegmatic Resonance</div>`;
   html += `</div>`;
   html += `<div class="detail-panel__desc"><em>Phlegmatic blood resonates with calm, detachment, and focus.</em></div>`;
+  html += `<div class="detail-panel__desc" style="margin-top:8px;">Fabien can refresh his abilities by feeding on specific people around Seattle, or by using Elixirs.</div>`;
   html += `<div class="detail-panel__desc" style="margin-top:8px;">Fabien has various helpers around the city denoted with the <img style="width:20px;height:20px;vertical-align:middle;position:relative;top:-2px;" src="assets/N_Textures/MapIcons/T_UI_Icon_Map_Phlegmatic.png" alt="Phlegmatic"> symbol. Speak with them to request a feed and fuel his abilities.</div>`;
   panel.innerHTML = html;
 }

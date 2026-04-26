@@ -52,6 +52,60 @@ function refreshOutfitsPage() {
   renderReactionsTable();
 }
 
+// ── Mobile Sheet helper: open outfit detail with View Reactions in action row ──
+function openOutfitMobileSheet() {
+  if (typeof openMobileSheet !== 'function') return;
+
+  // Build the action-row button (pinned just below the title, always visible)
+  const actionsHtml = `<button class="mobile-sheet__action-btn" id="outfit-sheet-reactions-btn">View Resonance Reactions ›</button>`;
+
+  // Resolve the outfit title for the sheet header (mirrors how ability sheets
+  // show the ability name at the top).
+  let sheetTitle = '';
+  const focused = outfitState.focusedOutfit;
+  if (focused) {
+    if (focused.clanId === 'benny' && typeof BENNY_OUTFIT !== 'undefined') {
+      sheetTitle = BENNY_OUTFIT.name || '';
+    } else if (OUTFITS[focused.clanId] && OUTFITS[focused.clanId][focused.index]) {
+      sheetTitle = OUTFITS[focused.clanId][focused.index].name || '';
+    }
+  }
+
+  // Open empty sheet first so the body element exists, then render directly into it
+  openMobileSheet('', actionsHtml, sheetTitle);
+  const sheetBody = document.getElementById('mobile-sheet-body');
+  if (!sheetBody) return;
+
+  // Render outfit detail directly into the sheet body — this binds gender/skilltree handlers in-place
+  renderOutfitDetail(sheetBody);
+
+  // Bind the View Reactions button (it lives in the action row, not the body)
+  const reactionsBtn = document.getElementById('outfit-sheet-reactions-btn');
+  if (reactionsBtn) {
+    reactionsBtn.addEventListener('click', () => {
+      const reactionsHost = document.getElementById('reactions-tables');
+      const reactionsHtml = reactionsHost ? reactionsHost.innerHTML : '';
+      if (!reactionsHtml.trim()) {
+        sheetBody.innerHTML = `<div class="empty-state">No reactions for this outfit.</div>`;
+        return;
+      }
+      sheetBody.innerHTML = `
+        <div class="outfit-sheet__reactions-header">
+          <h3 class="reactions-section__title">Partial Resonance Reactions</h3>
+        </div>
+        <div class="reactions-tables outfit-sheet__reactions-tables">${reactionsHtml}</div>
+      `;
+      // Replace the action-row button with a Back button
+      const acts = document.getElementById('mobile-sheet-actions');
+      if (acts) {
+        acts.innerHTML = `<button class="mobile-sheet__action-btn" id="outfit-sheet-back-btn">‹ Back to Outfit</button>`;
+        const backBtn = document.getElementById('outfit-sheet-back-btn');
+        if (backBtn) backBtn.addEventListener('click', () => openOutfitMobileSheet());
+      }
+    });
+  }
+}
+
 // ── Outfit Grid ──────────────────────────────────────────────
 function renderOutfitGrid() {
   const grid = document.getElementById("outfit-grid");
@@ -111,6 +165,9 @@ function renderOutfitGrid() {
         renderOutfitGrid();
         renderOutfitDetail();
         renderReactionsTable();
+        if (document.body.classList.contains('is-mobile') && outfitState.focusedOutfit) {
+          openOutfitMobileSheet();
+        }
       });
       cell.addEventListener("contextmenu", (e) => {
         e.preventDefault();
@@ -159,6 +216,9 @@ function renderOutfitGrid() {
     renderOutfitGrid();
     renderOutfitDetail();
     renderReactionsTable();
+    if (document.body.classList.contains('is-mobile') && outfitState.focusedOutfit) {
+      openOutfitMobileSheet();
+    }
   });
   bennyCell.addEventListener("contextmenu", (e) => {
     e.preventDefault();
@@ -188,8 +248,11 @@ function isOutfitUnlocked(clanId, tier) {
 }
 
 // ── Outfit Detail Panel ──────────────────────────────────────
-function renderOutfitDetail() {
-  const panel = document.getElementById("outfit-detail");
+function renderOutfitDetail(targetEl) {
+  const panel = targetEl || document.getElementById("outfit-detail");
+  // When rendering into the mobile sheet body, the outfit name is already
+  // shown in the sheet header — don't duplicate it inside the body.
+  const isMobileSheet = !!targetEl && targetEl.id === 'mobile-sheet-body';
 
   if (!outfitState.focusedOutfit) {
     panel.innerHTML = '<div class="empty-state">Select an outfit to view details</div>';
@@ -213,7 +276,7 @@ function renderOutfitDetail() {
     }
     html += `</div>`;
 
-    html += `<div class="outfit-detail__name">${outfit.name}</div>`;
+    if (!isMobileSheet) html += `<div class="outfit-detail__name">${outfit.name}</div>`;
     if (outfit.desc) html += `<div class="outfit-detail__desc">${outfit.desc}</div>`;
     html += `<div class="outfit-detail__type outfit-type--${outfit.type}">${typeData.label}</div>`;
     html += `<div class="outfit-detail__clan">
@@ -240,6 +303,16 @@ function renderOutfitDetail() {
             renderBennySidebarItems();
             const detail = document.getElementById('benny-detail');
             if (detail) renderBennyDetail(detail);
+            // On mobile, also open the bottom sheet matching the sidebar item tap
+            if (document.body.classList.contains('is-mobile') && typeof openMobileSheet === 'function') {
+              const sheetBody = document.getElementById('mobile-sheet-body');
+              const sidebarItem = (typeof BENNY_SIDEBAR_ITEMS !== 'undefined') ? BENNY_SIDEBAR_ITEMS.find(i => i.id === 'outfit') : null;
+              const title = sidebarItem ? sidebarItem.title : 'Outfit for Phyre';
+              if (sheetBody) {
+                renderBennyDetail(sheetBody);
+                openMobileSheet(undefined, undefined, title);
+              }
+            }
           }
         }, 50);
       }
@@ -276,8 +349,8 @@ function renderOutfitDetail() {
     <button class="gender-btn${outfitState.previewGender === 'M' ? ' active' : ''}" data-gender="M">M</button>
   </div>`;
 
-  // Name
-  html += `<div class="outfit-detail__name">${outfit.name}</div>`;
+  // Name (suppressed on mobile sheet — it lives in the sheet header instead)
+  if (!isMobileSheet) html += `<div class="outfit-detail__name">${outfit.name}</div>`;
 
   // Description
   if (outfit.desc) {
@@ -323,7 +396,7 @@ function renderOutfitDetail() {
   panel.querySelectorAll(".gender-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       outfitState.previewGender = btn.dataset.gender;
-      renderOutfitDetail();
+      renderOutfitDetail(panel);
     });
   });
 
@@ -332,6 +405,9 @@ function renderOutfitDetail() {
   if (stBtn) {
     stBtn.addEventListener("click", () => {
       navigateToAbility(stBtn.dataset.clan, stBtn.dataset.tier);
+      if (typeof closeMobileSheet === 'function' && document.body.classList.contains('is-mobile')) {
+        closeMobileSheet();
+      }
     });
   }
 }

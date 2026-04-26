@@ -107,13 +107,13 @@ Kicks are clan-agnostic — same ability data applies to all clans. Source: `Wre
 
 All directional kicks require `ActivationRequiredTags: Combat.Ability.Evade` — they are **evade-linked** and can only fire while Phyre is in a dodge. Direction (front/back/side) is determined by which dodge is active when the attack input is pressed.
 
-| Kick      | Trigger           | Montage                                                                         | Anim Len | Dmg    | Bonus Dmg                         | Trace Range | Trace Radius | LungeRange | LungeDelay | ComboDelay | Knockback        | HitReact | Reuse CD |
-| --------- | ----------------- | ------------------------------------------------------------------------------- | -------- | ------ | --------------------------------- | ----------- | ------------ | ---------- | ---------- | ---------- | ---------------- | -------- | -------- |
-| Front     | Dodge forward     | <abbr title="AM_Player_Combat_Kick_Front">Kick_Front</abbr>                     | 1.17s    | 5      | +5 vs `Stunned` → 10              | 180         | 35           | 330 / 400  | 0.25s      | 0.50s      | H: 300           | Stumble  | 0.3s     |
-| Back      | Dodge backward    | <abbr title="AM_Player_Combat_Kick_Back">Kick_Back</abbr>                       | 1.83s    | 7      | +1.5 _(unconditional — see note)_ | 250         | 35           | 300 / 400  | 0.40s      | 1.00s      | H: 800           | —        | 0.3s     |
-| Side      | Dodge left/right  | <abbr title="AM_Player_Combat_Kick_Right (mirrored for left)">Kick_Right</abbr> | 1.20s    | 7      | +4 vs `TkPull` → 11               | 270         | **60**       | 200 / 200  | —          | 0.80s      | H: 800           | Stumble  | 0.3s     |
-| Sliding   | Sprint + attack   | <abbr title="AM_Player_Combat_Kick_Sliding">Kick_Sliding</abbr>                 | 1.50s    | 15     | —                                 | 300         | 40           | 300 / 400  | 0.34s      | 1.00s      | H: 1400, V: +400 | Stumble  | 0.3s     |
-| Drop Kick | Airborne + attack | <abbr title="AM_Player_Combat_DropKick">DropKick</abbr>                         | 1.50s    | **25** | —                                 | 200         | 35           | 300 / 400  | 0.34s      | 1.00s      | H: 2000, V: −200 | Stumble  | **6.0s** |
+| Kick      | Trigger           | Montage                                                                         | Anim Len | Dmg                    | Bonus Dmg                         | Trace Range | Trace Radius | LungeRange | LungeDelay | ComboDelay | Knockback        | HitReact | vs. Block                 | Reuse CD |
+| --------- | ----------------- | ------------------------------------------------------------------------------- | -------- | ---------------------- | --------------------------------- | ----------- | ------------ | ---------- | ---------- | ---------- | ---------------- | -------- | ------------------------- | -------- |
+| Front     | Dodge forward     | <abbr title="AM_Player_Combat_Kick_Front">Kick_Front</abbr>                     | 1.17s    | 5                      | +5 vs `Stunned` → 10              | 180         | 35           | 330 / 400  | 0.25s      | 0.50s      | H: 300           | Stumble  | **Connects, flinch only** | 0.3s     |
+| Back      | Dodge backward    | <abbr title="AM_Player_Combat_Kick_Back">Kick_Back</abbr>                       | 1.83s    | 7                      | +1.5 _(unconditional — see note)_ | 250         | 35           | 300 / 400  | 0.40s      | 1.00s      | H: 800           | —        | Likely bypasses           | 0.3s     |
+| Side      | Dodge left/right  | <abbr title="AM_Player_Combat_Kick_Right (mirrored for left)">Kick_Right</abbr> | 1.20s    | 7                      | +4 vs `TkPull` → 11               | 270         | **60**       | 200 / 200  | —          | 0.80s      | H: 800           | Stumble  | Likely bypasses           | 0.3s     |
+| Sliding   | Sprint + attack   | <abbr title="AM_Player_Combat_Kick_Sliding">Kick_Sliding</abbr>                 | 1.50s    | 15                     | —                                 | 300         | 40           | 300 / 400  | 0.34s      | 1.00s      | H: 1400, V: +400 | Stumble  | Likely bypasses           | 0.3s     |
+| Drop Kick | Airborne + attack | <abbr title="AM_Player_Combat_DropKick">DropKick</abbr>                         | 1.50s    | **15–70** _(see note)_ | —                                 | 200         | 35           | 300 / 400  | 0.34s      | 1.00s      | H: 2000, V: −200 | Stumble  | Likely bypasses           | **6.0s** |
 
 **Kick timing / cooldown mechanics:**
 
@@ -121,6 +121,20 @@ All directional kicks require `ActivationRequiredTags: Combat.Ability.Evade` —
 - **`GE_KickBlocker`** (0.5s, separate from the table) is applied to the **target** and grants `AbilityEvent.KickBlocker` — this is a per-enemy hit-prevention window preventing the enemy from being kicked again immediately after landing one.
 - **`GE_KickBuffer`** (0.2s) is applied to the **target** and grants `Combat.General.KickBuffer` — likely a brief window around the kick's hit frame for timing purposes.
 - **Drop kick's 6.0s** (`GE_DropKickCooldown`) grants `Combat.Ability.Cooldown.Dropkick` to Phyre — but has `RemovalTagRequirements: RequireTags: Movement.Mode.Walking`, meaning it **expires the moment she lands**. The 6s is a maximum cap (e.g. if she never lands), not a flat reuse timer. In practice you can chain drop kicks as fast as you can jump again.
+
+**Block behavior:**
+
+- **Front kick**: `FlinchOnlyTags` includes `Combat.Ability.Melee.Block` — the kick **connects** against blocking enemies but only produces a flinch reaction (not a stumble). Damage application depends on the damage GE (Blueprint graph, not in CDO).
+- **Side, Back, Sliding, Drop kick**: `Combat.Ability.Melee.Block` is **not** in `FlinchOnlyTags`. Combined with `Damage Should Execute: true` on sliding/drop kick (same mechanism as heavy punch, which is confirmed to bypass block), all four likely bypass block entirely. Cannot be definitively confirmed from exports as the damage GE is referenced in the Blueprint graph.
+- **Reference**: light punch (`GE_PunchDamage`) has `Combat.Ability.Response.Block.Active` in `IgnoreTags` → blocked. Heavy punch (`GE_PunchDamageHeavy`) omits it → bypasses block. This is the confirmed pattern; kicks follow the same logic.
+
+**Drop kick damage — velocity scaling:**
+The GA CDO exposes three damage values: `Hit Damage: 25.0`, `Base damage: 15.0`, `Bonus Damage: 55.0`. `Hit Damage` is the standard trace-hit field; `Base damage` + `Bonus Damage` are Blueprint variables likely used for a velocity-scaled formula: `damage = 15 + (velocity_factor × 55)`, giving a range of **15–70** depending on fall speed. Exact formula is not readable from exports.
+
+**Post-hit movement slowdowns (on target):**
+
+- **`GE_KickSlowdown`**: WalkSpeed ×0.2, duration SetByCaller (varies by kick). Removed if target has `Combat.Ability.Skill.SplitSecond`. Applied by directional kicks (front/back/side).
+- **`GE_SlideKickSlowdown`**: 0.8s, WalkSpeed ×0.0 — **full movement stop**. Removed if `SplitSecond`. Applied by sliding kick only.
 
 **Other notes:**
 
@@ -162,7 +176,10 @@ Shunt is a clan-agnostic melee counter — no `ActivationRequiredTags`, so it fi
 
 - `SpecialDamageTags` (`AttackArmor`, `Melee.Heavy`, `Melee.Light`) — the ×1.4 bonus applies when the target is currently in an attack state; rewards intercepting mid-swing
 - `FlinchOnlyTags`: `Combat.General.HeavyWeight`, `Combat.Status.AttackArmor` — heavy/armored enemies only flinch on shunt hit, they do not stumble
-- `SpecialHitFilter`: `HitReact.Countered`, `Status.Disarmable`, `Ability.Ranged.Reload` — shunt's disarm/interrupt special behavior only triggers against enemies with one of these tags (e.g. interrupts a reload, disarms an enemy flagged as Disarmable)
+- `SpecialHitFilter`: `HitReact.Countered`, `Status.Disarmable`, `Ability.Ranged.Reload` — shunt's disarm/interrupt special behavior only triggers against enemies with one of these tags. All three are **natural AI states**, not player-injectable:
+  - `HitReact.Countered` — set by `GA_EnemyReact_Hit_Counter` while a counter-capable enemy (e.g. Flusher) is mid-counter animation
+  - `Ranged.Reload` — set by `GA_ReloadAmmo` while a ranged enemy is actively reloading
+  - `Disarmable` — set during: Arms of Ahriman (Lasombra), Entrancing Kiss (Toreador), Glimpse of Oblivion (Lasombra), Beckon (Ventrue), Cloud Memory (Ventrue), Cauldron of Blood (Tremere), and **`GA_EnemyReact_WallSlam`** — any enemy mid-wallslam reaction is also disarmable, no clan ability required
 - `GC_ShuntImpact` is the gameplay cue applied on hit
 - `LegeslipDuration: 0.7s` — a post-hit follow-up dodge/footwork window (exact mechanic tied to Legeslip passive skill)
 - No cooldown at all — can be used on consecutive frames if the ability completes; the only limit is `Combat.Blocked` blocking it
@@ -351,4 +368,78 @@ Only **Tremere** uses `Combat.Ability.Melee.Light.NoLunge`. All others use `Comb
 | Toreador | Combat_Idle_Toreador     | AM_Player_Block_Toreador | —                                  |
 | Ventrue  | Anim_Ventrue_Combat_Idle | AM_Player_Block_ventrue  | **Anim_Ventrue_Combat_Idle_Guard** |
 
-Ventrue is the only clan with a dedicated `Shield` idle animation (guard stance).
+Ventrue is the only clan with a dedicated `Shield` idle animation (guard stance). Note that the `AM_Player_Block_*` montages are **reaction animations** (player HitReact slot), not a held-guard pose — there is no dedicated block input in the game.
+
+---
+
+## Parry / Counter System
+
+### Mechanism
+
+There is **no dedicated block button**. Counters are triggered entirely by **dashing into an incoming enemy attack**. Two GAs handle the counter response:
+
+1. **`GA_Player_CounterSwipe`** — the counter window ability; activated when a dash intercepts an incoming hit
+2. **`GA_Player_CounterHit`** — auto-triggered follow-up attack when the counter lands
+
+**Event flow:**
+
+1. Phyre dashes into an incoming enemy attack during the dash's active counter window
+2. `GA_Player_CounterSwipe` activates → tags include `Combat.Montage.CounterOpen` (counter window now live); the 0.5s Buffer Delay is the post-dash warm-up, then the **0.32s** active window opens
+3. Enemy hit lands during the active window → hit processing sends `Combat.Ability.Response.Counter` event to Phyre
+4. `GA_Player_CounterHit` fires on Phyre (triggered by that GameplayEvent, ComboDelay 0.05s — near-instant)
+5. Attacker receives HitResponseTag `Combat.Status.HitReact.Stagger` + `GE_Player_CounterHit` (StunFragility ×2.5)
+
+> **Combo dash also has a counter window:** `GA_ComboDash_Short` exposes `Counter Duration: 0.35s` separately from the regular dash — the short combo dash has a slightly longer counter window than the regular parry (0.35s vs 0.32s).
+
+### Timing
+
+| Property                                      | Value     | Notes                                                                       |
+| --------------------------------------------- | --------- | --------------------------------------------------------------------------- |
+| **Active parry window**                       | **0.32s** | `Counter Duration` in CDO — the only window where an incoming hit is caught |
+| Buffer Delay (post-dash warm-up)              | 0.5s      | Delay after dash intercept before counter window opens                      |
+| Combo Delay (post-sequence cool-down)         | 0.8s      | Time before another ability can chain                                       |
+| Follow-up ComboDelay (`GA_Player_CounterHit`) | 0.05s     | Near-instant counter strike                                                 |
+
+### Animations
+
+| Montage                         | Length    | Slot            | Notes                                                                                                                                        |
+| ------------------------------- | --------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AM_Combat_Parry_Short`         | **0.83s** | CombatUpperBody | Main parry animation; plays at 1.0× speed; audio bark `Narrative.Prompts.Player.Combat.Parry`; camera shake `BP_Shake_Swipe_C`               |
+| `AM_Combat_Parry_Hit`           | **0.53s** | CombatUpperBody | Successful-parry reaction (starts at 0.30s into raw 0.83s sequence); VFX `NS_Player_Hit_Parry` at CameraSocket, scale 0.4, offset (50, 0, 0) |
+| `AM_counterswing`               | **0.67s** | CombatUpperBody | Counter attack follow-up; uses `Combat_Parry_Short` at 0.5× speed (0–0.17s) then 0.15× (0.17–0.34s); WepLower curve fires at 0.05s           |
+| `AM_Player_Counter_Dash_Attack` | **0.36s** | CombatUpperBody | Counter dash-forward attack; uses `Anim_Player_ZL_Combat_Dash_Forward_Attack01`                                                              |
+
+> **Note on AM_counterswing path:** file lives under `Movement/Dash/Updated/` despite being a melee counter — this appears to be a legacy placement.
+
+**Grab-counter assets (no player GA references them):**
+
+`AM_Player_Grab_Counter_01` (2.0s, CombatFullBody) and `Anim_Player_ArmCatch_Counter` (3.13s, root motion) exist in `Combat/Counter/Animation/` but no player GA CDO references either. They are either:
+
+- **Cut content** — assets were built but the ability was never shipped
+- **Enemy-side triggered** — an enemy grab GA could fire a GameplayEvent to the player, with the player character Blueprint (not a GA) responding by playing the montage. This is not readable from CDO exports.
+
+There is no player-activatable grab counter via the dash system. Grab counters, if functional at all, would be scripted escape animations tied to specific enemy grab attacks.
+
+### GE Applied on Successful Counter
+
+**`GE_Player_CounterHit`** — `HasDuration` **2.0s**:
+
+| Modifier               | Value                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `StunFragility`        | **×2.5 Multiplicative** — target takes 2.5× stun damage for the duration                            |
+| GameplayCue            | `GameplayCue.Source.Combat.Counter`                                                                 |
+| OngoingTagRequirements | `RequireTags: Combat.Status.HitReact.Countered` — GE is removed if target loses the Countered state |
+
+### VFX
+
+| Asset                  | Used By                      | Notes                                                                                       |
+| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
+| `NS_Player_Hit_Parry`  | `AM_Combat_Parry_Hit` notify | Directional burst at CameraSocket on successful parry                                       |
+| `NS_Player_CounterHit` | `GC_Player_CounterHit`       | Attached to owner (`bAutoAttachToOwner: true`), cue tag `GameplayCue.Source.Combat.Counter` |
+
+### Related Utility GEs
+
+| GE                        | Duration | Effect                                | Notes                                                          |
+| ------------------------- | -------- | ------------------------------------- | -------------------------------------------------------------- |
+| `GE_KickBlocker`          | **0.5s** | Grants `AbilityEvent.KickBlocker` tag | Applied during kick context; mechanism for kick counter window |
+| `GE_sprintStumbleBlocker` | **3.0s** | `Combat.Status.SprintBlocked`         | Applied post-hit; removed early by SplitSecond                 |
