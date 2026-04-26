@@ -38,7 +38,6 @@
     <!-- Side Drawer -->
     <nav class="mobile-drawer" id="mobile-drawer" aria-label="Navigation menu">
       <div class="mobile-drawer__header">
-        <button class="mobile-drawer__close" id="mobile-drawer-close-btn" aria-label="Close menu">&times;</button>
         <a href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/about" target="_blank" rel="noopener noreferrer"><img class="mobile-drawer__logo" src="assets/UI_TITLE_VtM_01.png" alt="VtM"></a>
         <div class="mobile-drawer__title-group">
           <span class="mobile-drawer__title">Skill Calculator</span>
@@ -52,6 +51,7 @@
       <div class="mobile-drawer__divider"></div>
       <button class="mobile-drawer__item" id="mobile-view-link-btn-drawer"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15" aria-hidden="true" class="mobile-drawer__item-icon"><path d="M6.5 9.5a3 3 0 004.243 0l1.414-1.415a3 3 0 000-4.243 3 3 0 00-4.243 0L7.5 4.257" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.5 6.5a3 3 0 00-4.243 0L3.843 7.914a3 3 0 000 4.243 3 3 0 004.243 0L9.5 10.743" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Copy View Link</button>
       <button class="mobile-drawer__item" id="mobile-save-link-btn-drawer"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15" aria-hidden="true" class="mobile-drawer__item-icon"><path d="M2.5 3A.5.5 0 013 2.5h7.586L13.5 5.414V13a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3z" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="2.5" width="4" height="3.5" rx=".4" stroke="currentColor" stroke-width="1.3"/><rect x="4.5" y="9" width="7" height="4" rx=".4" stroke="currentColor" stroke-width="1.3"/></svg>Copy Save Link</button>
+      <button class="mobile-drawer__close" id="mobile-drawer-close-btn" aria-label="Close menu"><img src="assets/N_Textures/HUD/EnemyStatus/T_UI_HUD_EnemyStatus_Position_Patrolling.png" alt="" aria-hidden="true"></button>
     </nav>
     <!-- Subtab Pill Bar -->
     <div class="mobile-subtab-bar" id="mobile-subtab-bar" role="navigation" aria-label="Subtabs"></div>
@@ -658,6 +658,7 @@
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
               <span class="changelog__version">v1.11</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/6af1bd1" target="_blank" rel="noopener">6af1bd1</a>
               <span class="changelog__label">Current</span>
             </summary>
             <p class="changelog__desc">Mobile &amp; save overhaul &mdash; full responsive pass: dedicated mobile chrome (top app-bar, subtab pill bar, fixed bottom tabs, slide-up clan selector, draggable bottom-sheet detail panel) and tablet/desktop layouts auto-switch on viewport. Mobile breakpoint bumped 768&nbsp;&rarr;&nbsp;900&nbsp;px to cover Zenbook Fold and iPad&nbsp;Pro&nbsp;11&Prime; portrait, with a separate landscape-phone path (max-height&nbsp;500&nbsp;px) and a rotate-to-portrait overlay. New <strong>universal layout toggle</strong> in the top-right (side-by-side desktop/phone slider) lets you force either layout per-session via <code>sessionStorage</code>; cards/tables and Benny/Fabien feature strips re-render in place when you flip. Document scroll is now locked to <code>#app</code> so the bottom tabs no longer wobble or scroll off-screen. The <strong>Save Link</strong> button now works on <code>file://</code> contexts (clipboard <code>execCommand</code> fallback) and deep-links like <code>?at=phyre.outfits</code> properly populate the page on load. Cross-tab navigation (Benny &rarr; Phyre outfit, ability cross-links, etc.) now syncs the mobile bottom-tab indicator and subtab pills. Clan tab gains a primer (light/heavy attacks), kicks-vs-block column, drop-kick velocity scaling, and a dedicated Parry lozenge with a Blurred Momentum cross-link. Polish: app-bar title is now static, mobile sheet handle close button no longer clips, MAHA pill is conditional on the Haven mod, clan diamond turns gold to match AP, awakened/unlocked colours swapped to match the rest of the UI, drawer header now has an &times; close button, Benny tree no longer collides with tier labels on narrow widths, Silence of Death (clan passive) no longer shows a green progress arrow, and tap-then-hover ghost tooltips are suppressed for 600&nbsp;ms after touch.</p>
@@ -665,6 +666,7 @@
           <details class="changelog__entry">
             <summary class="changelog__summary">
               <span class="changelog__version">v1.10</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/c5e7e45" target="_blank" rel="noopener">c5e7e45</a>
             </summary>
             <p class="changelog__desc">Benny outfit detail panel &mdash; &ldquo;Outfit for Phyre&rdquo; sidebar item now opens a detail panel showing the Maverick Cop thumbnail, a link to the outfit page, and an inline DLC purchase lozenge. <code>benny-dlc-unlock-link</code> button on the outfit page now navigates to the Benny tab and focuses the outfit panel. All icon assets moved from <code>UI_export/</code> to <code>assets/</code>. <code>navigateToOutfit</code> now correctly switches the primary Phyre tab before showing the outfits sub-tab.</p>
           </details>

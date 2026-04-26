@@ -3458,9 +3458,9 @@ function _syncMobileStats() {
 
 function initMobileShell() {
   // ── Body class management ─────────────────────────────
-  // Migrate away from old localStorage key (now using sessionStorage).
+  // Drop any leftover localStorage 'forced-layout' (old persistent override).
+  // sessionStorage now owns the override so auto-detect works each new session.
   if (localStorage.getItem('forced-layout')) {
-    sessionStorage.setItem('forced-layout', localStorage.getItem('forced-layout'));
     localStorage.removeItem('forced-layout');
   }
   // Phone / narrow-portrait: width <= 900 (covers iPhones, iPad Pro 11" portrait,
