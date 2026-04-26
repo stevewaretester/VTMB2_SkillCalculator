@@ -2577,6 +2577,12 @@ kbd.innate-key-ref {
     display: block;
 }
 
+/* Suppress tooltips entirely in mobile mode (auto or forced).
+   Touch devices fire synthetic mouseenter ~300ms after tap, which calls
+   sharedTooltip.classList.add('tooltip--visible') from various handlers
+   that bypass the showTooltip() helper (Fabien/Benny trees, etc.). */
+body.is-mobile .tooltip { display: none !important; }
+
 .ability-cell:hover .tooltip {
     display: none;
 }
