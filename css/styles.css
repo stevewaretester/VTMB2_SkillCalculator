@@ -7784,7 +7784,9 @@ body.is-mobile-landscape .mobile-detail-hint {
     /* ── Mobile Detail Hint Pill ────────────────────── */
     /* Floats above the bottom tab bar to advertise that the sheet has
        a description ready. Tapping the centre opens the sheet.
-       Minus / Plus buttons advance or revert the ability inline. */
+       Minus / Plus buttons advance or revert the ability inline.
+       NOTE: .is-visible rule is duplicated outside @media (below the
+       block) so force-mobile-on-desktop also shows the hint. */
     .mobile-detail-hint {
         display: none;
     }
@@ -7928,6 +7930,8 @@ body.is-mobile-landscape .mobile-detail-hint {
         bottom: calc(var(--mobile-bottom-tabs-h) + 110px);
     }
 
+@media (max-width: 900px), (max-height: 500px) { /* reopen mobile @media */
+
     /* Mobile Stats Strip */
     .mobile-stats-strip {
         display: flex;
@@ -8021,8 +8025,10 @@ body.is-mobile-landscape .mobile-detail-hint {
         align-items: center;
     }
 
+} /* end mobile @media — mobile-innate-toggle + mobile-feature-strip rules below apply to body.is-mobile globally so force-mobile-on-desktop keeps them */
+
     /* Single Phyre-mark toggle button */
-    .mobile-innate-toggle {
+    body.is-mobile .mobile-innate-toggle {
         width: 34px;
         height: 34px;
         border-radius: 50%;
@@ -8039,27 +8045,29 @@ body.is-mobile-landscape .mobile-detail-hint {
     }
 
     /* Mobile feature strip — host for Benny/Fabien single-icon toggles */
-    .mobile-feature-strip {
+    body.is-mobile .mobile-feature-strip {
         display: flex;
         align-items: center;
         justify-content: flex-end;
         gap: 8px;
         padding: 8px var(--mobile-pad);
     }
-    .mobile-feature-strip:empty {
+    body.is-mobile .mobile-feature-strip:empty {
         display: none;
     }
 
-    .mobile-innate-toggle.is-active {
+    body.is-mobile .mobile-innate-toggle.is-active {
         border-color: var(--gold);
         background: rgba(201, 168, 76, 0.12);
     }
 
-    .mobile-innate-toggle img {
+    body.is-mobile .mobile-innate-toggle img {
         width: 100%;
         height: 100%;
         object-fit: contain;
     }
+
+@media (max-width: 900px), (max-height: 500px) { /* reopen mobile @media */
 
     /* Help button — same as innate toggle but slightly larger icon */
     .mobile-help-btn img {

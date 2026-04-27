@@ -777,7 +777,8 @@ function updatePhyreClanCrest() {
     img.src = CLANS[state.selectedClan].logo;
     img.hidden = false;
   } else {
-    img.src = "";
+    // 1x1 transparent gif — empty src would cause the browser to refetch the page URL.
+    img.src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
     img.hidden = true;
   }
 }
@@ -3830,10 +3831,11 @@ function initMobileShell() {
           <h4>Cross-Clan</h4>
           <p>To unlock another clan's ability:</p>
           <ol>
-            <li>Awaken it at the Clan Trainer by spending Blood Resonance.</li>
             <li>Unlock the equivalent ability in your own clan tree first.</li>
+            <li>Awaken it at the Clan Trainer by spending Blood Resonance.</li>
             <li>Spend AP — usually more than in-clan cost, but <strong>discounted 50%</strong> if your clan shares affinity.</li>
           </ol>
+          <p class="mobile-help-sheet__note"><em>Note: this calculator ignores the equivalent-unlock requirement.</em></p>
         </div>
         <div class="mobile-help-sheet__section">
           <h4>Cross-Clan Perks</h4>
