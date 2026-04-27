@@ -3560,24 +3560,25 @@ function initMobileShell() {
   });
 
   // ── Universal layout toggle ─────────────────────
-  const layoutToggleBtn = document.getElementById('layout-toggle-btn');
-  if (layoutToggleBtn) {
-    layoutToggleBtn.addEventListener('click', () => {
-      const current = sessionStorage.getItem('forced-layout');
-      const autoMobile = mq768.matches;
-      if (current) {
-        // Already forced — clear override (revert to auto-detect)
-        sessionStorage.removeItem('forced-layout');
-      } else if (autoMobile) {
-        // Auto is mobile — force desktop
-        sessionStorage.setItem('forced-layout', 'desktop');
-      } else {
-        // Auto is desktop — force mobile
-        sessionStorage.setItem('forced-layout', 'mobile');
-      }
-      applyBodyClasses();
-    });
-  }
+  // Use capture-phase delegation on document so the handler fires even if a
+  // parent element calls stopPropagation, or something later re-parents/clones
+  // the button (some renders rebuild the header chrome).
+  document.addEventListener('click', (e) => {
+    const btn = e.target && e.target.closest && e.target.closest('#layout-toggle-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const current = sessionStorage.getItem('forced-layout');
+    const autoMobile = mq768.matches;
+    if (current) {
+      sessionStorage.removeItem('forced-layout');
+    } else if (autoMobile) {
+      sessionStorage.setItem('forced-layout', 'desktop');
+    } else {
+      sessionStorage.setItem('forced-layout', 'mobile');
+    }
+    applyBodyClasses();
+  }, true);
 
   // ── Bottom Tab Bar ────────────────────────────────────
   document.querySelectorAll('.mobile-bottom-tab[data-mobile-tab]').forEach(btn => {

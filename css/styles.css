@@ -735,7 +735,7 @@ body {
     top: 50%;
     right: 24px;
     transform: translateY(-50%);
-    z-index: 350;
+    z-index: 9500;
     width: 64px;
     height: 32px;
     padding: 0;
@@ -7579,7 +7579,7 @@ body.is-mobile-landscape .mobile-detail-hint {
         top: 12px !important;
         right: 16px !important;
         transform: none !important;
-        z-index: 400 !important;
+        z-index: 9500 !important;
     }
     .tab-bar--primary,
     .tab-bar--secondary,
@@ -9062,7 +9062,7 @@ body.is-mobile-landscape .mobile-detail-hint {
       top: 12px !important;
       right: 16px !important;
       transform: none !important;
-      z-index: 400 !important;
+      z-index: 9500 !important;
   }
   body.is-mobile .tab-bar--primary,
   body.is-mobile .tab-bar--secondary,
