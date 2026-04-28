@@ -136,8 +136,8 @@ body {
     position: absolute;
     left: 180px;
     background: none;
-    border: 1px solid rgba(255, 120, 160, 0.5);
-    color: rgba(255, 160, 190, 0.85);
+    border: 1px solid rgba(255, 175, 110, 0.5);
+    color: rgba(255, 195, 145, 0.9);
     font-family: 'Cinzel', serif;
     font-size: 10px;
     letter-spacing: 0.5px;
@@ -148,13 +148,13 @@ body {
     text-decoration: none;
     transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
     white-space: nowrap;
-    box-shadow: 0 0 6px rgba(255, 100, 150, 0.3);
+    box-shadow: 0 0 6px rgba(255, 150, 90, 0.3);
 }
 
 .header__patch-btn:hover {
-    color: rgb(255, 180, 210);
-    border-color: rgba(255, 120, 160, 0.9);
-    box-shadow: 0 0 12px rgba(255, 100, 150, 0.55);
+    color: rgb(255, 215, 175);
+    border-color: rgba(255, 175, 110, 0.9);
+    box-shadow: 0 0 12px rgba(255, 150, 90, 0.55);
 }
 
 .header__patch-build {
@@ -958,6 +958,10 @@ body.no-custom-cursor {
 }
 
 /* ── Benny Page ──────────────────────────────────────────── */
+.benny-subpage.hidden {
+    display: none;
+}
+
 .benny-layout {
     display: flex;
     gap: 24px;
@@ -1063,10 +1067,6 @@ body.no-custom-cursor {
 
 .benny-sidebar-item__title {
     flex: 1;
-}
-
-.benny-dlc-link {
-    align-items: flex-start;
 }
 
 .benny-sidebar .dlc-link__icon {
@@ -1212,31 +1212,63 @@ kbd.innate-key-ref {
     gap: 20px;
 }
 
+.benny-dlc-tile-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.benny-dlc-tile-wrap:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 14px rgba(220, 120, 30, 0.55));
+}
+
+.benny-dlc-out-now {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffd27a;
+    background: linear-gradient(180deg, rgba(220, 120, 30, 0.22) 0%, rgba(220, 120, 30, 0.06) 100%);
+    border: 1px solid rgba(220, 120, 30, 0.65);
+    border-radius: 3px;
+    padding: 3px 12px;
+    box-shadow: 0 0 10px rgba(220, 120, 30, 0.45),
+                inset 0 0 0 1px rgba(255, 220, 140, 0.08);
+    text-shadow: 0 0 8px rgba(255, 180, 80, 0.55);
+    align-self: stretch;
+    text-align: center;
+}
+
+.benny-dlc-tile-wrap:hover .benny-dlc-out-now {
+    color: #fff1c2;
+    border-color: rgba(255, 200, 120, 0.95);
+    box-shadow: 0 0 22px rgba(220, 120, 30, 0.75),
+                inset 0 0 0 1px rgba(255, 220, 140, 0.18);
+}
+
 .benny-dlc-tile {
     width: 400px;
     height: auto;
     object-fit: contain;
     flex-shrink: 0;
+    transition: filter 0.18s ease;
+}
+
+/* Hover swaps the tile art to the alt UI_export variant. */
+.benny-dlc-tile-wrap:hover .benny-dlc-tile {
+    content: url("../assets/T_UI_DLC_FrontEnd_Icon_LooseCannon_Hover.png");
 }
 
 .benny-dlc-right {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-.benny-dlc-link {
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    text-decoration: none;
-    text-transform: uppercase;
-}
-
-.benny-dlc-link:hover {
-    color: var(--gold);
-    text-decoration: underline;
 }
 
 .benny-dlc-purchase-wrap {
@@ -6083,6 +6115,73 @@ kbd.pickup-key {
     color: var(--gold);
 }
 
+/* Prominent variant — Benny relies heavily on melee weapons,
+   so the link from his Unarmed page deserves a louder call-to-action. */
+#benny-unarmed-melee-link {
+    margin-top: 10px;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 13px;
+    letter-spacing: 1.2px;
+    color: var(--gold-bright, #f5d97a);
+    border: 1px solid rgba(201, 168, 76, 0.65);
+    background: linear-gradient(180deg,
+        rgba(201, 168, 76, 0.18) 0%,
+        rgba(201, 168, 76, 0.08) 100%);
+    box-shadow: 0 0 10px rgba(201, 168, 76, 0.25),
+                inset 0 0 0 1px rgba(255, 220, 140, 0.08);
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+#benny-unarmed-melee-link:hover {
+    color: #fff1c2;
+    border-color: rgba(255, 220, 140, 0.95);
+    box-shadow: 0 0 18px rgba(201, 168, 76, 0.55),
+                inset 0 0 0 1px rgba(255, 220, 140, 0.18);
+    transform: translateY(-1px);
+    background: linear-gradient(180deg,
+        rgba(201, 168, 76, 0.30) 0%,
+        rgba(201, 168, 76, 0.14) 100%);
+}
+
+#benny-unarmed-melee-link:active {
+    transform: translateY(0);
+}
+
+/* Spring-Update "NEW" badge for the BennyGun section heading. */
+.benny-gun-new-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #ffd27a;
+    background: linear-gradient(180deg, rgba(220, 120, 30, 0.28) 0%, rgba(220, 120, 30, 0.10) 100%);
+    border: 1px solid rgba(220, 120, 30, 0.7);
+    border-radius: 3px;
+    padding: 2px 8px;
+    margin-right: 8px;
+    box-shadow: 0 0 8px rgba(220, 120, 30, 0.4);
+    text-shadow: 0 0 6px rgba(255, 180, 80, 0.5);
+    vertical-align: middle;
+}
+
+.benny-gun-section--new .crossclan-section-heading {
+    border-left: 2px solid rgba(220, 120, 30, 0.55);
+    padding-left: 10px;
+}
+
+/* Link button under sidebar detail-panel descriptions
+   (Sidearm → BennyGun details, Melee Weapons → weapon attack data) */
+.benny-sidebar-detail__link-wrap {
+    margin-top: 12px;
+}
+.benny-sidebar-detail__link {
+    width: 100%;
+    justify-content: center;
+}
+
 /* ── Clan Combos tab ─────────────────────────────────────────── */
 .clan-combos-header {
     border-bottom: 1px solid var(--border-dim);
@@ -7347,13 +7446,13 @@ body.is-mobile-landscape .mobile-detail-hint {
     padding: 4px 0 8px;
 }
 .mobile-drawer__item--patch {
-    color: rgba(255, 160, 190, 0.95);
-    text-shadow: 0 0 6px rgba(255, 100, 150, 0.35);
+    color: rgba(255, 195, 145, 0.95);
+    text-shadow: 0 0 6px rgba(255, 150, 90, 0.35);
 }
 .mobile-drawer__item--patch:hover,
 .mobile-drawer__item--patch:active {
-    color: rgb(255, 180, 210);
-    background: rgba(255, 100, 150, 0.08);
+    color: rgb(255, 215, 175);
+    background: rgba(255, 150, 90, 0.08);
 }
 .mobile-drawer__build { opacity: 0.5; font-size: 10px; margin-left: 3px; }
 .mobile-drawer__item-icon { vertical-align: middle; margin-right: 7px; opacity: 0.75; flex-shrink: 0; }
@@ -7781,12 +7880,12 @@ body.is-mobile-landscape .mobile-detail-hint {
         border-color: var(--gold);
     }
 
+} /* end mobile @media — mobile-detail-hint rules below apply globally so force-mobile-on-desktop keeps the hint pill */
+
     /* ── Mobile Detail Hint Pill ────────────────────── */
     /* Floats above the bottom tab bar to advertise that the sheet has
        a description ready. Tapping the centre opens the sheet.
-       Minus / Plus buttons advance or revert the ability inline.
-       NOTE: .is-visible rule is duplicated outside @media (below the
-       block) so force-mobile-on-desktop also shows the hint. */
+       Minus / Plus buttons advance or revert the ability inline. */
     .mobile-detail-hint {
         display: none;
     }
@@ -9074,7 +9173,9 @@ body.is-mobile-landscape .mobile-detail-hint {
   body.is-mobile .sidebar,
   body.is-mobile .clan-selector,
   body.is-mobile .clan-selector.collapsed { display: none !important; }
-  body.is-mobile .detail-panel { display: none; }
+  body.is-mobile .detail-panel { display: none !important; }
+  body.is-mobile .fabien-detail,
+  body.is-mobile #benny-detail { display: none !important; }
   body.is-mobile .fabien-sidebar,
   body.is-mobile .benny-sidebar { display: none !important; }
   body.is-mobile .mobile-feature-strip {

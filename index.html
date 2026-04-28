@@ -45,8 +45,8 @@
         </div>
       </div>
       <button class="mobile-drawer__item" id="mobile-about-btn">About</button>
-      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.11 Changelog</button>
-      <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-valentines-update" target="_blank" rel="noopener">Valentine's Update <span class="mobile-drawer__build">21718394</span> &#x2197;</a>
+      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.12 Changelog</button>
+      <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener">Spring Update <span class="mobile-drawer__build">22727210</span> &#x2197;</a>
       <button class="mobile-drawer__item" id="mobile-mods-btn">Mods</button>
       <div class="mobile-drawer__divider"></div>
       <button class="mobile-drawer__item" id="mobile-view-link-btn-drawer"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15" aria-hidden="true" class="mobile-drawer__item-icon"><path d="M6.5 9.5a3 3 0 004.243 0l1.414-1.415a3 3 0 000-4.243 3 3 0 00-4.243 0L7.5 4.257" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.5 6.5a3 3 0 00-4.243 0L3.843 7.914a3 3 0 000 4.243 3 3 0 004.243 0L9.5 10.743" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Copy View Link</button>
@@ -93,8 +93,8 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.11</button>
-      <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-valentines-update" target="_blank" rel="noopener" title="Game version tested against">Valentine's Update <span class="header__patch-build">21718394</span></a>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.12</button>
+      <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener" title="Game version tested against">Spring Update <span class="header__patch-build">22727210</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <!-- Universal layout toggle — always visible, fixed top-right (lives inside header semantically) -->
       <button class="layout-toggle-btn" id="layout-toggle-btn" aria-label="Toggle desktop/mobile view" title="Toggle desktop/mobile view">
@@ -154,7 +154,7 @@
       <nav class="tab-bar tab-bar--secondary">
         <button class="tab-bar__tab" data-subtab="outfits">Outfits</button>
         <button class="tab-bar__tab active" data-subtab="skilltree">Skill Tree</button>
-        <button class="tab-bar__tab" data-subtab="combos">Combos</button>
+        <button class="tab-bar__tab" data-subtab="combos">Combat</button>
         <div class="tab-bar__aside-group">
           <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="pickups">Pickups</button>
           <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map</button>
@@ -293,12 +293,13 @@
       </main>
     </div><!-- /subpage-outfits -->
 
-    <!-- Sub-page: Combos -->
+    <!-- Sub-page: Combat (formerly Combos) -->
     <div class="subpage hidden" id="subpage-combos">
       <nav class="tab-bar tab-bar--combos">
-        <button class="tab-bar__tab" data-combotab="melee">Melee</button>
+        <button class="tab-bar__tab" data-combotab="melee">Tutorial</button>
         <button class="tab-bar__tab active" data-combotab="ability">Ability</button>
         <button class="tab-bar__tab" data-combotab="clan">Clan</button>
+        <button class="tab-bar__tab" data-combotab="weapons">Melee</button>
       </nav>
       <div class="combos-subpage hidden" id="combos-subpage-melee">
         <!-- Populated by JS -->
@@ -311,6 +312,9 @@
         </main>
       </div>
       <div class="combos-subpage hidden" id="combos-subpage-clan">
+        <!-- Populated by JS -->
+      </div>
+      <div class="combos-subpage hidden" id="combos-subpage-weapons">
         <!-- Populated by JS -->
       </div>
     </div><!-- /subpage-combos -->
@@ -506,21 +510,27 @@
       <button class="clan-selector-toggle" id="benny-dlc-toggle">▼ DLC Info</button>
       <nav class="tab-bar tab-bar--secondary tab-bar--benny">
         <button class="tab-bar__tab active" data-bennytab="skills">Skills</button>
+        <button class="tab-bar__tab" data-bennytab="unarmed">Combat</button>
       </nav>
-      <!-- Mobile-only: New Features toggle (single icon, Phyre-style) -->
-      <div class="mobile-feature-strip" id="mobile-benny-feature-strip" aria-label="New Features"></div>
-      <div class="benny-layout">
-        <aside class="benny-sidebar">
-        <div id="benny-sidebar-items" class="benny-sidebar-items"></div>
-      </aside>
-        <main class="benny-main">
-          <div id="benny-tree">
-            <!-- Populated by JS -->
-          </div>
-          <aside class="fabien-detail" id="benny-detail">
-            <div class="empty-state">Select an ability to view details</div>
+      <div class="benny-subpage" id="benny-subpage-skills">
+        <!-- Mobile-only: New Features toggle (single icon, Phyre-style) -->
+        <div class="mobile-feature-strip" id="mobile-benny-feature-strip" aria-label="New Features"></div>
+        <div class="benny-layout">
+          <aside class="benny-sidebar">
+            <div id="benny-sidebar-items" class="benny-sidebar-items"></div>
           </aside>
-        </main>
+          <main class="benny-main">
+            <div id="benny-tree">
+              <!-- Populated by JS -->
+            </div>
+            <aside class="fabien-detail" id="benny-detail">
+              <div class="empty-state">Select an ability to view details</div>
+            </aside>
+          </main>
+        </div>
+      </div>
+      <div class="benny-subpage hidden" id="benny-subpage-unarmed">
+        <!-- Populated by JS -->
       </div>
     </div>
 
@@ -652,15 +662,22 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.11</span>
+        <span class="modal-card__version">v1.12</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
+              <span class="changelog__version">v1.12</span>
+              <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/32662c7" target="_blank" rel="noopener">32662c7</a>
+              <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc">Spring Update refresh (build 22727210) &mdash; full data pass against the Spring Update FModel exports. Header patch chip relinked to the Spring Update news page in pale orange (matches the Loose Cannon palette). <strong>Melee Weapons page</strong> reworked: per-weapon optimal-rotation DPS chips (Light / Forward / Shove) live in each weapon’s heading row; the weapon quick-jump legend now sits directly under the subtitle in gold Cinzel chips above the primer; the primer explains heavy attacks <em>break</em> the weapon and are excluded from DPS. <strong>Benny Combat tab</strong> (renamed from Unarmed): Drop Kick re-added as the only shared dash attack with Phyre; the four directional dashes are explicitly called out as replaced by DLC specials Chop (forward, downward spike), Kick (back, launches), and Sweep (side, wide arc). New <strong>BennyGun &mdash; Sidearm</strong> section documents both ammo modes, the 30-round max clip, world-found ammo, and routes from a sidebar &ldquo;BennyGun details →&rdquo; button. Sidebar detail panels for Sidearm and Melee Weapons now end with cross-links to their respective combat data sections. DLC tile rebuilt as a single store-page link with an OUT NOW pill above and a hover-swap to the alt key art. Section headings for the Fist Combo, DLC Specials, and BennyGun now share the same crest-style icon treatment.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
               <span class="changelog__version">v1.11</span>
               <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/6af1bd1" target="_blank" rel="noopener">6af1bd1</a>
-              <span class="changelog__label">Current</span>
             </summary>
             <p class="changelog__desc">Mobile &amp; save overhaul &mdash; full responsive pass: dedicated mobile chrome (top app-bar, subtab pill bar, fixed bottom tabs, slide-up clan selector, draggable bottom-sheet detail panel) and tablet/desktop layouts auto-switch on viewport. Mobile breakpoint bumped 768&nbsp;&rarr;&nbsp;900&nbsp;px to cover Zenbook Fold and iPad&nbsp;Pro&nbsp;11&Prime; portrait, with a separate landscape-phone path (max-height&nbsp;500&nbsp;px) and a rotate-to-portrait overlay. New <strong>universal layout toggle</strong> in the top-right (side-by-side desktop/phone slider) lets you force either layout per-session via <code>sessionStorage</code>; cards/tables and Benny/Fabien feature strips re-render in place when you flip. Document scroll is now locked to <code>#app</code> so the bottom tabs no longer wobble or scroll off-screen. The <strong>Save Link</strong> button now works on <code>file://</code> contexts (clipboard <code>execCommand</code> fallback) and deep-links like <code>?at=phyre.outfits</code> properly populate the page on load. Cross-tab navigation (Benny &rarr; Phyre outfit, ability cross-links, etc.) now syncs the mobile bottom-tab indicator and subtab pills. Clan tab gains a primer (light/heavy attacks), kicks-vs-block column, drop-kick velocity scaling, and a dedicated Parry lozenge with a Blurred Momentum cross-link. Polish: app-bar title is now static, mobile sheet handle close button no longer clips, MAHA pill is conditional on the Haven mod, clan diamond turns gold to match AP, awakened/unlocked colours swapped to match the rest of the UI, drawer header now has an &times; close button, Benny tree no longer collides with tier labels on narrow widths, Silence of Death (clan passive) no longer shows a green progress arrow, and tap-then-hover ghost tooltips are suppressed for 600&nbsp;ms after touch.</p>
           </details>

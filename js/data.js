@@ -951,7 +951,7 @@ const OUTFITS = {
 const BENNY_OUTFIT = {
   name: "The Maverick Cop",
   tier: "strike",
-  type: "strong",
+  type: "grunge",
   thumb: `${SILO}/T_UI_Thumb_Phyre_Benny.png`,
   fullImg: `assets/screenshot/BennyOutfit.png`,
   desc: "A force of nature wearing the city like a second skin. A simmering volcano on the edge of eruption.",

@@ -1,6 +1,80 @@
 // VTMB2 Skill Calculator - Application Logic
 // =============================================
 
+// ── Empty src guard ────────────────────────────────────────
+// On file:// origins, an empty <img>/<video> src causes the browser to refetch
+// the page URL as media, triggering an "Unsafe attempt to load URL" security
+// warning. Replace any empty/falsy src with a 1x1 transparent GIF data URI.
+const _EMPTY_SRC_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+function _scrubEmptySrc(root) {
+  try {
+    const nodes = (root || document).querySelectorAll('img, video, source');
+    nodes.forEach(el => {
+      const v = el.getAttribute('src');
+      if (v === '' || v === null || v === 'undefined' || v === 'null') {
+        el.setAttribute('src', _EMPTY_SRC_PIXEL);
+      }
+    });
+  } catch (_) {}
+}
+// Watch for any new img/video added to the DOM (template-string innerHTML etc.)
+const _emptySrcObserver = new MutationObserver(muts => {
+  for (const m of muts) {
+    if (m.type === 'childList') {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType === 1) {
+          if (n.matches && n.matches('img, video, source')) {
+            const v = n.getAttribute('src');
+            if (v === '' || v === null || v === 'undefined' || v === 'null') {
+              n.setAttribute('src', _EMPTY_SRC_PIXEL);
+            }
+          }
+          _scrubEmptySrc(n);
+        }
+      });
+    } else if (m.type === 'attributes' && m.attributeName === 'src') {
+      const el = m.target;
+      const v = el.getAttribute('src');
+      if (v === '' || v === null || v === 'undefined' || v === 'null') {
+        el.setAttribute('src', _EMPTY_SRC_PIXEL);
+      }
+    }
+  }
+});
+// Attach observer immediately (script runs at end of body so documentElement exists).
+// Waiting for DOMContentLoaded is too late — empty <img>/<video> src in dynamically
+// inserted HTML triggers a load attempt synchronously, before microtasks (and the
+// observer callback) can intervene.
+try {
+  // Patch HTMLImageElement / HTMLMediaElement / HTMLSourceElement src setters so
+  // assigning '' is coerced to the placeholder pixel before the browser attempts
+  // a load against the page URL. This is the only fully synchronous defence.
+  [HTMLImageElement, HTMLMediaElement, HTMLSourceElement].forEach(Ctor => {
+    if (!Ctor || !Ctor.prototype) return;
+    const desc = Object.getOwnPropertyDescriptor(Ctor.prototype, 'src');
+    if (!desc || !desc.set || desc.__patched) return;
+    const origSet = desc.set;
+    const origGet = desc.get;
+    Object.defineProperty(Ctor.prototype, 'src', {
+      configurable: true,
+      enumerable: desc.enumerable,
+      get() { return origGet ? origGet.call(this) : this.getAttribute('src'); },
+      set(v) {
+        if (v === '' || v == null || v === 'undefined' || v === 'null') v = _EMPTY_SRC_PIXEL;
+        return origSet.call(this, v);
+      },
+    });
+    Object.getOwnPropertyDescriptor(Ctor.prototype, 'src').__patched = true;
+  });
+  if (document.documentElement) {
+    _emptySrcObserver.observe(document.documentElement, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ['src']
+    });
+    _scrubEmptySrc();
+  }
+} catch (_) {}
+document.addEventListener('DOMContentLoaded', () => { _scrubEmptySrc(); });
+
 // ── Shared Tooltip ─────────────────────────────────────────
 const sharedTooltip = document.createElement('div');
 sharedTooltip.className = 'tooltip';
@@ -421,6 +495,8 @@ function setActiveCombosSubtab(tabId) {
     renderMeleeCombosPage();
   } else if (tabId === "clan") {
     if (typeof renderClanCombosPage === "function") renderClanCombosPage();
+  } else if (tabId === "weapons") {
+    if (typeof renderMeleeWeaponsPage === "function") renderMeleeWeaponsPage();
   }
   return true;
 }
@@ -570,6 +646,23 @@ function bindTabs() {
       tab.classList.add("active");
       document.querySelectorAll(".fabien-subpage").forEach(p => p.classList.add("hidden"));
       document.getElementById(`fabien-subpage-${tab.dataset.fabtab}`).classList.remove("hidden");
+      persistPosition();
+    });
+  });
+
+  // Benny sub-tabs
+  const bennyTabs = document.querySelectorAll(".tab-bar--benny .tab-bar__tab");
+  bennyTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      _clearMobileContext();
+      bennyTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".benny-subpage").forEach(p => p.classList.add("hidden"));
+      const target = document.getElementById(`benny-subpage-${tab.dataset.bennytab}`);
+      if (target) target.classList.remove("hidden");
+      if (tab.dataset.bennytab === "unarmed" && typeof renderBennyUnarmedPage === "function") {
+        renderBennyUnarmedPage();
+      }
       persistPosition();
     });
   });
@@ -3560,14 +3653,9 @@ function initMobileShell() {
   });
 
   // ── Universal layout toggle ─────────────────────
-  // Use capture-phase delegation on document so the handler fires even if a
-  // parent element calls stopPropagation, or something later re-parents/clones
-  // the button (some renders rebuild the header chrome).
-  document.addEventListener('click', (e) => {
-    const btn = e.target && e.target.closest && e.target.closest('#layout-toggle-btn');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
+  // Expose the toggle as a global so an inline onclick attribute can call it
+  // directly — bypasses any capture/stop-propagation interference.
+  function _toggleForcedLayout() {
     const current = sessionStorage.getItem('forced-layout');
     const autoMobile = mq768.matches;
     if (current) {
@@ -3578,7 +3666,11 @@ function initMobileShell() {
       sessionStorage.setItem('forced-layout', 'mobile');
     }
     applyBodyClasses();
-  }, true);
+  }
+  window._toggleForcedLayout = _toggleForcedLayout;
+  // Set inline onclick so even if event delegation is broken, the click works.
+  const _ltb = document.getElementById('layout-toggle-btn');
+  if (_ltb) _ltb.setAttribute('onclick', 'window._toggleForcedLayout && window._toggleForcedLayout();');
 
   // ── Bottom Tab Bar ────────────────────────────────────
   document.querySelectorAll('.mobile-bottom-tab[data-mobile-tab]').forEach(btn => {

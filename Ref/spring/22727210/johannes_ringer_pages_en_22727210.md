@@ -1,0 +1,44 @@
+# Johannes Ringer References (EN Codex, 22727210)
+
+Source:
+- E:/REpo/VTMB2_Mods/EXPORTS/FModel/22727210/Exports/Bloodlines2/Content/Localization/Codex/en/Codex.json
+- E:/REpo/VTMB2_Mods/Notes etc/22727210/johannes_ringer_pages_en_22727210.csv
+
+Summary:
+- Total rows: 29
+- Unique IDs: 29
+- Mirror variants: 6
+
+## Entries
+
+| Section | Id | MirrorVariant | Text |
+|---|---|---:|---|
+| Ink_Codex_Phyre | 030d1bd87d09bff5ed5624e9cf5fe80d | False | A stained page from a tract by Johannes Ringer giving a commentry on the work of Talhoffer. It discusses a sudden close assault on the enemy, directly under their guard. The text on the lower part of the page is too water-faded to read.<br/> |
+| Ink_Codex_Phyre | 09f373bcd3c9028e3086782a85c7b09d | False | A page from a tract by Johannes Ringer giving a short treatise on adapting the techniques of Ringeck and Meyer to deliver a blow of crushing force to the opponent, without use of a weapon. |
+| Ink_Codex_Phyre | 10bc2c5066f2044b742aec671e69329f | False | A short passage from a tract by Johannes Ringer advising disengagement to gain a tactical advantage. |
+| Ink_Codex_Phyre | 14162de4fadd8d4f3826da15a4ca5fb7 | False | A page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. This copy has been scribbled on by a much more modern hand - there is a note in the margin on the application of Blood Alchemical effects.<br/> |
+| Ink_Codex_Phyre | 1477ed3091dd6ccf6b5d353b59af64e6 | False | A page from a tract by Johannes Ringer on the advantages and disadvantages of different types of weaponry in the melee and the duel, and in particular the advantages imbued by a Kindred's strength.<br/> |
+| Ink_Codex_Phyre | 18eb1c8a012f9728d334bd84dcc4d554 | False | Time will slow down significantly, allowing time to look around and plan your next move.%	A water-damaged page from a tract by Johannes Ringer noting the importance of considering the weaknesses of an opposing force before ordering a strategic attack.<br/> |
+| Ink_Codex_Phyre | 1da4915b64bfe434eb4707ba1bd9f5ec | True | %A page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The author notes specific advantages for someone with more-than-human reflexes.<br/> |
+| Ink_Codex_Phyre | 1deb40cca9945f6dc971d1755810786e | True | %A much-folded page from a tract by Johannes Ringer giving a commentry on the work of Talhoffer. It discusses a sudden close assault on the enemy, directly under their guard. The lower part has a doodle showing the impact of this move on someone without appropriate groin protection.<br/> |
+| Ink_Codex_Phyre | 1eaa2cf48e28e9e47c14abc94b908b67 | False | A badly-torn page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The second part of the page is missing.<br/> |
+| Ink_Codex_Phyre | 283d23d91e35f2690d0ce956a71e5b98 | False | The faster you are moving, the larger the impact on an opponent. % A page from a tract by Johannes Ringer giving a short treatise on adapting the techniques of Ringeck and Meyer to deliver a blow of crushing force to the opponent, without use of a weapon. |
+| Ink_Codex_Phyre | 298c5d10dd94c4f072ab1ffa520fb4a3 | False | Ranged weapons with ammunition still present will shoot when pressing <img id="Keyboard_ThrowCodex"/>. Once empty of ammunition, they can be thrown <img id="Keyboard_ThrowCodex"/>.%A page from a tract by Johannes Ringer discussing radical techniques to surprise an opponent by using a weapon as a distraction.<br/> |
+| Ink_Codex_Phyre | 30b691cd8f038245f67c7341554ea91b | False | A page from a tract by Johannes Ringer suggesting a method of using a Kindred's preternatural agility to redirect one's momentum directly into one's opponent.<br/> |
+| Ink_Codex_Phyre | 37c7db924d655cee3f0c9b02b3d86c65 | False | Heavy attack (hold <img id="Keyboard_AttackCodex"/>) does significantly more damage but destroys the weapon.%A yellowed page from a tract by Johannes Ringer discussing the application of the preternatural strength of the Kindred in the use of medieval martial weaponry - the advantages, disadvantages, and a number of techniques applied by those whose Blood bestows unusual gifts.<br/> |
+| Ink_Codex_Phyre | 3e00a60f377dc11d51056137d55bfa4a | False | A faded page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. <br/> |
+| Ink_Codex_Phyre | 5c437232db2a2784aab201c920ab27e4 | True | %A page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. This copy has been scribbled on by a much more modern hand - there is a note in the margin on the application of Blood Alchemical effects.<br/> |
+| Ink_Codex_Phyre | 644f91f42ed96e6f20c2116752b178a9 | False | A page written to mimic the style of Johannes Ringer, but in looser, more erratic script. It mentions the application of skills obtained from the use of Blood Alchemical elixirs. It also smells of barbecue sauce.<br/> |
+| Ink_Codex_Phyre | 68dd002bdd7b57e79d11e269da172c75 | False | Dash <img id="Keyboard_DodgeCodex"/> toward an enemy at the moment they attack to counter it, staggering them and leaving them vulnerable to a follow-up attack.%A page from a tract by Johannes Ringer. It discuss various strategies for diverting an enemy's attack, using their own strength to throw their defenses open and render them vulnerable.<br/> |
+| Ink_Codex_Phyre | 6a948c97f038feb3db5ea9406522b7ce | False | A page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The author notes specific advantages for someone with more-than-human reflexes.<br/> |
+| Ink_Codex_Phyre | 73d0995b5d7ba1c83013ffab2d7f97da | False | A water-damaged page from a tract by Johannes Ringer noting the importance of considering the weaknesses of an opposing force before ordering a strategic attack.<br/> |
+| Ink_Codex_Phyre | 7dd14457f0baf6f14327caadd5f9bebf | True | %A faded page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. <br/> |
+| Ink_Codex_Phyre | 8170f94419aca7a079434e0d27e64c67 | False | A yellowed, water-stained page apparently from a tract by Johannes Ringer. It starts to detail a maneuver used by the notable Kindred Eoghan Mor, but the second half of the page is unreadable save for a set of unusual symbols.  <img id="MysteriousAttack"/> |
+| Ink_Codex_Phyre | 99f5aaa2f31528db3f844e352d8f00c0 | False | A page from a tract by Johannes Ringer discussing the importance of a solid defense. Someone has scrawled "This one, Henry!" on the corner in heavy pencil.<br/> |
+| Ink_Codex_Phyre | 9b3f04973ad582f3a1667375a886913a | False | A yellowed page from a tract by Johannes Ringer discussing the application of the preternatural strength of the Kindred in the use of medieval martial weaponry - the advantages, disadvantages, and a number of techniques applied by those whose Blood bestows unusual gifts.<br/> |
+| Ink_Codex_Phyre | aa27f48e34c8bb8f25d16e0910132282 | False | Some ongoing Abilities, such as Blood Salvo, can be canceled early by recasting them.  <img id="Keyboard_Target"/> (HOLD) <img id="Keyboard_1234"/>%A short passage from a tract by Johannes Ringer advising disengagement to gain a tactical advantage. |
+| Ink_Codex_Phyre | b4624deb05b8f2418930a8c49532c74d | False | A page from a tract by Johannes Ringer discussing radical techniques to surprise an opponent by using a weapon as a distraction.<br/> |
+| Ink_Codex_Phyre | c56f6e4af977ee701cfe2d4988751f66 | True | %A badly-torn page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The second part of the page is missing.<br/> |
+| Ink_Codex_Phyre | cb452750dc86b04185c113aa4b4697ba | False | A page from a tract by Johannes Ringer. It discuss various strategies for diverting an enemy's attack, using their own strength to throw their defenses open and render them vulnerable.<br/> |
+| Ink_Codex_Phyre | ddfcef2b32116b27581345e691ac9e4f | False | A much-folded page from a tract by Johannes Ringer giving a commentry on the work of Talhoffer. It discusses a sudden close assault on the enemy, directly under their guard. The lower part has a doodle showing the impact of this move on someone without appropriate groin protection.<br/> |
+| Ink_Codex_Phyre | e2ec742d3d75f959000cca22f1eb9632 | True | %A stained page from a tract by Johannes Ringer giving a commentry on the work of Talhoffer. It discusses a sudden close assault on the enemy, directly under their guard. The text on the lower part of the page is too water-faded to read.<br/> |

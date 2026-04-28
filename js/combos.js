@@ -522,7 +522,7 @@ function renderMeleeCombosPage() {
     <div class="combos-layout">
       <div class="combos-header">
         <div>
-          <h2 class="combos-header__title">Melee Combos &amp; Inputs</h2>
+          <h2 class="combos-header__title">Combat Tutorial</h2>
           <p class="combos-header__sub">A reference for all combat inputs — from basic actions to advanced combo chains.</p>
         </div>
       </div>
@@ -778,7 +778,7 @@ function renderClanCombosPage() {
   html += `<div class="clan-combos-jump-btns">`;
   html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-kicks-btn" title="Kicks"><img src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_Fleetness.png" alt="" style="transform:rotate(270deg)"> Kicks</button>`;
   html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-mobility-btn" title="Dash &amp; Shunt"><img src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_BlurredMovement.png" alt=""> Mobility</button>`;
-  html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-notes-btn" title="Cross-Clan Notes"><img src="${typeof UI !== 'undefined' ? UI.phyreMark : ''}" alt=""> Notes</button>`;
+  html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-notes-btn" title="Cross-Clan Notes"><img src="${typeof UI !== 'undefined' && UI.phyreMark ? UI.phyreMark : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}" alt=""> Notes</button>`;
   html += `</div>`; // clan-combos-jump-btns
   html += `<div class="clan-combos-legend"><span class="clan-combos-legend__item clan-combos-legend__item--finisher">★ Finisher step</span><span class="clan-combos-legend__item clan-combos-legend__item--selected">Highlighted = your clan</span></div>`;
   html += `</div>`; // filter-row
@@ -1044,7 +1044,7 @@ function renderClanCombosPage() {
 
   // ── Cross-Clan Notes section ────────────────────────────────
   html += `<div class="crossclan-section-wrap" id="clan-crossclan-notes">`;
-  html += `<div class="crossclan-section-heading"><img class="crossclan-section-heading__icon" src="${typeof UI !== 'undefined' ? UI.phyreMark : ''}" alt=""><span>Cross-Clan Notes</span></div>`;
+  html += `<div class="crossclan-section-heading"><img class="crossclan-section-heading__icon" src="${typeof UI !== 'undefined' && UI.phyreMark ? UI.phyreMark : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}" alt=""><span>Cross-Clan Notes</span></div>`;
 
   // Lozenge 1: Damage Summary
   const dmgRows = [
@@ -1368,5 +1368,363 @@ function renderCrossClanPage() {
   h += `</div>`; // crossclan-page
   container.innerHTML = h;
 }
+
+// ── Melee Weapons Combat Page ─────────────────────────────────
+// Asset-confirmed data from build 22727210, Attackset_*.json files.
+// Light/Heavy: montage / sequence length / base damage per slot.
+// Directional variants: forward Overhead (W+attack) and backward Shove (S+attack).
+// Source: Ref/spring/22727210/weapon_attacksets_22727210.md
+const MELEE_WEAPONS = [
+  {
+    id: "bat", name: "Baseball Bat", category: "Blunt — Bat-class",
+    attackset: "Attackset_Bat", thrownDmg: 10,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Sword_Light1",  lightLen: 1.248, lightDmg: 6,  heavyMontage: "AM_Bat_Swing_01", heavyLen: 2.557, heavyDmg: 20, fwdMontage: "AM_Overhead_1",  fwdLen: 1.248, fwdDmg: 7, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 2, lightMontage: "AM_Sword_Light2",  lightLen: 1.239, lightDmg: 6,  heavyMontage: "AM_Bat_Swing_02", heavyLen: 2.547, heavyDmg: 20, fwdMontage: "AM_overhead_2",  fwdLen: 1.239, fwdDmg: 7, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 3, lightMontage: "AM_Sword_Light1",  lightLen: 1.248, lightDmg: 6,  heavyMontage: "AM_Bat_Swing_01", heavyLen: 2.557, heavyDmg: 20, fwdMontage: "AM_Overhead_1",  fwdLen: 1.248, fwdDmg: 7, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 4, lightMontage: "AM_Sword_Light2",  lightLen: 1.239, lightDmg: 6,  heavyMontage: "AM_Bat_Swing_02", heavyLen: 2.547, heavyDmg: 20, fwdMontage: "AM_overhead_2",  fwdLen: 1.239, fwdDmg: 7, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+    ],
+    notes: [
+      "Reuses sword light-attack montages — same swing animation, different damage scalar.",
+      "Forward overhead deals more damage (7) than the standard light (6).",
+      "Heavy swings are 2.5s long — the slowest light-class weapon by montage.",
+      "Codex: blunt weapons stagger and interrupt better but deal less damage than blades.",
+    ],
+  },
+  {
+    id: "spikebat", name: "Spike Club", category: "Blunt + Sharp — Bat-class",
+    attackset: "Attackset_SpikeBat", thrownDmg: 15,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Sword_Light1",  lightLen: 1.248, lightDmg: 8,  heavyMontage: "AM_Bat_Swing_01", heavyLen: 2.557, heavyDmg: 20, fwdMontage: "AM_Overhead_1",  fwdLen: 1.248, fwdDmg: 10, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 2, lightMontage: "AM_Sword_Light2",  lightLen: 1.239, lightDmg: 8,  heavyMontage: "AM_Bat_Swing_02", heavyLen: 2.547, heavyDmg: 20, fwdMontage: "AM_overhead_2",  fwdLen: 1.239, fwdDmg: 10, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 3, lightMontage: "AM_Sword_Light1",  lightLen: 1.248, lightDmg: 8,  heavyMontage: "AM_Bat_Swing_01", heavyLen: 2.557, heavyDmg: 20, fwdMontage: "AM_Overhead_1",  fwdLen: 1.248, fwdDmg: 10, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+      { step: 4, lightMontage: "AM_Sword_Light2",  lightLen: 1.239, lightDmg: 8,  heavyMontage: "AM_Bat_Swing_02", heavyLen: 2.547, heavyDmg: 20, fwdMontage: "AM_overhead_2",  fwdLen: 1.239, fwdDmg: 10, shoveMontage: "AM_Bat_Poke", shoveLen: 1.233, shoveDmg: 3 },
+    ],
+    notes: [
+      "Same montages as the Baseball Bat — Spike Club is a damage-tier upgrade of the same animation set.",
+      "Forward overhead spikes to 10 damage (vs 7 on the plain Bat).",
+      "Hybrid blunt/sharp profile — keeps stagger value of bat-class while approaching blade damage.",
+    ],
+  },
+  {
+    id: "baton_loaded", name: "Electric Baton (Loaded)", category: "Bat-class — DLC",
+    attackset: "Attackset_Baton_Loaded", thrownDmg: 10,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 17, heavyMontage: "AM_Baton_Swing_01", heavyLen: 2.557, heavyDmg: 30, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 2, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 17, heavyMontage: "AM_Baton_Swing_02", heavyLen: 2.547, heavyDmg: 30, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 3, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 17, heavyMontage: "AM_Baton_Swing_01", heavyLen: 2.557, heavyDmg: 30, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 4, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 17, heavyMontage: "AM_Baton_Swing_02", heavyLen: 2.547, heavyDmg: 30, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+    ],
+    notes: [
+      "Highest light-attack damage of any one-handed melee weapon (17/swing).",
+      "No forward overhead variant — only the backward shove.",
+      "Empty (uncharged) variant deals only 4 light / 14 heavy — same montages, scaled-down damage.",
+    ],
+  },
+  {
+    id: "knife", name: "Knife", category: "Sharp — Light Blade",
+    attackset: "Attackset_Knife", thrownDmg: 15,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Knife_Light2", lightLen: 1.000, lightDmg: 5, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 15, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 7, shoveMontage: "AM_Knife_shove", shoveLen: 0.956, shoveDmg: 1 },
+      { step: 2, lightMontage: "AM_Knife_Light3", lightLen: 1.001, lightDmg: 5, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 15, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 7, shoveMontage: "AM_Knife_shove", shoveLen: 0.956, shoveDmg: 1 },
+      { step: 3, lightMontage: "AM_Knife_Light2", lightLen: 1.000, lightDmg: 5, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 12, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 7, shoveMontage: "AM_Knife_shove", shoveLen: 0.956, shoveDmg: 1 },
+      { step: 4, lightMontage: "AM_Knife_Light3", lightLen: 1.001, lightDmg: 5, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 12, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 7, shoveMontage: "AM_Knife_shove", shoveLen: 0.956, shoveDmg: 1 },
+    ],
+    notes: [
+      "Fastest weapon overall — light montages ~1.00s, dedicated knife shove just 0.96s.",
+      "Heavy damage drops from 15 → 12 in slots 3–4 (chain falloff).",
+      "Forward stab deals more damage (7) than the standard light (5).",
+      "Codex: bladed weapons deal more damage but stagger less than blunt.",
+    ],
+  },
+  {
+    id: "machete", name: "Machete", category: "Sharp — Heavy Blade",
+    attackset: "Attackset_Machete", thrownDmg: 15,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Knife_Light2", lightLen: 1.000, lightDmg: 10, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 15, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 12.8, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 2, lightMontage: "AM_Knife_Light3", lightLen: 1.001, lightDmg: 10, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 15, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 12.8, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 3, lightMontage: "AM_Knife_Light2", lightLen: 1.000, lightDmg: 10, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 12, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 12.8, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 4, lightMontage: "AM_Knife_Light3", lightLen: 1.001, lightDmg: 10, heavyMontage: "AM_Knife_Heavy", heavyLen: 1.861, heavyDmg: 12, fwdMontage: "AM_Knife_Light1", fwdLen: 0.963, fwdDmg: 12.8, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+    ],
+    notes: [
+      "Reuses knife montages — same speed as a knife with double the light damage.",
+      "Forward strike (12.8) is the highest single-light-hit value of any one-handed weapon.",
+      "Uses generic <code>AM_wep_Shove</code> instead of the dedicated knife shove.",
+    ],
+  },
+  {
+    id: "sword", name: "Sword", category: "Sharp — Heavy Blade",
+    attackset: "Attackset_Sword", thrownDmg: 15,
+    lightType: "Lunging", steps: 4,
+    rows: [
+      { step: 1, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 13, heavyMontage: "AM_Sword_stab_1", heavyLen: 1.045, heavyDmg: 15, fwdMontage: "AM_Overhead_1", fwdLen: 1.248, fwdDmg: 15, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 2, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 13, heavyMontage: "AM_Sword_stab_2", heavyLen: 1.045, heavyDmg: 15, fwdMontage: "AM_overhead_2", fwdLen: 1.239, fwdDmg: 15, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 3, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 13, heavyMontage: "AM_Sword_stab_1", heavyLen: 1.045, heavyDmg: 12, fwdMontage: "AM_Overhead_1", fwdLen: 1.248, fwdDmg: 15, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+      { step: 4, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 13, heavyMontage: "AM_Sword_stab_2", heavyLen: 1.045, heavyDmg: 12, fwdMontage: "AM_overhead_2", fwdLen: 1.239, fwdDmg: 15, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 3 },
+    ],
+    notes: [
+      "Highest sustained light damage among one-handed weapons (13/swing × 4-step chain).",
+      "Heavies use the stab montages (~1.05s) — nearly half the length of bat-class heavies.",
+      "Forward overhead matches first-slot heavy damage (15).",
+    ],
+  },
+  {
+    id: "sledgehammer", name: "Sledge Hammer", category: "Heavy Two-Hander",
+    attackset: "Attackset_SledgeHammer", thrownDmg: 50,
+    lightType: "Lunging", steps: 2,
+    rows: [
+      { step: 1, lightMontage: "AM_Hammer_light_1", lightLen: 1.348, lightDmg: 20, heavyMontage: "AM_Hammer_Heavy", heavyLen: 1.433, heavyDmg: 70, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_Hammer_Poke", shoveLen: 1.251, shoveDmg: 6 },
+      { step: 2, lightMontage: "AM_Hammer_Light_2", lightLen: 1.348, lightDmg: 20, heavyMontage: "AM_Hammer_Heavy", heavyLen: 1.433, heavyDmg: 70, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_Hammer_Poke", shoveLen: 1.251, shoveDmg: 6 },
+    ],
+    notes: [
+      "Only a 2-step chain — no light falloff and no forward variant.",
+      "Heavy strikes deal <strong>70 damage</strong>, the highest single-hit value of any weapon.",
+      "Throw deals 50 damage — heavy throwable tier.",
+      "Codex: heavy/ability-based attacks cannot be blocked.",
+    ],
+  },
+  {
+    id: "warhammer", name: "War Hammer", category: "Heavy Two-Hander",
+    attackset: "Attackset_WarHammer", thrownDmg: 65,
+    lightType: "Lunging", steps: 2,
+    rows: [
+      { step: 1, lightMontage: "AM_Hammer_light_1", lightLen: 1.348, lightDmg: 22, heavyMontage: "AM_Hammer_Heavy", heavyLen: 1.433, heavyDmg: 70, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_Hammer_Poke", shoveLen: 1.251, shoveDmg: 6 },
+      { step: 2, lightMontage: "AM_Hammer_Light_2", lightLen: 1.348, lightDmg: 22, heavyMontage: "AM_Hammer_Heavy", heavyLen: 1.433, heavyDmg: 70, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_Hammer_Poke", shoveLen: 1.251, shoveDmg: 6 },
+    ],
+    notes: [
+      "Same montages and heavy damage as the Sledge — light damage bumped from 20 → 22.",
+      "Throw deals <strong>65 damage</strong> (Obliterate tier) — highest thrown damage of any melee weapon.",
+    ],
+  },
+];
+
+// Shared GA tuning (applies to all melee-weapon strikes via GA_PlayerAttack_*)
+// Source: melee_weapons_22727210.md
+const MELEE_WEAPON_GA_DATA = [
+  { ga: "GA_PlayerAttack_Light",       trigger: "Tap attack — base/fists light",                     comboDelay: 0.2, hitDmg: 8,  trace: "170 / r35",  lunge: "— / 450",   lungeDelay: 0.01, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_Heavy",       trigger: "Hold attack — base/fists heavy",                    comboDelay: 0.7, hitDmg: 30, trace: "240 / r50",  lunge: "200 / 450", lungeDelay: 0.01, hitReact: "HeavyFirst", flinch: "AttackArmor.Heavy" },
+  { ga: "GA_PlayerAttack_Bat",         trigger: "Tap attack with a bat-class weapon",                comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.05, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_Baton",       trigger: "Tap attack with the electric baton",                comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.05, hitReact: "Light", flag: "new in 22727210" },
+  { ga: "GA_PlayerAttack_Hammer",      trigger: "Tap attack with a hammer-class weapon",             comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.06, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_sword",       trigger: "Tap attack with a sword-class weapon",              comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "— / 200",   lungeDelay: 0.05, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_Stab",        trigger: "Tap attack with a stab-capable bladed weapon",      comboDelay: 0.2, hitDmg: 8,  trace: "250 / r35",  lunge: "240 / 350", lungeDelay: 0.01, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_LightBlade",  trigger: "Tap attack with a light blade",                     comboDelay: 0.2, hitDmg: 8,  trace: "270 / r35",  lunge: "140 / 270", lungeDelay: 0.01, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_HeavyBat",    trigger: "Hold attack with a bat-class weapon",               comboDelay: 0.7, hitDmg: 30, trace: "300 / r100", lunge: "200 / 450", lungeDelay: 0.10, hitReact: "HeavyFirst", flinch: "AttackArmor.Heavy" },
+  { ga: "GA_PlayerAttack_HeavyHammer", trigger: "Hold attack with a hammer-class weapon",            comboDelay: 0.7, hitDmg: 30, trace: "300 / r100", lunge: "200 / 450", lungeDelay: 0.55, hitReact: "HeavyFirst", flinch: "AttackArmor.Heavy" },
+  { ga: "GA_PlayerAttack_Shove",       trigger: "Move backward + tap attack with any melee weapon",  comboDelay: 0.2, hitDmg: 8,  trace: "400 / r30",  lunge: "50 / 50",   lungeDelay: 0.10, hitReact: "Light" },
+];
+
+// Optimal sustained-rotation DPS for a single attack type across a weapon's chain.
+// Sums damage and montage length only over rows that actually have a montage for
+// that slot (so weapons without a forward variant skip those steps).
+function computeWeaponRotationDps(rows, kind) {
+  const dmgKey = kind + "Dmg";
+  const lenKey = kind + "Len";
+  const mKey   = kind + "Montage";
+  const valid  = rows.filter(r => r[mKey] && r[lenKey] > 0);
+  if (!valid.length) return null;
+  const totalDmg  = valid.reduce((a, r) => a + (r[dmgKey] || 0), 0);
+  const totalTime = valid.reduce((a, r) => a + r[lenKey], 0);
+  if (totalTime <= 0) return null;
+  return {
+    dps: totalDmg / totalTime,
+    dmg: totalDmg,
+    time: totalTime,
+    steps: valid.length,
+  };
+}
+
+// Static DPS chip — same visual family as clan-combo chips but no popup panel
+// (these are summary numbers, not interactive rotation pickers).
+function renderWeaponDpsChip(label, title, data) {
+  if (!data) {
+    return `<div class="dps-chip dps-chip--disabled" title="${title} — no montage"><span class="dps-chip__head"><span class="dps-chip__label">${label}</span><span class="dps-chip__val">—</span></span></div>`;
+  }
+  const tooltip = `${title}: ${data.dmg} dmg over ${data.time.toFixed(2)}s (${data.steps} step${data.steps === 1 ? "" : "s"})`;
+  const cls = label === "L" ? "dps-chip--opt" : (label === "FWD" ? "dps-chip--lights" : "dps-chip--shove");
+  return `<div class="dps-chip ${cls}" title="${tooltip}"><span class="dps-chip__head"><span class="dps-chip__label">${label}</span><span class="dps-chip__val">${data.dps.toFixed(2)}</span></span></div>`;
+}
+
+function navigateToMeleeWeapons() {
+  // Switch to primary Phyre tab if not already there
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab && !phyreTab.classList.contains("active")) {
+    phyreTab.click();
+  }
+  // Activate Combat (data-subtab="combos") secondary tab
+  const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="combos"]');
+  if (combosTab && !combosTab.classList.contains("active")) {
+    combosTab.click();
+  }
+  // Activate weapons combotab
+  const weaponsTab = document.querySelector('.tab-bar--combos .tab-bar__tab[data-combotab="weapons"]');
+  if (weaponsTab) weaponsTab.click();
+}
+
+function renderMeleeWeaponsPage() {
+  const container = document.getElementById("combos-subpage-weapons");
+  if (!container) return;
+
+  let h = `<div class="combos-layout">`;
+
+  // Header
+  h += `<div class="clan-combos-header">`;
+  h += `<h2 class="combos-header__title">Melee Weapon Attack Data</h2>`;
+  h += `<p class="combos-header__sub">Per-weapon combo chains, montage timings, and directional variants — pulled directly from <code>Attackset_*</code> exports (build 22727210).</p>`;
+  h += `<div class="combos-legend combos-legend--melee">`;
+  for (const w of MELEE_WEAPONS) {
+    h += `<a class="combos-legend__item" href="#mw-${w.id}">${w.name}</a>`;
+  }
+  h += `</div>`;
+  h += `<ul class="combos-header__primer">
+    <li><strong class="combos-header__primer-label combos-header__primer-label--light">Light slot:</strong> the per-step swing — most weapons reuse one of two alternating montages.</li>
+    <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Heavy slot:</strong> hold-to-charge release; bypasses block on heavy classes. <strong>Heavy attacks BREAK the weapon</strong> — single-use, throws the weapon away after impact, but deals significant damage.</li>
+    <li><strong class="combos-header__primer-label">Forward (W+attack):</strong> directional overhead/stab variant — usually higher damage than the light.</li>
+    <li><strong class="combos-header__primer-label">Backward (S+attack):</strong> quick shove — low damage, mainly for spacing.</li>
+    <li><strong class="combos-header__primer-label">DPS chips:</strong> Optimal sustained DPS for spamming each rotation (Light → Forward → Shove). Heavies are <em>excluded</em> — they break the weapon, so DPS is undefined.</li>
+  </ul>`;
+  h += `</div>`; // header
+
+  // Per-weapon tables
+  h += `<div class="clan-combos-tables">`;
+  for (const w of MELEE_WEAPONS) {
+    // Compute DPS once so it can sit in the heading row.
+    // Heavy attacks omitted on purpose: a heavy strike BREAKS the weapon, so it's not
+    // a sustainable rotation. We compute optimal sustained DPS per attack type as
+    // sum(damage)/sum(montage length) across the chain, ignoring slots without a montage.
+    const dpsLight = computeWeaponRotationDps(w.rows, "light");
+    const dpsFwd   = computeWeaponRotationDps(w.rows, "fwd");
+    const dpsShove = computeWeaponRotationDps(w.rows, "shove");
+
+    h += `<div class="clan-combo-block" id="mw-${w.id}">`;
+    // Heading — name + meta on the left, DPS chips on the right
+    h += `<div class="clan-combo-block__heading clan-combo-block__heading--with-dps">`;
+    h += `<div class="clan-combo-block__heading-text">`;
+    h += `<span class="clan-combo-block__name">${w.name}</span>`;
+    h += `<span class="clan-combo-block__meta">${w.category} &middot; ${w.steps}-step chain &middot; Throw ${w.thrownDmg}</span>`;
+    h += `</div>`;
+    h += `<div class="dps-chip-group dps-chip-group--weapon dps-chip-group--heading">`;
+    h += renderWeaponDpsChip("L",   "Light rotation",   dpsLight);
+    h += renderWeaponDpsChip("FWD", "Forward rotation", dpsFwd);
+    h += renderWeaponDpsChip("SHV", "Shove rotation",   dpsShove);
+    h += `</div>`;
+    h += `</div>`;
+
+    // Step table
+    h += `<table class="combos-table clan-combos-table"><thead><tr>
+      <th class="combos-table__th clan-combos-table__th--step">Step</th>
+      <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">L.Dmg</th>
+      <th class="combos-table__th clan-combos-table__th--llen" title="Light montage sequence length">L.Len</th>
+      <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">H.Dmg</th>
+      <th class="combos-table__th clan-combos-table__th--hlen" title="Heavy montage sequence length">H.Len</th>
+      <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
+      <th class="combos-table__th" title="Forward variant montage length">Fwd Len</th>
+      <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
+      <th class="combos-table__th" title="Shove montage length">Shove Len</th>
+    </tr></thead><tbody>`;
+    for (const r of w.rows) {
+      const isPeak = r.heavyDmg >= 30;
+      h += `<tr class="clan-combos-table__row">`;
+      h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg">${r.lightDmg}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.lightMontage}">${r.lightLen.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+      if (r.fwdMontage) {
+        h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.fwdDmg}</td>`;
+        h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.fwdMontage}">${r.fwdLen.toFixed(2)}s</td>`;
+      } else {
+        h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+        h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+      }
+      h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.shoveDmg}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.shoveMontage}">${r.shoveLen.toFixed(2)}s</td>`;
+      h += `</tr>`;
+    }
+    h += `</tbody></table>`;
+
+    // Notes
+    if (w.notes && w.notes.length) {
+      h += `<ul class="clan-combo-block__notes">`;
+      for (const n of w.notes) h += `<li>${n}</li>`;
+      h += `</ul>`;
+    }
+
+    h += `<p class="crossclan-note--sub" style="margin-top:6px"><code class="crossclan-code">${w.attackset}</code></p>`;
+    h += `</div>`; // clan-combo-block
+  }
+  h += `</div>`; // clan-combos-tables
+
+  // ── Shared GA section ──────────────────────────────────────
+  h += `<div class="crossclan-section-wrap crossclan-section-wrap--no-pad">`;
+  h += `<div class="crossclan-section-heading">`;
+  h += `<span>Shared GA Tuning</span>`;
+  h += `<span class="crossclan-section-heading__sub">All weapon strikes route through these GameplayAbility CDOs</span>`;
+  h += `</div>`;
+  h += `<details class="crossclan-lozenge" open><summary class="crossclan-lozenge__summary">Per-class GA values</summary><div class="crossclan-lozenge__body">`;
+  h += `<p class="crossclan-note--sub">Per-weapon damage shown in the tables above lives in the attackset; the trace, lunge, combo-delay and hit-react values below are shared across every weapon of the same class.</p>`;
+  h += `<table class="combos-table crossclan-table"><thead><tr>
+    <th class="combos-table__th">GA</th>
+    <th class="combos-table__th">Trigger</th>
+    <th class="combos-table__th">Combo Delay</th>
+    <th class="combos-table__th">Hit Dmg</th>
+    <th class="combos-table__th">Trace</th>
+    <th class="combos-table__th">Lunge</th>
+    <th class="combos-table__th">Lunge Delay</th>
+    <th class="combos-table__th">Hit React</th>
+    <th class="combos-table__th">Flinch-Only</th>
+  </tr></thead><tbody>`;
+  for (const g of MELEE_WEAPON_GA_DATA) {
+    const isHeavy = /Heavy/.test(g.ga);
+    h += `<tr class="combos-table__tr">`;
+    h += `<td class="combos-table__td"><code class="crossclan-code">${g.ga}</code>${g.flag ? ` <span class="crossclan-note">(${g.flag})</span>` : ""}</td>`;
+    h += `<td class="combos-table__td" style="font-size:11px">${g.trigger}</td>`;
+    h += `<td class="combos-table__td">${g.comboDelay.toFixed(2)}s</td>`;
+    h += `<td class="combos-table__td clan-combos-table__td--dmg ${isHeavy ? "clan-combo__dmg--peak" : ""}">${g.hitDmg}</td>`;
+    h += `<td class="combos-table__td">${g.trace}</td>`;
+    h += `<td class="combos-table__td">${g.lunge}</td>`;
+    h += `<td class="combos-table__td">${g.lungeDelay.toFixed(2)}s</td>`;
+    h += `<td class="combos-table__td">${g.hitReact}</td>`;
+    h += `<td class="combos-table__td">${g.flinch ? `<code class="crossclan-code">${g.flinch}</code>` : `<span class="crossclan__val--dim">—</span>`}</td>`;
+    h += `</tr>`;
+  }
+  h += `</tbody></table>`;
+  h += `<ul class="crossclan-list crossclan-list--notes">
+    <li><strong>Combo Delay</strong> on the GA is the input window before the next combo step — per-step combo delays come from the attackset's per-slot data.</li>
+    <li><strong>Hit Dmg</strong> here is the GA fallback; real damage is whatever the attackset slot specifies (see per-weapon tables above).</li>
+    <li>Heavy classes carry <code>Combat.Status.AttackArmor.Heavy</code> as flinch-only — they bypass standard guard and only flinch on armored enemies.</li>
+    <li><strong>Heavy attacks BREAK the weapon</strong> — a heavy strike consumes the weapon (one-shot release, weapon is thrown/destroyed after impact). DPS values shown per-weapon are sustained rotations and exclude heavies for that reason.</li>
+    <li><code>GA_PlayerAttack_Baton</code> is new in build 22727210 — adds the loaded electric baton's neutral strike profile.</li>
+  </ul>`;
+  h += `</div></details>`;
+  h += `</div>`; // crossclan-section-wrap
+
+  // ── Codex blocking notes ───────────────────────────────────
+  h += `<div class="crossclan-section-wrap crossclan-section-wrap--no-pad">`;
+  h += `<div class="crossclan-section-heading">`;
+  h += `<span>Codex Notes — Blocking &amp; Direction</span>`;
+  h += `<span class="crossclan-section-heading__sub">From in-game tutorial entries</span>`;
+  h += `</div>`;
+  h += `<details class="crossclan-lozenge" open><summary class="crossclan-lozenge__summary">Tutorial codex strings</summary><div class="crossclan-lozenge__body">`;
+  h += `<ul class="crossclan-list crossclan-list--notes">
+    <li>Most melee weapons perform a <strong>single-target attack</strong> when moving forward and a <strong>quicker shove</strong> when moving backward.</li>
+    <li><strong>Bladed</strong> weapons deal more damage but stagger less effectively.</li>
+    <li><strong>Blunt</strong> weapons stagger and interrupt better but deal less damage.</li>
+    <li>Look directly at an incoming melee attack while idle to <strong>block</strong>, significantly reducing damage taken.</li>
+    <li>Some <strong>heavier or ability-based attacks</strong> cannot be blocked.</li>
+  </ul>`;
+  h += `</div></details>`;
+  h += `</div>`; // crossclan-section-wrap
+
+  h += `</div>`; // combos-layout
+  container.innerHTML = h;
+}
+
+
 
 

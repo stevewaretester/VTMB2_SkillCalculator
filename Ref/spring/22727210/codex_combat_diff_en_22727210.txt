@@ -1,0 +1,133 @@
+old_entries=2658
+new_entries=2754
+new_only_entries=101
+changed_entries=0
+removed_entries=5
+combat_new_only=61
+combat_changed=0
+
+=== COMBAT NEW-ONLY ENTRIES ===
+[NEW] Ink_Codex_Benny::0e197f86c2533e45c75382d4b88381c0
+  Press <img id="Keyboard_TKCodex"/> to draw Benny's sidearm, tap or hold <img id="Keyboard_AttackCodex"/> to fire. Collect ammo from dead enemies and ammo boxes.</br>
+[NEW] Ink_Codex_Benny::16f7ff0db9ea93fd7ad5483b3f1a1ab5
+  Dash Strike
+[NEW] Ink_Codex_Benny::2648f2ebb5bb5447fce5736c4943e0d3
+  Dash <img id="Keyboard_DodgeCodex"/> then Attack <img id="Keyboard_AttackCodex"/>. Different strikes can be achieved by dashing in different directions.
+[NEW] Ink_Codex_Benny::5070fc3d07ff8217440f2a74e30cdf02
+  %Press <img id="Platform_TKCodex"/> to draw Benny's sidearm, tap or hold <img id="Platform_AttackCodex"/> to fire. Collect ammo from dead enemies and ammo boxes.</br>
+[NEW] Ink_Codex_Benny::6061721ea397e51472e5cb1a37753bf9
+  Incendiary Ammo
+[NEW] Ink_Codex_Benny::b03558432712bb33320744b89a530bc9
+  %Dash <img id="Platform_DodgeCodex"/> then Attack <img id="Platform_AttackCodex"/>. Different strikes can be achieved by dashing in different directions.
+[NEW] Ink_Codex_Benny::fc65d9fcee70c30b114cd6876f69cd75
+  The ammo pool now contains a mix of regular and incendiary bullets. Incendiary bullets burn the target inflicting damage over time.</br></br>
+[NEW] Ink_Codex_Phyre::0275cdfc4bd3ae802952dd80ee6b0737
+  While airborne, Crouch <img id="Platform_CrounchCodex"/> then Attack <img id="Platform_AttackCodex"/> to perform a Drop Kick on an opponent below you.</br>
+[NEW] Ink_Codex_Phyre::09f373bcd3c9028e3086782a85c7b09d
+  A page from a tract by Johannes Ringer giving a short treatise on adapting the techniques of Ringeck and Meyer to deliver a blow of crushing force to the opponent, without use of a weapon.
+[NEW] Ink_Codex_Phyre::13d9096530ca4c4357be854444367404
+  Dash <img id="Platform_DodgeCodex"/> toward an enemy at the moment they attack to counter it, staggering them and leaving them vulnerable to a follow-up attack.
+[NEW] Ink_Codex_Phyre::14162de4fadd8d4f3826da15a4ca5fb7
+  A page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. This copy has been scribbled on by a much more modern hand - there is a note in the margin on the application of Blood Alchemical effects.<br/>
+[NEW] Ink_Codex_Phyre::1477ed3091dd6ccf6b5d353b59af64e6
+  A page from a tract by Johannes Ringer on the advantages and disadvantages of different types of weaponry in the melee and the duel, and in particular the advantages imbued by a Kindred's strength.<br/>
+[NEW] Ink_Codex_Phyre::18eb1c8a012f9728d334bd84dcc4d554
+  Time will slow down significantly, allowing time to look around and plan your next move.%	A water-damaged page from a tract by Johannes Ringer noting the importance of considering the weaknesses of an opposing force before ordering a strategic attack.<br/>
+[NEW] Ink_Codex_Phyre::196dba309ed14a1bbcbd91abeac735d8
+  While dashing forwards with <img id="Keyboard_DodgeCodex"/>, attack <img id="Keyboard_AttackCodex"/> to perform a Knee Strike that quickly closes distance.
+[NEW] Ink_Codex_Phyre::1b96ec9afe763a97abc0e9448ff2c3e5
+  While dashing backwards with <img id="Keyboard_DodgeCodex"/>, attack <img id="Keyboard_AttackCodex"/> to kick out, knocking your opponent away.
+[NEW] Ink_Codex_Phyre::1da4915b64bfe434eb4707ba1bd9f5ec
+  %A page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The author notes specific advantages for someone with more-than-human reflexes.<br/>
+[NEW] Ink_Codex_Phyre::1eaa2cf48e28e9e47c14abc94b908b67
+  A badly-torn page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The second part of the page is missing.<br/>
+[NEW] Ink_Codex_Phyre::283d23d91e35f2690d0ce956a71e5b98
+  The faster you are moving, the larger the impact on an opponent. % A page from a tract by Johannes Ringer giving a short treatise on adapting the techniques of Ringeck and Meyer to deliver a blow of crushing force to the opponent, without use of a weapon.
+[NEW] Ink_Codex_Phyre::298c5d10dd94c4f072ab1ffa520fb4a3
+  Ranged weapons with ammunition still present will shoot when pressing <img id="Keyboard_ThrowCodex"/>. Once empty of ammunition, they can be thrown <img id="Keyboard_ThrowCodex"/>.%A page from a tract by Johannes Ringer discussing radical techniques to surprise an opponent by using a weapon as a distraction.<br/>
+[NEW] Ink_Codex_Phyre::2a1c908120c83181c665a9f263ffc15b
+  Some heavier or ability based attacks cannot be blocked.
+[NEW] Ink_Codex_Phyre::357d585b496b6fa6eb38a6622cf302ea
+  Pickup/Pull weapons from enemies by using Telekinesis <img id="Keyboard_TKCodex"/>, and then throw <img id="Keyboard_ThrowCodex"/> them at a target.</br>
+[NEW] Ink_Codex_Phyre::37c7db924d655cee3f0c9b02b3d86c65
+  Heavy attack (hold <img id="Keyboard_AttackCodex"/>) does significantly more damage but destroys the weapon.%A yellowed page from a tract by Johannes Ringer discussing the application of the preternatural strength of the Kindred in the use of medieval martial weaponry - the advantages, disadvantages, and a number of techniques applied by those whose Blood bestows unusual gifts.<br/>
+[NEW] Ink_Codex_Phyre::3cd1dc3a573c56ef15fcf772b1cc4d47
+  Can be used on unaware opponent to bring them within feeding distance. %
+[NEW] Ink_Codex_Phyre::3e00a60f377dc11d51056137d55bfa4a
+  A faded page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. <br/>
+[NEW] Ink_Codex_Phyre::3fa70920bcee8aaa2fcae3393e498f30
+  Roundhouse Kick
+[NEW] Ink_Codex_Phyre::412bd30a720f368239d2bf2c48fee5a1
+  Ranged weapons with ammunition still present will shoot when pressing <img id="Platform_ThrowCodex"/>. Once empty of ammunition, they can be thrown <img id="Platform_ThrowCodex"/>.
+[NEW] Ink_Codex_Phyre::4515e48468c2720f60dd63600882775c
+  Crouch <img id="Platform_CrounchCodex"/> while running to slide low to the floor.</br>
+[NEW] Ink_Codex_Phyre::48ac0a84e9617011b64b29282a3afb5f
+  While dashing backwards with <img id="Platform_DodgeCodex"/>, attack <img id="Platform_AttackCodex"/> to kick out, knocking your opponent away.
+[NEW] Ink_Codex_Phyre::49725dda5b00f70648208014e608cb8a
+  Most melee weapons will perform a single target attack when moving forward and quicker shove attack when moving backward.
+[NEW] Ink_Codex_Phyre::586768575a355b0b4a2a67d5844ca920
+  Heavy attack (hold <img id="Platform_AttackCodex"/>) does significantly more damage but destroys the weapon.
+[NEW] Ink_Codex_Phyre::5c437232db2a2784aab201c920ab27e4
+  %A page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. This copy has been scribbled on by a much more modern hand - there is a note in the margin on the application of Blood Alchemical effects.<br/>
+[NEW] Ink_Codex_Phyre::6335bd3bf2b9a19727735183ac44a92d
+  While dashing sideways with <img id="Platform_DodgeCodex"/>, attack <img id="Platform_AttackCodex"/> to perform a Roundhouse Kick that can stagger multiple opponents at once.
+[NEW] Ink_Codex_Phyre::65990987f7963a9dd12d48453911c68f
+  Crouch <img id="Keyboard_CrounchCodex"/> while running to slide low to the floor.</br>
+[NEW] Ink_Codex_Phyre::68dd002bdd7b57e79d11e269da172c75
+  Dash <img id="Keyboard_DodgeCodex"/> toward an enemy at the moment they attack to counter it, staggering them and leaving them vulnerable to a follow-up attack.%A page from a tract by Johannes Ringer. It discuss various strategies for diverting an enemy's attack, using their own strength to throw their defenses open and render them vulnerable.<br/>
+[NEW] Ink_Codex_Phyre::6a6b61d71e3f370a8af1bed73c1034ca
+  Bladed vs. Blunt Melee Weapons
+[NEW] Ink_Codex_Phyre::6a948c97f038feb3db5ea9406522b7ce
+  A page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The author notes specific advantages for someone with more-than-human reflexes.<br/>
+[NEW] Ink_Codex_Phyre::6cf4eae35f6ab86d05665d374aec3bda
+  Melee weapons can be pulled from a distance with Telekinesis <img id="Keyboard_TKCodex"/> and then transferred to your hand <img id="Keyboard_InteractCodex"/> to wield them directly. When not targeting, a held weapon can be transferred <img id="Keyboard_InteractCodex"/> to Telekinesis in order to be thrown.</br>
+[NEW] Ink_Codex_Phyre::73d0995b5d7ba1c83013ffab2d7f97da
+  A water-damaged page from a tract by Johannes Ringer noting the importance of considering the weaknesses of an opposing force before ordering a strategic attack.<br/>
+[NEW] Ink_Codex_Phyre::754a2a76710d759634109c045fa8f687
+  Mysterious Attack
+[NEW] Ink_Codex_Phyre::7dd14457f0baf6f14327caadd5f9bebf
+  %A faded page from a tract by Johannes Ringer on a German maneuver termed the Reaping, used to drive back a group of enemy combatants in a melee if one is without a weapon. <br/>
+[NEW] Ink_Codex_Phyre::7f00a502d0d54128120ebd628238e5a2
+  </br>Opponents hit by a Back Kick will be slowed temporarily, allowing you to focus elsewhere, such as feeding.
+[NEW] Ink_Codex_Phyre::8170f94419aca7a079434e0d27e64c67
+  A yellowed, water-stained page apparently from a tract by Johannes Ringer. It starts to detail a maneuver used by the notable Kindred Eoghan Mor, but the second half of the page is unreadable save for a set of unusual symbols.  <img id="MysteriousAttack"/>
+[NEW] Ink_Codex_Phyre::82f881e49f8030e5a68281e889f4254e
+  While dashing forwards with <img id="Platform_DodgeCodex"/>, attack <img id="Platform_AttackCodex"/> to perform a Knee Strike that quickly closes distance.
+[NEW] Ink_Codex_Phyre::9642ec6b79421df95d23d9c911494114
+  Can be used on unaware opponent to bring them within feeding distance.
+[NEW] Ink_Codex_Phyre::9b3f04973ad582f3a1667375a886913a
+  A yellowed page from a tract by Johannes Ringer discussing the application of the preternatural strength of the Kindred in the use of medieval martial weaponry - the advantages, disadvantages, and a number of techniques applied by those whose Blood bestows unusual gifts.<br/>
+[NEW] Ink_Codex_Phyre::a22327bdb99b01e69b059185d9a754c8
+  Back Kick
+[NEW] Ink_Codex_Phyre::ac3043d6ab2a088afc01a9e951905021
+  Knee Strike
+[NEW] Ink_Codex_Phyre::aecc6fc3efc17623aa100e3ff158cf36
+  Attack <img id="Keyboard_AttackCodex"/> while sliding to perform a Slide Kick - useful for launching opponents a long distance. %
+[NEW] Ink_Codex_Phyre::afbaec12c23f54cb7381e6628058c312
+  While dashing sideways with <img id="Keyboard_DodgeCodex"/>, attack <img id="Keyboard_AttackCodex"/> to perform a Roundhouse Kick that can stagger multiple opponents at once.
+[NEW] Ink_Codex_Phyre::b4624deb05b8f2418930a8c49532c74d
+  A page from a tract by Johannes Ringer discussing radical techniques to surprise an opponent by using a weapon as a distraction.<br/>
+[NEW] Ink_Codex_Phyre::b55b3f7d454853125f1329dac6258ce0
+  While airborne, Crouch <img id="Keyboard_CrounchCodex"/> then Attack <img id="Keyboard_AttackCodex"/> to perform a Drop Kick on an opponent below you.</br>
+[NEW] Ink_Codex_Phyre::c56f6e4af977ee701cfe2d4988751f66
+  %A badly-torn page from a tract by Johannes Ringer on Fiore dei Liberi's techniques to gain distance in close combat. The second part of the page is missing.<br/>
+[NEW] Ink_Codex_Phyre::cb452750dc86b04185c113aa4b4697ba
+  A page from a tract by Johannes Ringer. It discuss various strategies for diverting an enemy's attack, using their own strength to throw their defenses open and render them vulnerable.<br/>
+[NEW] Ink_Codex_Phyre::cc68f1be57730e78f935b970d9294a61
+  Blunt weapons are effective at staggering opponents and interrupting their attacks but deal less damage.</br>
+[NEW] Ink_Codex_Phyre::d3370fa7cf26016621275d4d62a66efd
+  Attack <img id="Platform_AttackCodex"/> while sliding to perform a Slide Kick - useful for launching opponents a long distance.
+[NEW] Ink_Codex_Phyre::ddc1896731d58569f119424c7beda637
+  Pickup/Pull weapons from enemies by using Telekinesis <img id="Platform_TKCodex"/>, and then throw <img id="Platform_ThrowCodex"/> them at a target.</br>
+[NEW] Ink_Codex_Phyre::def83abd3343468f983e5b39055c6ca9
+  Melee weapons in the environment can be picked up <img id="Keyboard_InteractCodex"/> to wield directly. Drop the weapon (hold <img id="Keyboard_InteractCodex"/>) to return to fighting with your fists.</br>
+[NEW] Ink_Codex_Phyre::df2002d62405330207e5ab99459d11ef
+  Whilst not performing any actions, look directly at an incoming melee attack to block it, significantly reducing the damage received.</br>
+[NEW] Ink_Codex_Phyre::e82350fc7767c1b2806ba20385d689fa
+  Melee weapons in the environment can be picked up <img id="Platform_InteractCodex"/> to wield directly. Drop the weapon (hold <img id="Platform_InteractCodex"/>) to return to fighting with your fists.</br>
+[NEW] Ink_Codex_Phyre::eefd1553ef5c3c73fd510b6c9364ca9e
+  Melee weapons can be pulled from a distance with Telekinesis <img id="Platform_TKCodex"/> and then transferred to your hand <img id="Platform_InteractCodex"/> to wield them directly. When not targeting, a held weapon can be transferred <img id="Platform_InteractCodex"/> to Telekinesis in order to be thrown.</br>
+[NEW] Ink_Codex_Phyre::f067971c8ab8f27a2918cfde7926fcc1
+  Bladed weapons are good at dealing damage but less effective at staggering opponents.</br>
+
+=== COMBAT CHANGED ENTRIES ===
