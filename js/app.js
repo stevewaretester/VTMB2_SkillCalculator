@@ -647,7 +647,8 @@ function bindTabs() {
       secondaryTabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
       document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-      document.getElementById(`subpage-${tab.dataset.subtab}`).classList.remove("hidden");
+      const subEl = document.getElementById(`subpage-${tab.dataset.subtab}`);
+      if (subEl) subEl.classList.remove("hidden");
       if (tab.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") {
         refreshOutfitsPage();
       }
