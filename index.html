@@ -45,7 +45,7 @@
         </div>
       </div>
       <button class="mobile-drawer__item" id="mobile-about-btn">About</button>
-      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.12 Changelog</button>
+      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.13 Changelog</button>
       <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener">Spring Update <span class="mobile-drawer__build">22727210</span> &#x2197;</a>
       <button class="mobile-drawer__item" id="mobile-mods-btn">Mods</button>
       <div class="mobile-drawer__divider"></div>
@@ -93,7 +93,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.12</button>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.13</button>
       <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener" title="Game version tested against">Spring Update <span class="header__patch-build">22727210</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <!-- Universal layout toggle — always visible, fixed top-right (lives inside header semantically) -->
@@ -118,7 +118,7 @@
       <button class="tab-bar__tab active" data-tab="phyre"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" alt="">Phyre</button>
       <button class="tab-bar__tab" data-tab="fabien"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">Fabien</button>
       <button class="tab-bar__tab" data-tab="benny"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="">Benny</button>
-      <button class="tab-bar__tab" data-tab="ysabelle">Ysabelle</button>
+      <button class="tab-bar__tab" data-tab="ysabelle"><img class="tab-bar__tab-icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" alt="">Ysabelle</button>
       <div class="tab-bar__end">
         <button class="tab-link-btn" id="view-link-btn" title="Copy link to current view">
           <svg class="tab-link-btn__icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -157,7 +157,7 @@
         <button class="tab-bar__tab" data-subtab="combos">Combat</button>
         <div class="tab-bar__aside-group">
           <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="pickups">Pickups</button>
-          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map</button>
+          <button class="tab-bar__tab tab-bar__tab--aside" data-subtab="map">Map (WIP)</button>
         </div>
       </nav>
 
@@ -456,10 +456,7 @@
 
     <!-- Sub-page: Map -->
     <div class="subpage hidden" id="subpage-map">
-      <div class="placeholder-page">
-        <h2>Map</h2>
-        <p>Coming soon &mdash; includes Collectibles</p>
-      </div>
+      <!-- Populated by js/map.js renderMapPage() on activation -->
     </div>
 
     </div><!-- /page-phyre -->
@@ -469,6 +466,9 @@
       <img class="fabien-layout__crest" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">
       <nav class="tab-bar tab-bar--secondary tab-bar--fabien">
         <button class="tab-bar__tab active" data-fabtab="skills">Skills</button>
+        <div class="tab-bar__aside-group">
+          <button class="tab-bar__tab tab-bar__tab--aside tab-bar__tab--map-cross">Map</button>
+        </div>
       </nav>
       <div class="fabien-subpage" id="fabien-subpage-skills">
         <!-- Mobile-only: Detective Notes toggle (single icon, Phyre-style) -->
@@ -511,6 +511,9 @@
       <nav class="tab-bar tab-bar--secondary tab-bar--benny">
         <button class="tab-bar__tab active" data-bennytab="skills">Skills</button>
         <button class="tab-bar__tab" data-bennytab="unarmed">Combat</button>
+        <div class="tab-bar__aside-group">
+          <button class="tab-bar__tab tab-bar__tab--aside tab-bar__tab--map-cross">Map</button>
+        </div>
       </nav>
       <div class="benny-subpage" id="benny-subpage-skills">
         <!-- Mobile-only: New Features toggle (single icon, Phyre-style) -->
@@ -536,7 +539,14 @@
 
     <!-- Page: Ysabelle -->
     <div class="page hidden" id="page-ysabelle">
-      <div class="placeholder-page">
+      <nav class="tab-bar tab-bar--secondary tab-bar--ysabelle">
+        <div class="tab-bar__aside-group">
+          <button class="tab-bar__tab tab-bar__tab--aside tab-bar__tab--map-cross">Map</button>
+        </div>
+      </nav>
+      <img class="ysabelle-bg ysabelle-bg--left"  src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" alt="" aria-hidden="true">
+      <img class="ysabelle-bg ysabelle-bg--right" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Toreador.png" alt="" aria-hidden="true">
+      <div class="ysabelle-heading">
         <h2>Ysabelle</h2>
         <p>Coming soon</p>
       </div>
@@ -590,6 +600,20 @@
               <span class="mod-list__label"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/163" target="_blank" rel="noopener">Obvious Fabien Phlegmatic Fast Travel</a></span>
             </label>
             <button class="mod-list__goto hidden" id="goto-fabien-phlegmatic" title="Go to Fabien's Fast Forward ability">&#x2B07;</button>
+          </li>
+          <li class="mod-list__item">
+            <label class="mod-list__toggle">
+              <input type="checkbox" id="toggle-corrosive-resonance">
+              <span class="mod-list__label">Corrosive Touch grants Resonance</span>
+            </label>
+            <button class="mod-list__goto hidden" id="goto-corrosive-resonance" title="Go to Tremere's Corrosive Touch passive">&#x2B07;</button>
+          </li>
+          <li class="mod-list__item">
+            <label class="mod-list__toggle">
+              <input type="checkbox" id="toggle-blood-potency-kill">
+              <span class="mod-list__label">Blood of Potency on Kill</span>
+            </label>
+            <button class="mod-list__goto hidden" id="goto-blood-potency-kill" title="Go to Tremere's Blood of Potency perk">&#x2B07;</button>
           </li>
         </ul>
       </section>
@@ -662,15 +686,21 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.12</span>
+        <span class="modal-card__version">v1.13</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
+              <span class="changelog__version">v1.13</span>
+              <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc">Hub map building hotspot overhaul &mdash; all major buildings now use hand-traced SVG polygon outlines from exact pixel vertices instead of rectangular hit boxes, including iterative corner/edge cleanup for Observatory, St Stephens, Weaver Tower, Wake the Dead, Autoshop, Makom Bar, and the Glacier Hotel so outlines match the real silhouettes more closely.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
               <span class="changelog__version">v1.12</span>
               <a class="changelog__commit" href="https://github.com/stevewaretester/VTMB2_SkillCalculator/commit/1984f1f" target="_blank" rel="noopener">1984f1f</a>
-              <span class="changelog__label">Current</span>
             </summary>
             <p class="changelog__desc">Spring Update refresh (build 22727210) &mdash; full data pass against the Spring Update FModel exports. Header patch chip relinked to the Spring Update news page in pale orange (matches the Loose Cannon palette). <strong>Melee Weapons page</strong> reworked: per-weapon optimal-rotation DPS chips (Light / Forward / Shove) live in each weapon’s heading row; the weapon quick-jump legend now sits directly under the subtitle in gold Cinzel chips above the primer; the primer explains heavy attacks <em>break</em> the weapon and are excluded from DPS. <strong>Benny Combat tab</strong> (renamed from Unarmed): Drop Kick re-added as the only shared dash attack with Phyre; the four directional dashes are explicitly called out as replaced by DLC specials Chop (forward, downward spike), Kick (back, launches), and Sweep (side, wide arc). New <strong>BennyGun &mdash; Sidearm</strong> section documents both ammo modes, the 30-round max clip, world-found ammo, and routes from a sidebar &ldquo;BennyGun details →&rdquo; button. Sidebar detail panels for Sidearm and Melee Weapons now end with cross-links to their respective combat data sections. DLC tile rebuilt as a single store-page link with an OUT NOW pill above and a hover-swap to the alt key art. Section headings for the Fist Combo, DLC Specials, and BennyGun now share the same crest-style icon treatment.</p>
           </details>
@@ -768,5 +798,8 @@
   <script src="js/benny.js"></script>
   <script src="js/combos.js"></script>
   <script src="js/pickups.js"></script>
+  <script src="js/collectibles.js"></script>
+  <script src="js/extras.js"></script>
+  <script src="js/map.js"></script>
 </body>
 </html>

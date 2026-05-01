@@ -98,6 +98,8 @@ const state = {
   completionTalents: false,
   modFabienPhlegmatic: false,
   modHaven: false,
+  modCorrosiveResonance: false,
+  modBloodPotencyKill: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
   abilities: {},
@@ -159,7 +161,7 @@ function getCurrentPos() {
   const page = primary.dataset.tab;
   let pos = page;
   if (page === "phyre") {
-    const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active");
+    const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active");
     if (secondary) {
       pos = `phyre.${secondary.dataset.subtab}`;
       if (secondary.dataset.subtab === "combos") {
@@ -199,9 +201,9 @@ function applyPersistedPosition(pos) {
   if (pageEl) pageEl.classList.remove("hidden");
 
   if (page === "phyre" && sub) {
-    const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="${sub}"]`);
+    const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="${sub}"]`);
     if (secondaryTab) {
-      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
       secondaryTab.classList.add("active");
       document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
       const subEl = document.getElementById(`subpage-${sub}`);
@@ -217,6 +219,9 @@ function applyPersistedPosition(pos) {
       }
       if (sub === "pickups" && typeof renderPickupsPage === "function") {
         renderPickupsPage();
+      }
+      if (sub === "map" && typeof renderMapPage === "function") {
+        renderMapPage();
       }
     }
   } else if (page === "fabien" && sub) {
@@ -278,6 +283,8 @@ function makePersistedState() {
     ct: !!state.completionTalents,
     mh: !!state.modHaven,
     mf: !!state.modFabienPhlegmatic,
+    mcr: !!state.modCorrosiveResonance,
+    mbp: !!state.modBloodPotencyKill,
     cs: !!state.clanSelectorCollapsed,
     sp: state.selectedPerTier,
     a: abilityEntries,
@@ -309,6 +316,8 @@ function makeStateParams(payload) {
   if (payload.ct) p.set('ct', '1');
   if (payload.mh) p.set('mh', '1');
   if (payload.mf) p.set('mf', '1');
+  if (payload.mcr) p.set('mcr', '1');
+  if (payload.mbp) p.set('mbp', '1');
   if (payload.cs) p.set('cs', '1');
   if (payload.lc) p.set('lc', '1');
   if (payload.cx === false) p.set('cx', '0');
@@ -342,6 +351,8 @@ function decodeStateV2(params) {
     ct: params.get('ct') === '1',
     mh: params.get('mh') === '1',
     mf: params.get('mf') === '1',
+    mcr: params.get('mcr') === '1',
+    mbp: params.get('mbp') === '1',
     cs: params.get('cs') === '1',
     lc: params.get('lc') === '1',
     cx: params.get('cx') !== '0',
@@ -376,6 +387,8 @@ function applyPersistedState(payload) {
   state.completionTalents = !!payload.ct;
   state.modHaven = !!payload.mh;
   state.modFabienPhlegmatic = !!payload.mf;
+  state.modCorrosiveResonance = !!payload.mcr;
+  state.modBloodPotencyKill = !!payload.mbp;
   state.clanSelectorCollapsed = !!payload.cs;
   state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
 
@@ -570,9 +583,9 @@ function navigateToClanCombos() {
   document.getElementById("page-phyre").classList.remove("hidden");
 
   // Ensure Combos secondary tab is visible
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab");
   secondaryTabs.forEach(t => t.classList.remove("active"));
-  const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="combos"]');
+  const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="combos"]');
   if (combosTab) combosTab.classList.add("active");
   document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
   document.getElementById("subpage-combos").classList.remove("hidden");
@@ -585,6 +598,19 @@ function navigateToClanCombos() {
 
 // ── Tab Navigation ───────────────────────────────────────────
 function bindTabs() {
+  // Cross-page Map links (Fabien / Benny / Ysabelle "Map" tabs all jump to
+  // Phyre → Map). Routed via shared class so this stays a single delegated
+  // wiring rather than three near-identical handlers.
+  document.querySelectorAll(".tab-bar__tab--map-cross").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+      if (phyreTab) phyreTab.click();
+      const mapTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="map"]');
+      if (mapTab) mapTab.click();
+    });
+  });
+
   // Primary tabs (Phyre, Fabien, Benny, Ysabelle)
   const primaryTabs = document.querySelectorAll(".tab-bar--primary .tab-bar__tab");
   primaryTabs.forEach(tab => {
@@ -595,7 +621,7 @@ function bindTabs() {
       document.getElementById(`page-${tab.dataset.tab}`).classList.remove("hidden");
       if (tab.dataset.tab === "phyre") {
         // Restore the active secondary tab (whichever was last active)
-        const activeSecondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active");
+        const activeSecondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active");
         if (activeSecondary) {
           document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
           const subpage = document.getElementById(`subpage-${activeSecondary.dataset.subtab}`);
@@ -603,6 +629,7 @@ function bindTabs() {
           if (activeSecondary.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") refreshOutfitsPage();
           if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("ability");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
+          if (activeSecondary.dataset.subtab === "map" && typeof renderMapPage === "function") renderMapPage();
         }
       }
       if (tab.dataset.tab === "benny" && typeof refreshBennyPage === "function") {
@@ -613,7 +640,7 @@ function bindTabs() {
   });
 
   // Secondary tabs within Phyre (Skill Tree, Outfits)
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab");
   secondaryTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       _clearMobileContext();
@@ -632,6 +659,9 @@ function bindTabs() {
         if (state.modHaven) {
           setActivePickupsSubtab("maha");
         }
+      }
+      if (tab.dataset.subtab === "map" && typeof renderMapPage === "function") {
+        renderMapPage();
       }
       persistPosition();
     });
@@ -1084,6 +1114,58 @@ function bindToggles() {
     persistState();
   });
 
+  // Helper: jump to a specific Tremere ability tier (passive or perk).
+  // Used by both new mod toggles' goto buttons.
+  function gotoTremereAbility(tier) {
+    document.getElementById("mods-modal").classList.add("hidden");
+    // Primary: Phyre
+    document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+    const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+    if (phyreTab) phyreTab.classList.add("active");
+    document.getElementById("page-phyre").classList.remove("hidden");
+    // Secondary: skilltree
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+    const skillTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
+    if (skillTab) skillTab.classList.add("active");
+    document.getElementById("subpage-skilltree").classList.remove("hidden");
+    // Select Tremere and focus the requested tier
+    state.selectedClan = "tremere";
+    state.focusedAbility = { type: "ability", clanId: "tremere", tier };
+    renderGrid();
+    renderDetailPanel();
+    persistState();
+  }
+
+  const corrosiveToggle = document.getElementById("toggle-corrosive-resonance");
+  const corrosiveGoto = document.getElementById("goto-corrosive-resonance");
+  if (corrosiveToggle) {
+    corrosiveToggle.checked = state.modCorrosiveResonance;
+    corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveResonance);
+    corrosiveToggle.addEventListener("change", (e) => {
+      state.modCorrosiveResonance = e.target.checked;
+      corrosiveGoto.classList.toggle("hidden", !e.target.checked);
+      renderDetailPanel();
+      persistState();
+    });
+    corrosiveGoto.addEventListener("click", () => gotoTremereAbility("passive"));
+  }
+
+  const bpKillToggle = document.getElementById("toggle-blood-potency-kill");
+  const bpKillGoto = document.getElementById("goto-blood-potency-kill");
+  if (bpKillToggle) {
+    bpKillToggle.checked = state.modBloodPotencyKill;
+    bpKillGoto.classList.toggle("hidden", !state.modBloodPotencyKill);
+    bpKillToggle.addEventListener("change", (e) => {
+      state.modBloodPotencyKill = e.target.checked;
+      bpKillGoto.classList.toggle("hidden", !e.target.checked);
+      renderDetailPanel();
+      persistState();
+    });
+    bpKillGoto.addEventListener("click", () => gotoTremereAbility("perk"));
+  }
+
   const havenToggle = document.getElementById("toggle-haven");
   if (havenToggle) {
     havenToggle.checked = state.modHaven;
@@ -1139,9 +1221,9 @@ function bindToggles() {
     document.getElementById("page-phyre").classList.remove("hidden");
 
     // Secondary: Pickups
-    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
     document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="pickups"]');
+    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
     if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
     document.getElementById("subpage-pickups").classList.remove("hidden");
 
@@ -2282,6 +2364,16 @@ function renderDetailPanel(targetEl) {
     html += `<div class="detail-panel__desc">${ability.description}</div>`;
   }
 
+  // Mod overlay notes — handwritten green line, same style as the Fabien
+  // Phlegmatic Fast Travel mod note. Only shown when the matching mod is
+  // toggled on and the focused ability is the affected one.
+  if (clanId === "tremere" && tier === "passive" && state.modCorrosiveResonance) {
+    html += `<div class="fabien-mod-line">Rewards 10 random resonance per melted corpse.</div>`;
+  }
+  if (clanId === "tremere" && tier === "perk" && state.modBloodPotencyKill) {
+    html += `<div class="fabien-mod-line">Kills grant a random blood pip to uncharged abilities.</div>`;
+  }
+
   // Discipline — highlight if affinity match
   if (ability.discipline) {
     const disc = DISCIPLINES[ability.discipline];
@@ -2816,10 +2908,10 @@ function navigateToOutfit(clanId, tierIdx) {
   if (phyreTab) phyreTab.classList.add("active");
   document.getElementById("page-phyre").classList.remove("hidden");
 
-  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
+  const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab");
   secondaryTabs.forEach(t => t.classList.remove("active"));
   document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-  const outfitsTab = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab='outfits']");
+  const outfitsTab = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab='outfits']");
   if (outfitsTab) outfitsTab.classList.add("active");
   document.getElementById("subpage-outfits").classList.remove("hidden");
   outfitState.selectedClan = clanId;
@@ -3296,7 +3388,7 @@ function renderMobileInnateStrip() {
   if (!strip) return;
 
   const activePrimary   = document.querySelector('.tab-bar--primary .tab-bar__tab.active');
-  const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active');
+  const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active');
   const isPhyreSkillTree = activePrimary && activePrimary.dataset.tab === 'phyre'
                         && activeSecondary && activeSecondary.dataset.subtab === 'skilltree';
 
@@ -3451,16 +3543,16 @@ function buildMobileSubtabBar(activeTab) {
   let backTarget = null; // when set, render a back button that clicks this tab
   if (activeTab === 'phyre') {
     // Check which secondary subpage is active — combos/pickups have their own inner tabs
-    const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active');
+    const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active');
     const activeSub = activeSecondary ? activeSecondary.dataset.subtab : null;
     if (activeSub === 'combos') {
       origTabs = document.querySelectorAll('.tab-bar--combos .tab-bar__tab');
-      backTarget = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="skilltree"]');
+      backTarget = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
     } else if (activeSub === 'pickups') {
       origTabs = document.querySelectorAll('.tab-bar--pickups .tab-bar__tab');
-      backTarget = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab[data-subtab="skilltree"]');
+      backTarget = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
     } else {
-      origTabs = document.querySelectorAll('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab');
+      origTabs = document.querySelectorAll('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab');
     }
   } else if (activeTab === 'fabien') {
     origTabs = document.querySelectorAll('.tab-bar--fabien .tab-bar__tab');
@@ -3533,7 +3625,7 @@ function updateMobileChrome() {
   // Show/hide stats strip based on active subpage
   const statsStrip = document.getElementById('mobile-stats-strip');
   if (statsStrip) {
-    const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab.active');
+    const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active');
     const isPhyreTree = activeTab === 'phyre' && activeSecondary && activeSecondary.dataset.subtab === 'skilltree';
     statsStrip.style.display = isPhyreTree ? '' : 'none';
   }

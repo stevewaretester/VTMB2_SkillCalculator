@@ -130,23 +130,68 @@ Use this block directly in wiki pages:
 - Confirmed: Phosphor burn actor (`BP_PhosphorBulletBurn`) ticks every `0.5s` for `5.0s` total lifespan.
 - Confirmed: Burn actor radius data exposes `OuterRadius=1000`, `InnerRadius=400`.
 - Not exposed in current exports: a single raw per-shot base damage float for Benny gun direct hit.
-- Interpretation: total damage is assembled at runtime from projectile/weapon/runtime pipelines, then modified by projectile multipliers and hit context (for example headshot/incendiary paths).
+- Interpretation: total damage is assembled at runtime from projectile/weapon/runtime pipelines, then modified by projectile multipliers and hit contex(for example headshot/incendiary paths).
 
 ## Verified Benny Montage + Damage Evidence (22727210)
 
 ### Direct GA CDO evidence (`asset-confirmed`)
 
-From `Default__GA_BennyAttack_GodFist_C`:
+From `Default__GA_BennyAttack_GodFist_C` (`Content/WrestlerCommon/Abilities/Player/Melee/ContextAttacks/GA_BennyAttack_GodFist.json`):
 
 - `AttackMontage`: `AM_Benny_Godfist`
 - `ComboDelay`: `0.5`
 - `LungeDelay`: `0.2`
-- `LungeRange/LungeRangeTargeted`: `150/150`
+- `LungeRange / LungeRangeTargeted`: `150 / 150`
+- `LungeDuration / LungeDurationTargeted`: `0.1 / 0.1`
 - `Trace Range`: `250`
+- `Buffer Delay`: `0.3`
+- `Bounceback Distance`: `50`
+- `Hitfreeze Duration`: `0.06` (`0.2` brutal)
+- `Impact Shake Scale`: `0.5` (`CameraShake_Explosion_sharp_strong`)
+- `RightPunch`: `true`
+- `LegeslipDuration`: `1.0`
+- `Environment Damage`: `3.0`
+- `Knockback.VerticalKnockBack`: **`500`**
+- `Knockback.HorizontalKnockback`: **`170`**
+- `LaunchLightweights`: `true`
+- `Damage Should Execute`: `true`
+- `Death Behaviour Tag`: `Combat.Death.Impact.Heavy`
+- `Attack Type Tag`: `Combat.Attack.Launcher`
+- `FlinchOnlyTags`: `Combat.Status.AttackArmor`
+- `SpecialDamageTags`: `Combat.Ability.Melee.Light`, `Combat.Ability.Melee.Heavy`, `Combat.Status.Stunned`
+- `SpecialHitFliter`: `Combat.Ability.Ranged.Reload`, `Combat.Status.vulnerable`, `Combat.Ability.Melee.Heavy`
+- `AbilityTags`: `Combat.Ability.Melee.Kick.Back`
+- `ActivationOwnedTags`: `Combat.Ability.Melee.Kick.Back`, `Combat.General.HideWep`
+- `CancelAbilitiesWithTag`: `Movement.Crouch`, `Movement.Sprint`, `Combat.Ability.Evade`
+- `CancelledByAbilitiesWithTag`: `Combat.Ability.Evade`
 
 Important note:
 
-- No explicit `Hit Damage` field is present in the exposed `GA_BennyAttack_GodFist` CDO properties block (unlike many kick/shunt GAs). Damage likely comes from inherited logic/effects or runtime graph flow, so a single CDO hit-damage number cannot be hard-asserted from this asset alone.
+- No explicit `Hit Damage` field is present in the exposed `GA_BennyAttack_GodFist` CDO properties block (unlike many kick/shunt GAs). It inherits from the `GA_PlayerAttack_base` parent or assigns at runtime via the ubergraph (`AssignTagSetByCallerMagnitude`), so a single CDO hit-damage number cannot be hard-asserted from this asset alone.
+- `SpecialDamageBonus` scalar is also not exposed here — only the bonus *trigger* tag list (`SpecialDamageTags` / `SpecialHitFliter`) is.
+
+### GodFist vs Phyre Riser (same Forward → Crouch → Forward → Light Attack motion)
+
+| Field                  | Benny GodFist                                          | Phyre Riser (`GA_Playerattack_riser`)         |
+| ---------------------- | ------------------------------------------------------ | --------------------------------------------- |
+| Hit Damage             | (inherited from base, not in CDO)                      | 8.0 (explicit)                                |
+| Vertical Knockback     | **500**                                                | **700** (highest of the launcher family)      |
+| Horizontal Knockback   | **170**                                                | 50                                            |
+| Trace Range            | 250                                                    | (base default)                                |
+| LungeRange / Targeted  | 150 / 150                                              | 150 / 150 (matches per drift table)           |
+| LungeDelay             | 0.2                                                    | 0.25                                          |
+| ComboDelay             | 0.5                                                    | 0.7 (`22727210`; was 0.56 in `21718394`)      |
+| AttackMontage          | `AM_Benny_Godfist` (1.05s, `Combat_Uppercut_Brujah`)   | `AM_Player_Riser`                             |
+| LegeslipDuration       | 1.0                                                    | 1.0                                           |
+| LaunchLightweights     | true                                                   | true                                          |
+| Damage Should Execute  | true                                                   | true                                          |
+| Attack Type Tag        | `Combat.Attack.Launcher`                               | (not explicit; AbilityTag = Kick.Back)        |
+| SpecialDamageTags      | Light, Heavy, **Stunned**                              | (none exposed)                                |
+| SpecialHitFliter       | Ranged.Reload, **vulnerable**, **Melee.Heavy**         | Ranged.Reload (single)                        |
+| SpecialDamageBonus     | (not exposed in CDO)                                   | +30.0                                         |
+| Death Behaviour Tag    | `Combat.Death.Impact.Heavy`                            | `Combat.Death.Impact.Heavy`                   |
+
+**Net effect**: Same DP-style input motion, but Benny's variant trades Phyre's pure vertical pop (700 vert / 50 horiz) for a flatter knockback arc (500 vert / 170 horiz) with longer reach (250 trace) and tighter lunge timing (0.2 vs 0.25 delay). The retained `Combat.Attack.Launcher` tag plus reduced vertical lift matches the in-game observation that Benny's version "has no upwards attack" — visually the target is shoved forward rather than skyward. The wider `SpecialDamageTags` list (adds `Stunned`) and `SpecialHitFliter` list (adds `vulnerable`, `Melee.Heavy`) means Godfist triggers bonus damage against more enemy states than Riser does.
 
 ### Benny montage payload (`asset-confirmed`)
 

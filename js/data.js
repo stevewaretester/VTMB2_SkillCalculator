@@ -1006,7 +1006,7 @@ const OUTFIT_TYPES = {
     convo: ["Let us make something beautiful.", "You will like how I hurt you."],
     reactions: {
       homeless:  { san: false, mel: false, cho: true },
-      biker:    { san: true,  mel: true,  cho: false },
+      biker:    { san: true,  mel: true,  cho: true },
       streetwalker: { san: false, mel: false, cho: true },
       business: { san: false, mel: false, cho: true },
     },
@@ -1024,13 +1024,13 @@ const AFFECT_REACTIONS = {
 // ── Conversation Disposition ─────────────────────────────────
 // First convo = friendly, Second convo = aggressive, plus disposition options
 const CONVO_EFFECTS = {
-  friendly:   { homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: false }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: false, mel: false, cho: false } },
-  aggressive: { homeless: { san: true,  mel: true,  cho: false }, biker: { san: true,  mel: false, cho: false }, streetwalker: { san: true,  mel: false, cho: false }, business: { san: true,  mel: true,  cho: true } },
+  friendly:   { homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: true  }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: true,  mel: false, cho: false } },
+  aggressive: { homeless: { san: true,  mel: true,  cho: false }, biker: { san: true,  mel: false, cho: false }, streetwalker: { san: true,  mel: false, cho: false }, business: { san: false, mel: true,  cho: true } },
 };
 
 const DISPOSITIONS = {
   sage:   { quote: "You cannot match my wit",  homeless: { san: false, mel: false, cho: false }, biker: { san: false, mel: false, cho: false }, streetwalker: { san: true, mel: false, cho: false }, business: { san: false, mel: false, cho: false } },
-  empath: { quote: "I can see your heart",     homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: false }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: false, mel: false, cho: false } },
+  empath: { quote: "I can see your heart",     homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: true  }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: false, mel: false, cho: false } },
   bully:  { quote: "I can destroy you",        homeless: { san: true,  mel: true,  cho: false }, biker: { san: true,  mel: false, cho: false }, streetwalker: { san: true,  mel: false, cho: false }, business: { san: true,  mel: true,  cho: true } },
 };
 

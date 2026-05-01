@@ -26,6 +26,8 @@ const BENNY_SIDEBAR_ITEMS = [
   {
     id: "leap",
     title: "Soaring Leap",
+    icon: "assets/T_UI_SoaringLeap.png",
+    iconClass: "benny-sidebar-item__pistol-icon",
     tier: "Traversal",
     image: "assets/screenshot/BennySoar.png",
     subtitle: "Replaces Phyre's Glide",
@@ -698,6 +700,58 @@ function renderBennyUnarmedPage() {
   h += `</tbody></table>`;
   h += `<p class="crossclan-note--sub" style="margin-top:8px">Approximate montage frequency for the three DLC specials is 1 / 1.6667 ≈ <strong>0.60 attacks/sec</strong> (raw animation duration proxy).</p>`;
   h += `</div></details>`;
+
+  // ── GodFist lozenge (Benny's variant of the Riser DP input) ───
+  // Same forward → crouch → forward → light attack motion as Phyre's hidden
+  // Riser, but the Benny DLC payload trades the pure launcher (700 vert / 50 horiz)
+  // for a flatter shove-punch (500 vert / 170 horiz). Fits naturally with
+  // Chop/Kick/Sweep as the fourth DLC special attack surface.
+  const _ki = (src, alt) => `<img class="cct-inline-key" src="assets/Keyboard/${src}" alt="${alt}" title="${alt}">`;
+  const _lmb = _ki("T_UI_Keyboard_Mouse_Left_Click.png", "Left Click");
+  h += `<details class="crossclan-lozenge"><summary class="crossclan-lozenge__summary">GodFist <span class="crossclan-note">— hidden DP input (Benny&rsquo;s Riser variant)</span></summary><div class="crossclan-lozenge__body">`;
+  h += `<div class="riser-lozenge__layout">`;
+  h += `<img class="riser-lozenge__codex riser-lozenge__codex--benny" src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="Loose Cannon DLC — Benny" title="Benny DLC special — same DP input as Riser, different payload">`;
+  h += `<div class="riser-lozenge__body">`;
+  h += `<p class="crossclan-note--sub">Benny&rsquo;s DLC version of the hidden DP input. Same motion as Phyre&rsquo;s <strong>Riser</strong>, but the payload is a <strong>shove-punch</strong>, not a launcher &mdash; the target gets driven forward rather than skyward.</p>`;
+  h += `<p class="crossclan-note--sub"><strong>Input:</strong> ${_ki('T_UI_Keyboard_W.png','W')} &rarr; ${_ki('T_UI_Keyboard_CTRL_Left.png','ctrl')} &rarr; ${_ki('T_UI_Keyboard_W.png','W')} &rarr; ${_lmb} &nbsp;<span class="crossclan-note">(four distinct inputs &mdash; forward, crouch, forward, light attack. Performed fast enough, it fires as an instant uppercut.)</span></p>`;
+  h += `<table class="combos-table crossclan-table"><thead><tr>`;
+  h += `<th class="combos-table__th" style="width:18%">Property</th><th class="combos-table__th" style="width:82%">Value</th></tr></thead><tbody>`;
+  const godfistRows = [
+    { prop: "Montage",          val: `<code class="crossclan-code">AM_Benny_Godfist</code> &nbsp;<span class="crossclan-note">(1.05s, <code>Combat_Uppercut_Brujah</code>)</span>` },
+    { prop: "GA",               val: `<code class="crossclan-code">GA_BennyAttack_GodFist</code>` },
+    { prop: "Hit Damage",       val: `<span class="crossclan-note">inherited from <code>GA_PlayerAttack_base</code> &mdash; not exposed in CDO</span>` },
+    { prop: "Env. Damage",      val: "3.0" },
+    { prop: "Knockback",        val: `<strong>H: 170</strong>, V: 500 &nbsp;<span class="crossclan-note">(flatter arc &mdash; shove, not launcher)</span>` },
+    { prop: "Trace Range",      val: `250 &nbsp;<span class="crossclan-note">(longer reach than Riser)</span>` },
+    { prop: "Lunge",            val: `Range 150 / Targeted 150, Delay 0.2, Duration 0.1 &nbsp;<span class="crossclan-note">(tighter than Riser&rsquo;s 0.25)</span>` },
+    { prop: "ComboDelay",       val: "0.5" },
+    { prop: "Buffer Delay",     val: "0.3" },
+    { prop: "Hitfreeze",        val: "0.06s (0.2s brutal)" },
+    { prop: "Camera Shake",     val: `<code class="crossclan-code">CameraShake_Explosion_sharp_strong</code> &times; 0.5` },
+    { prop: "Bounceback",       val: "50" },
+    { prop: "Tag",              val: `<code class="crossclan-code">Combat.Attack.Launcher</code> &nbsp;<span class="crossclan-note">(retained, but vertical pop is reduced)</span>` },
+    { prop: "Death Behaviour",  val: `<code class="crossclan-code">Combat.Death.Impact.Heavy</code>` },
+    { prop: "Special Triggers", val: `Light, Heavy, <strong>Stunned</strong> &nbsp;<span class="crossclan-note">(Riser exposes none)</span>` },
+    { prop: "Special Filter",   val: `Ranged.Reload, <strong>Vulnerable</strong>, <strong>Melee.Heavy</strong>` },
+    { prop: "Lightweights",     val: "Launches lightweight enemies on contact" },
+    { prop: "Execute",          val: `<strong>Damage Should Execute: true</strong>` },
+    { prop: "Cancels",          val: `<code class="crossclan-code">Movement.Crouch</code>, <code class="crossclan-code">Movement.Sprint</code>, <code class="crossclan-code">Combat.Ability.Evade</code>` },
+  ];
+  for (const r of godfistRows) {
+    h += `<tr class="combos-table__tr"><td class="combos-table__td" style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text-dim);white-space:nowrap">${r.prop}</td><td class="combos-table__td" style="font-size:11px">${r.val}</td></tr>`;
+  }
+  h += `</tbody></table>`;
+  h += `<ul class="crossclan-list crossclan-list--notes">
+    <li><strong>Shove, not launcher</strong> &mdash; Benny&rsquo;s GodFist trades Riser&rsquo;s 700 vertical pop for 500 vertical / 170 horizontal. The target gets driven forward; in-game this reads as &ldquo;Benny has no upwards attack.&rdquo;</li>
+    <li><strong>Wider bonus-trigger surface</strong> &mdash; <code>SpecialDamageTags</code> includes <code>Combat.Status.Stunned</code> and <code>SpecialHitFliter</code> includes <code>Combat.Status.vulnerable</code> and <code>Combat.Ability.Melee.Heavy</code>. GodFist procs special-damage paths against more enemy states than Riser does.</li>
+    <li><strong>Tighter lunge timing</strong> &mdash; LungeDelay 0.2 vs Riser&rsquo;s 0.25, with the same 150/150 range. Closes distance noticeably faster.</li>
+    <li><strong>No exposed base damage</strong> &mdash; unlike Riser&rsquo;s explicit 8.0, GodFist inherits from <code>GA_PlayerAttack_base</code> and assigns at runtime via <code>AssignTagSetByCallerMagnitude</code>. The +30 bonus scalar Riser exposes is also not surfaced here, only the trigger tag list.</li>
+    <li>Lives under <code>Plugins/WrestlerDLC/DLC_Benny/</code> and tagged <code>Combat.Ability.Melee.Kick.Back</code> like the standard back kick family.</li>
+  </ul>`;
+  h += `</div>`; // godfist body
+  h += `</div>`; // godfist layout
+  h += `</div></details>`;
+
   h += `</div>`; // specials section
 
   // ── BennyGun Sidearm ──

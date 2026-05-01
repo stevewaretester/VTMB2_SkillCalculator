@@ -776,7 +776,7 @@ function renderClanCombosPage() {
   }
   html += `</div>`; // clan-combos-filter
   html += `<div class="clan-combos-jump-btns">`;
-  html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-kicks-btn" title="Kicks"><img src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_Fleetness.png" alt="" style="transform:rotate(270deg)"> Kicks</button>`;
+  html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-kicks-btn" title="Special Attacks"><img src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_Fleetness.png" alt="" style="transform:rotate(270deg)"> Special Attacks</button>`;
   html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-mobility-btn" title="Dash &amp; Shunt"><img src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_BlurredMovement.png" alt=""> Mobility</button>`;
   html += `<button class="clan-combos-filter__btn clan-combos-notes-btn" id="clan-combos-notes-btn" title="Cross-Clan Notes"><img src="${typeof UI !== 'undefined' && UI.phyreMark ? UI.phyreMark : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}" alt=""> Notes</button>`;
   html += `</div>`; // clan-combos-jump-btns
@@ -869,11 +869,11 @@ function renderClanCombosPage() {
 
   html += `</div></div>`; // clan-combos-tables / combos-layout
 
-  // ── Kicks section ────────────────────────────────────────────
+  // ── Special Attacks section (Kicks + Riser) ─────────────────
   html += `<div class="crossclan-section-wrap crossclan-section-wrap--no-pad" id="clan-kicks-section">`;
   html += `<div class="crossclan-section-heading">`;
-  html += `<img class="crossclan-section-heading__icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_Fleetness.png" alt="Kicks" style="transform:rotate(270deg)">`;
-  html += `<span>Kicks</span>`;
+  html += `<img class="crossclan-section-heading__icon" src="assets/N_Textures/AbilityTree/AbilitiesIcons/T_UI_Icon_Fleetness.png" alt="Special Attacks" style="transform:rotate(270deg)">`;
+  html += `<span>Special Attacks</span>`;
   html += `<span class="crossclan-section-heading__sub">All clans — clan-agnostic</span>`;
   html += `</div>`;
 
@@ -929,6 +929,47 @@ function renderClanCombosPage() {
     <li><strong>Side kick</strong> uses <code>Kick_Right</code> mirrored for left input — <code>Kick_Left</code> exists in exports but is not referenced.</li>
   </ul>`;
   html += `</div></details>`;
+
+  // ── Riser lozenge (hidden codex move) ───────────────────────
+  // The "Mysterious Attack" codex page is the in-game tutorial for this move:
+  // forward → crouch → forward → light attack (Shoryuken DP motion). The codex
+  // art itself encodes the input — three arrows converging on a fist.
+  html += `<details class="crossclan-lozenge"><summary class="crossclan-lozenge__summary">Riser <span class="crossclan-note">— hidden combat input</span></summary><div class="crossclan-lozenge__body">`;
+  html += `<div class="riser-lozenge__layout">`;
+  html += `<img class="riser-lozenge__codex" src="assets/T_UI_CodexCollectibleMysteriousAttack.png" alt="Mysterious Attack codex page — the input is encoded in the art" title="Codex: Mysterious Attack — three arrows converging on a fist (the picture IS the input)">`;
+  html += `<div class="riser-lozenge__body">`;
+  html += `<p class="crossclan-note--sub">A hidden launcher unlocked by the <strong>Mysterious Attack</strong> codex page (Tutorials_AdvancedCombat). The codex art is the input notation: three arrows converging on a fist — a Shoryuken / dragon-punch motion.</p>`;
+  html += `<p class="crossclan-note--sub"><strong>Input:</strong> ${_ki('T_UI_Keyboard_W.png','W')} &rarr; ${_ki('T_UI_Keyboard_CTRL_Left.png','ctrl')} &rarr; ${_ki('T_UI_Keyboard_W.png','W')} &rarr; ${_lmb} &nbsp;<span class="crossclan-note">(four distinct inputs — forward, crouch, forward, light attack. Performed fast enough, it fires as an instant uppercut.)</span></p>`;
+  html += `<table class="combos-table crossclan-table"><thead><tr>`;
+  html += `<th class="combos-table__th" style="width:18%">Property</th><th class="combos-table__th" style="width:82%">Value</th></tr></thead><tbody>`;
+  const riserRows = [
+    { prop: "Montage",          val: `<code class="crossclan-code">AM_Player_Riser</code>` },
+    { prop: "GA",               val: `<code class="crossclan-code">GA_Playerattack_riser</code>` },
+    { prop: "Hit Damage",       val: "8.0" },
+    { prop: "Env. Damage",      val: "3.0" },
+    { prop: "Special Bonus",    val: `<strong>+30.0</strong> &nbsp;<span class="crossclan-note">(huge conditional bonus — pushes total to 38)</span>` },
+    { prop: "Knockback",        val: `H: 50, <strong>V: 700</strong> &nbsp;<span class="crossclan-note">(Shunt-tier launcher)</span>` },
+    { prop: "Tag",              val: `<code class="crossclan-code">Combat.Attack.Launcher</code>` },
+    { prop: "Death Behaviour",  val: `<code class="crossclan-code">Combat.Death.Impact.Heavy</code>` },
+    { prop: "Lightweights",     val: "Launches lightweight enemies on contact" },
+    { prop: "Execute",          val: `<strong>Damage Should Execute: true</strong> &mdash; auto-finishes low-HP enemies` },
+    { prop: "Activation gate",  val: `<code class="crossclan-code">HasMatchingGameplayTag(CastInput) AND IsCrouching</code>` },
+  ];
+  for (const r of riserRows) {
+    html += `<tr class="combos-table__tr"><td class="combos-table__td" style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text-dim);white-space:nowrap">${r.prop}</td><td class="combos-table__td" style="font-size:11px">${r.val}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  html += `<ul class="crossclan-list crossclan-list--notes">
+    <li><strong>Four distinct inputs</strong> — the activation gate checks <code>IsCrouching</code> at the moment of attack, so the crouch tap has to register as its own input between the two forward taps. Done fast enough, the whole sequence resolves into an instant uppercut.</li>
+    <li>The <strong>+30 special bonus</strong> stacks on top of the 8 base damage for a 38-damage launcher. No condition tag is set on the bonus — it appears to apply unconditionally.</li>
+    <li>Vertical knockback of <strong>700</strong> puts Riser in the same launcher tier as Shunt — ideal for setting up a juggle or follow-up drop kick.</li>
+    <li>Registered as a charge-combat state in <code>CG_ChargeCombat</code> alongside Shunt, sharing the same input-gate machinery.</li>
+    <li>Discovered via the <strong>Mysterious Attack</strong> codex page (<code>Combat_MysteriousAttack</code>); the page art encodes the motion rather than spelling it out in text.</li>
+  </ul>`;
+  html += `</div>`; // riser-lozenge__body
+  html += `</div>`; // riser-lozenge__layout
+  html += `</div></details>`;
+
   html += `</div>`; // kicks section-wrap
 
   // ── Dash & Shunt section ────────────────────────────────────
@@ -1234,6 +1275,17 @@ function renderClanCombosPage() {
       if (typeof navigateToAbility !== "function") return;
       if (!state.selectedClan && typeof selectClan === "function") selectClan(btn.dataset.clan);
       navigateToAbility(btn.dataset.clan, btn.dataset.tier);
+    });
+  });
+
+  // Riser codex image: click to fullscreen via existing image lightbox
+  // (skip the Benny-logo variant on the GodFist lozenge — it's just a crest,
+  // not a codex page worth zooming.)
+  container.querySelectorAll(".riser-lozenge__codex:not(.riser-lozenge__codex--benny)").forEach(img => {
+    img.addEventListener("click", () => {
+      if (typeof openImageLightbox === "function") {
+        openImageLightbox(img.getAttribute("src"), img.getAttribute("alt") || "Mysterious Attack codex page");
+      }
     });
   });
 }

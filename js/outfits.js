@@ -454,6 +454,15 @@ function renderReactionsTable() {
     { id: "mel", icon: UI.resMelancholicLg, cssVar: "--res-melancholic" },
     { id: "cho", icon: UI.resCholericLg,    cssVar: "--res-choleric" },
   ];
+  // NPC types that simply don't exist for a given resonance in-game.
+  // We grey those cells (and the matching header icon under each NPC group)
+  // because the data is meaningless rather than "no".
+  const NPC_RES_NONEXISTENT = {
+    homeless:     "san",
+    biker:        "mel",
+    streetwalker: "cho",
+  };
+  const isNonexistent = (npcId, resId) => NPC_RES_NONEXISTENT[npcId] === resId;
   const AFFECT_LINK_DEFS = [
     { name: "Taunt",               lookup: "Taunt",               resVar: "--res-choleric",    convo: "You are nothing to me" },
     { name: "Beckon",              lookup: "Beckon",              resVar: "--res-sanguine",    convo: "You want me" },
@@ -470,6 +479,10 @@ function renderReactionsTable() {
     for (const npc of npcTypes) {
       h += `<tr><td>${npc.label}</td>`;
       for (const r of resTypes) {
+        if (isNonexistent(npc.id, r.id)) {
+          h += `<td class="react-na" title="No ${r.id === 'san' ? 'Sanguine' : r.id === 'mel' ? 'Melancholic' : 'Choleric'} ${npc.label} exist in-game">—</td>`;
+          continue;
+        }
         const val = typeData.reactions[npc.id][r.id];
         h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
       }
@@ -539,12 +552,21 @@ function renderReactionsTable() {
     h += `<table class="reactions-table"><thead><tr><th>Option</th>`;
     for (const npc of npcTypes) h += `<th colspan="3">${npc.label}</th>`;
     h += `</tr><tr><th></th>`;
-    for (let i = 0; i < npcTypes.length; i++) for (const r of resTypes) h += resHeader(r);
+    for (const npc of npcTypes) {
+      for (const r of resTypes) {
+        if (isNonexistent(npc.id, r.id)) {
+          h += `<th class="react-na"><img class="reactions-res-icon" src="${r.icon}" alt="" title="${r.id}"></th>`;
+        } else {
+          h += resHeader(r);
+        }
+      }
+    }
     h += `</tr></thead><tbody>`;
 
     h += `<tr><td class="convo-friendly">${friendlyLabel}</td>`;
     for (const npc of npcTypes) {
       for (const r of resTypes) {
+        if (isNonexistent(npc.id, r.id)) { h += `<td class="react-na">—</td>`; continue; }
         const val = CONVO_EFFECTS.friendly[npc.id][r.id];
         h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
       }
@@ -553,6 +575,7 @@ function renderReactionsTable() {
     h += `<tr><td class="convo-aggressive">${aggressiveLabel}</td>`;
     for (const npc of npcTypes) {
       for (const r of resTypes) {
+        if (isNonexistent(npc.id, r.id)) { h += `<td class="react-na">—</td>`; continue; }
         const val = CONVO_EFFECTS.aggressive[npc.id][r.id];
         h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
       }
@@ -563,6 +586,7 @@ function renderReactionsTable() {
       h += `<tr><td><strong>${id.charAt(0).toUpperCase() + id.slice(1)}</strong><br><span style="font-size:10px;color:var(--text-dim)">"${data.quote}"</span></td>`;
       for (const npc of npcTypes) {
         for (const r of resTypes) {
+          if (isNonexistent(npc.id, r.id)) { h += `<td class="react-na">—</td>`; continue; }
           const val = data[npc.id][r.id];
           h += `<td class="${val ? "react-pos" : "react-neg"}">${val ? "✓" : "✗"}</td>`;
         }
