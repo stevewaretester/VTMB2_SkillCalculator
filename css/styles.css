@@ -9463,7 +9463,7 @@ body.is-force-desktop #app {
 
 .hubmap__wip-strip {
     position: absolute;
-    background: repeating-linear-gradient(-45deg, #ffd21f 0 16px, #131313 16px 32px);
+    background: repeating-linear-gradient(-45deg, #d92a2a 0 16px, #131313 16px 32px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.38);
 }
 
@@ -9479,7 +9479,7 @@ body.is-force-desktop #app {
     top: 0;
     bottom: 0;
     width: 26px;
-    background: repeating-linear-gradient(-45deg, #ffd21f 0 14px, #131313 14px 28px);
+    background: repeating-linear-gradient(-45deg, #d92a2a 0 14px, #131313 14px 28px);
 }
 
 .hubmap__wip-strip--top {
