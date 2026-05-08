@@ -170,7 +170,7 @@ function renderCombosPage() {
       const unlockState = getComboUnlockState(combo);
       if (!comboPassesFilter(unlockState)) continue;
       const abilitiesHtml = combo.abilities.map(buildComboAbilityIcon).join("");
-      const explanationHtml = combo.explanation.replace(/\n/g, "<br>");
+      const explanationHtml = typeof linkifyAbilityText === 'function' ? linkifyAbilityText(combo.explanation) : combo.explanation.replace(/\n/g, '<br>');
       let refHtml = '';
       if (combo.referenceUrl) {
         refHtml = `<div class="combo-card__ref">Ref: <a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a></div>`;
@@ -230,7 +230,7 @@ function renderCombosPage() {
       nameCell += `</details>`;
 
       const abilitiesHtml  = combo.abilities.map(buildComboAbilityIcon).join("");
-      const explanationHtml = combo.explanation.replace(/\n/g, "<br>");
+      const explanationHtml = typeof linkifyAbilityText === 'function' ? linkifyAbilityText(combo.explanation) : combo.explanation.replace(/\n/g, "<br>");
 
       html += `
         <tr class="${rowClass}" id="combo-row-${combo.id}">
@@ -368,11 +368,17 @@ const MELEE_COMBOS = [
         effect: "A quick burst of speed in the input direction. Can be combined with attack inputs to do \"dash kicks\".\nBy default you'll hop backwards; with directional inputs you'll move that way.",
         damage: "N/A",
       },
+      {
+        name: "Block",
+        input: "No input while facing an attacking enemy",
+        effect: "Blocking reduces incoming melee damage, but some heavier or ability-based attacks cannot be blocked.",
+        damage: "Reduced",
+      },
     ],
   },
   {
-    section: "Combos & Counters",
-    sectionSub: "Multiple buttons, or timed against enemy attacks",
+    section: "Contextual Inputs",
+    sectionSub: "Mobility and counter-attacks",
     rows: [
       {
         name: "Standard Attack Chain",
@@ -548,6 +554,15 @@ function renderMeleeCombosPage() {
           <span class="combos-table__section-sub">${section.sectionSub}</span>
         </td>
       </tr>`;
+    if (section.notes && section.notes.length) {
+      html += `<tr class="combos-table__row combos-table__row--melee combos-table__row--section-notes">
+        <td colspan="4" class="combos-table__td combos-table__td--section-notes">
+          <ul class="melee-section-notes">
+            ${section.notes.map(n => `<li>${n}</li>`).join("")}
+          </ul>
+        </td>
+      </tr>`;
+    }
     for (const row of section.rows) {
       const inputHtml  = row.input.split("\n").map(line => formatCCTInlineText(line)).join("<br>");
       const effectHtml = row.effect.replace(/\n/g, "<br>");
@@ -803,6 +818,14 @@ function renderClanCombosPage() {
     if (clan && clan.logo) html += `<img class="clan-combo-block__logo" src="${clan.logo}" alt="${data.name}">`;
     html += `<span class="clan-combo-block__name">${data.name}</span>`;
     html += `<span class="clan-combo-block__meta">${data.steps} steps &middot; ${data.lightType === "NoLunge" ? "No-Lunge" : "Lunging"} lights</span>`;
+    if (typeof TIERLIST_ITEMS !== 'undefined') {
+      const _mClanShort = clanId === 'banuHaqim' ? 'banu' : clanId;
+      const _mItem = TIERLIST_ITEMS.find(i => i.id === `melee-${_mClanShort}`);
+      if (_mItem && _mItem.tier) {
+        const _mLabel = _mItem.tier === 's-plus' ? 'S+' : _mItem.tier.toUpperCase();
+        html += `<button class="detail-panel__tier-rank tier-rank--${_mItem.tier}" data-tierlist-id="${_mItem.id}">Melee: ${_mLabel}</button>`;
+      }
+    }
     if (data.dps) {
       const dps = data.dps;
       const allLightDmg = data.rows.reduce((s, r) => s + r.lightDmg, 0);
@@ -1081,6 +1104,17 @@ function renderClanCombosPage() {
   </ul>`;
   html += `</div></details>`;
 
+  // Lozenge: Blocking
+  html += `<details class="crossclan-lozenge"><summary class="crossclan-lozenge__summary">Blocking</summary><div class="crossclan-lozenge__body">`;
+  html += `<p class="crossclan-note--sub">From in-game Codex entries and CDO tags (build 22727210).</p>`;
+  html += `<ul class="crossclan-list crossclan-list--notes">
+    <li>Look directly at an incoming melee attack while idle to <strong>block</strong>, significantly reducing damage taken.</li>
+    <li>Some <strong>heavier or ability-based attacks cannot be blocked</strong> — they connect through guard.</li>
+    <li>The <strong>front kick</strong> still triggers block-flinch tags — enemies who are blocking will flinch but take reduced damage. Several other special moves do not share this profile.</li>
+    <li>Special and heavy-context attacks are more likely to <strong>bypass or punish block</strong> compared to standard light attacks.</li>
+  </ul>`;
+  html += `</div></details>`;
+
   html += `</div>`; // mobility section-wrap
 
   // ── Cross-Clan Notes section ────────────────────────────────
@@ -1269,6 +1303,13 @@ function renderClanCombosPage() {
     });
   }
 
+  // Melee tier badges in clan headings → open tierlist popover
+  container.querySelectorAll('.clan-combo-block__heading [data-tierlist-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (typeof openTierBadgePopover === 'function') openTierBadgePopover(btn.dataset.tierlistId, btn);
+    });
+  });
+
   // Ability cross-links inside lozenges (e.g. Blurred Momentum)
   container.querySelectorAll(".affect-link-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1339,7 +1380,7 @@ function renderCrossClanPage() {
     const isLow  = row.maxHeavy === "12";
     h += `<tr class="combos-table__tr">`;
     h += `<td class="combos-table__td crossclan-table__td--clan">`;
-    if (clan && clan.logo) h += `<img class="crossclan-clan-logo" src="${clan.logo}" alt="">`;
+    h += `<img class="crossclan-clan-logo" src="${clan.logo}" alt="">`;
     h += `<span class="crossclan-clan-name">${clan ? clan.name : row.clan}</span></td>`;
     h += `<td class="combos-table__td">${row.lightRange}</td>`;
     h += `<td class="combos-table__td">${row.heavy}</td>`;
@@ -1362,7 +1403,7 @@ function renderCrossClanPage() {
   const rangeRows = [
     { prop: "Trace Range",           lunging: "170 units (~1.7 m)",   tremere: "400 units (~4 m)",           tremereClass: "crossclan__val--notable" },
     { prop: "Trace Radius",          lunging: "35 units (~35 cm)",    tremere: "35 units (inherited)",       tremereClass: "" },
-    { prop: "Lunge Range (targeted)",lunging: "450 units (~4.5 m)",   tremere: "30 units (effectively off)", tremereClass: "crossclan__val--dim" },
+    { prop: "Lunge Range (targeted)", lunging: "450 units (~4.5 m)",   tremere: "30 units (effectively off)", tremereClass: "crossclan__val--dim" },
     { prop: "Lunge Assist Strength", lunging: "200",                  tremere: "—",                          tremereClass: "crossclan__val--dim" },
     { prop: "Bounceback Distance",   lunging: "10 units",             tremere: "30 units",                   tremereClass: "crossclan__val--notable" },
   ];
@@ -1378,7 +1419,7 @@ function renderCrossClanPage() {
   h += `<ul class="crossclan-list crossclan-list--notes">`;
   h += `<li>Tremere's hit trace is <strong>more than twice as long</strong> as lunging clans, compensating for the lack of dash.</li>`;
   h += `<li>Lunging clans snap up to <strong>4.5 m</strong> toward the target before the trace fires — this is why Tremere <em>feels</em> shorter-ranged despite the longer trace.</li>`;
-  h += `<li>Tremere pushes targets back further on each hit (30 vs 10 units).</li>`;
+  h += `<li>Tremere pushes targets back further per hit (30 vs 10 units).</li>`;
   h += `</ul>`;
   h += `</section>`;
 
@@ -1406,7 +1447,7 @@ function renderCrossClanPage() {
     const clan = typeof CLANS !== "undefined" ? CLANS[row.clan] : null;
     h += `<tr class="combos-table__tr">`;
     h += `<td class="combos-table__td crossclan-table__td--clan">`;
-    if (clan && clan.logo) h += `<img class="crossclan-clan-logo" src="${clan.logo}" alt="">`;
+    h += `<img class="crossclan-clan-logo" src="${clan.logo}" alt="">`;
     h += `<span class="crossclan-clan-name">${clan ? clan.name : row.clan}</span></td>`;
     h += `<td class="combos-table__td"><code class="crossclan-code">${row.idle}</code></td>`;
     h += `<td class="combos-table__td"><code class="crossclan-code">${row.block}</code></td>`;
@@ -1474,6 +1515,24 @@ const MELEE_WEAPONS = [
       "Highest light-attack damage of any one-handed melee weapon (17/swing).",
       "No forward overhead variant — only the backward shove.",
       "Empty (uncharged) variant deals only 4 light / 14 heavy — same montages, scaled-down damage.",
+      "Toggle between charged/empty to compare damage states.",
+    ],
+    variants: [
+      {
+        id: "baton_empty", name: "Electric Baton (Empty)",
+        attackset: "Attackset_Baton_Empty", thrownDmg: 10,
+        lightType: "Lunging", steps: 4,
+        rows: [
+          { step: 1, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 4, heavyMontage: "AM_Baton_Swing_01", heavyLen: 2.557, heavyDmg: 14, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 2 },
+          { step: 2, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 4, heavyMontage: "AM_Baton_Swing_02", heavyLen: 2.547, heavyDmg: 14, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 2 },
+          { step: 3, lightMontage: "AM_Sword_Light1", lightLen: 1.248, lightDmg: 4, heavyMontage: "AM_Baton_Swing_01", heavyLen: 2.557, heavyDmg: 14, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 2 },
+          { step: 4, lightMontage: "AM_Sword_Light2", lightLen: 1.239, lightDmg: 4, heavyMontage: "AM_Baton_Swing_02", heavyLen: 2.547, heavyDmg: 14, fwdMontage: null, fwdLen: 0, fwdDmg: 0, shoveMontage: "AM_wep_Shove", shoveLen: 1.534, shoveDmg: 2 },
+        ],
+        notes: [
+          "Same animations as loaded baton, but much lower damage.",
+          "Represents the uncharged/drained state (PlayerWeapon_Empty).",
+        ],
+      },
     ],
   },
   {
@@ -1563,7 +1622,7 @@ const MELEE_WEAPON_GA_DATA = [
   { ga: "GA_PlayerAttack_Bat",         trigger: "Tap attack with a bat-class weapon",                comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.05, hitReact: "Light" },
   { ga: "GA_PlayerAttack_Baton",       trigger: "Tap attack with the electric baton",                comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.05, hitReact: "Light", flag: "new in 22727210" },
   { ga: "GA_PlayerAttack_Hammer",      trigger: "Tap attack with a hammer-class weapon",             comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "200 / —",   lungeDelay: 0.06, hitReact: "Light" },
-  { ga: "GA_PlayerAttack_sword",       trigger: "Tap attack with a sword-class weapon",              comboDelay: 0.2, hitDmg: 8,  trace: "270 / r60",  lunge: "— / 200",   lungeDelay: 0.05, hitReact: "Light" },
+  { ga: "GA_PlayerAttack_sword",       trigger: "Tap attack with a sword-class weapon",              comboDelay: 0.2, hitDmg: 8,  trace: "270 / r35",  lunge: "— / 200",   lungeDelay: 0.05, hitReact: "Light" },
   { ga: "GA_PlayerAttack_Stab",        trigger: "Tap attack with a stab-capable bladed weapon",      comboDelay: 0.2, hitDmg: 8,  trace: "250 / r35",  lunge: "240 / 350", lungeDelay: 0.01, hitReact: "Light" },
   { ga: "GA_PlayerAttack_LightBlade",  trigger: "Tap attack with a light blade",                     comboDelay: 0.2, hitDmg: 8,  trace: "270 / r35",  lunge: "140 / 270", lungeDelay: 0.01, hitReact: "Light" },
   { ga: "GA_PlayerAttack_HeavyBat",    trigger: "Hold attack with a bat-class weapon",               comboDelay: 0.7, hitDmg: 30, trace: "300 / r100", lunge: "200 / 450", lungeDelay: 0.10, hitReact: "HeavyFirst", flinch: "AttackArmor.Heavy" },
@@ -1666,8 +1725,19 @@ function renderMeleeWeaponsPage() {
     h += renderWeaponDpsChip("SHV", "Shove rotation",   dpsShove);
     h += `</div>`;
     h += `</div>`;
+    
+    // Variant tabs (if variants exist)
+    if (w.variants && w.variants.length > 0) {
+      h += `<div class="weapon-variant-tabs">`;
+      h += `<button class="weapon-variant-tab weapon-variant-tab--active" data-variant="main" data-weapon-id="${w.id}">Charged</button>`;
+      for (const v of w.variants) {
+        h += `<button class="weapon-variant-tab" data-variant="${v.id}" data-weapon-id="${w.id}">${v.name.split('(')[1].trim()}</button>`;
+      }
+      h += `</div>`;
+    }
 
-    // Step table
+    // Step table — main weapon
+    h += `<div class="weapon-variant-content" data-variant="main" data-weapon-id="${w.id}">`;
     h += `<table class="combos-table clan-combos-table"><thead><tr>
       <th class="combos-table__th clan-combos-table__th--step">Step</th>
       <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">L.Dmg</th>
@@ -1699,6 +1769,49 @@ function renderMeleeWeaponsPage() {
       h += `</tr>`;
     }
     h += `</tbody></table>`;
+    h += `</div>`;
+    
+    // Variant tables
+    if (w.variants && w.variants.length > 0) {
+      for (const v of w.variants) {
+        const vDpsLight = computeWeaponRotationDps(v.rows, "light");
+        const vDpsFwd   = computeWeaponRotationDps(v.rows, "fwd");
+        const vDpsShove = computeWeaponRotationDps(v.rows, "shove");
+        h += `<div class="weapon-variant-content" data-variant="${v.id}" data-weapon-id="${w.id}" style="display:none;">`;
+        h += `<table class="combos-table clan-combos-table"><thead><tr>
+          <th class="combos-table__th clan-combos-table__th--step">Step</th>
+          <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">L.Dmg</th>
+          <th class="combos-table__th clan-combos-table__th--llen" title="Light montage sequence length">L.Len</th>
+          <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">H.Dmg</th>
+          <th class="combos-table__th clan-combos-table__th--hlen" title="Heavy montage sequence length">H.Len</th>
+          <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
+          <th class="combos-table__th" title="Forward variant montage length">Fwd Len</th>
+          <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
+          <th class="combos-table__th" title="Shove montage length">Shove Len</th>
+        </tr></thead><tbody>`;
+        for (const r of v.rows) {
+          const isPeak = r.heavyDmg >= 30;
+          h += `<tr class="clan-combos-table__row">`;
+          h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg">${r.lightDmg}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.lightMontage}">${r.lightLen.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+          if (r.fwdMontage) {
+            h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.fwdDmg}</td>`;
+            h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.fwdMontage}">${r.fwdLen.toFixed(2)}s</td>`;
+          } else {
+            h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+            h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+          }
+          h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.shoveDmg}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.shoveMontage}">${r.shoveLen.toFixed(2)}s</td>`;
+          h += `</tr>`;
+        }
+        h += `</tbody></table>`;
+        h += `</div>`;
+      }
+    }
 
     // Notes
     if (w.notes && w.notes.length) {
@@ -1750,7 +1863,7 @@ function renderMeleeWeaponsPage() {
     <li><strong>Combo Delay</strong> on the GA is the input window before the next combo step — per-step combo delays come from the attackset's per-slot data.</li>
     <li><strong>Hit Dmg</strong> here is the GA fallback; real damage is whatever the attackset slot specifies (see per-weapon tables above).</li>
     <li>Heavy classes carry <code>Combat.Status.AttackArmor.Heavy</code> as flinch-only — they bypass standard guard and only flinch on armored enemies.</li>
-    <li><strong>Heavy attacks BREAK the weapon</strong> — a heavy strike consumes the weapon (one-shot release, weapon is thrown/destroyed after impact). DPS values shown per-weapon are sustained rotations and exclude heavies for that reason.</li>
+    <li><strong>Heavy attacks BREAK the weapon</strong> — a heavy strike consumes the weapon (one-shot release, weapon is thrown/destroyed after impact), but deals significant damage.</li>
     <li><code>GA_PlayerAttack_Baton</code> is new in build 22727210 — adds the loaded electric baton's neutral strike profile.</li>
   </ul>`;
   h += `</div></details>`;
@@ -1775,6 +1888,31 @@ function renderMeleeWeaponsPage() {
 
   h += `</div>`; // combos-layout
   container.innerHTML = h;
+
+  // Weapon variant tab event listeners
+  document.querySelectorAll('.weapon-variant-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const variantId = tab.dataset.variant;
+      const weaponId = tab.dataset.weaponId;
+      
+      // Hide all variants for this weapon
+      document.querySelectorAll(`.weapon-variant-content[data-weapon-id="${weaponId}"]`).forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Remove active class from all tabs for this weapon
+      document.querySelectorAll(`.weapon-variant-tab[data-weapon-id="${weaponId}"]`).forEach(t => {
+        t.classList.remove('weapon-variant-tab--active');
+      });
+      
+      // Show selected variant
+      const selectedContent = document.querySelector(`.weapon-variant-content[data-variant="${variantId}"][data-weapon-id="${weaponId}"]`);
+      if (selectedContent) selectedContent.style.display = 'block';
+      
+      // Mark tab as active
+      tab.classList.add('weapon-variant-tab--active');
+    });
+  });
 }
 
 

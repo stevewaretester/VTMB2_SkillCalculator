@@ -1,11 +1,11 @@
 /* VTMB2 Skill Calculator - Styles */
 /* ================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Cinzel:wght@400;600;700&family=Handlee&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Handlee&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --font-mod-heading: 'Architects Daughter', 'Segoe UI', sans-serif;
-    --font-mod-body: 'Handlee', 'Segoe UI', sans-serif;
+    --font-mod-heading: 'Cinzel', 'Segoe UI', serif;
+    --font-mod-body: 'Inter', 'Segoe UI', sans-serif;
 
     --bg-dark: #0c0c10;
     --bg-mid: #16161e;
@@ -45,6 +45,15 @@
     padding: 0;
     box-sizing: border-box;
     cursor: url('../assets/N_Textures/General/T_UI_MouseCursor_sm.png'), auto;
+    --affinity-rainbow: linear-gradient(120deg,
+      #ff6b6b 0%,
+      #ff9f43 16%,
+      #ffe66d 32%,
+      #58d68d 48%,
+      #5dade2 64%,
+      #a569bd 82%,
+      #f78fb3 100%
+    );
 }
 
 body {
@@ -123,6 +132,7 @@ body {
     padding: 4px 10px;
     border-radius: 4px;
     cursor: pointer;
+    z-index: 2;
     transition: color 0.15s, border-color 0.15s;
     white-space: nowrap;
 }
@@ -1432,6 +1442,13 @@ kbd.innate-key-ref {
 
 .clan-selector-toggle:hover {
     color: var(--gold);
+}
+
+/* Keep the clan accordion trigger available after collapse in all layouts. */
+#clan-selector-toggle {
+    display: block !important;
+    position: relative;
+    z-index: 2;
 }
 
 .clan-card {
@@ -6083,7 +6100,32 @@ kbd.pickup-key {
     background: rgba(255,255,255,0.03);
 }
 
-/* Damage badges */
+.combos-table__row--section-notes {
+    background: rgba(0,0,0,0.15);
+}
+
+.combos-table__row--section-notes:hover {
+    background: rgba(0,0,0,0.15);
+}
+
+.combos-table__td--section-notes {
+    padding: 8px 14px 10px;
+}
+
+.melee-section-notes {
+    margin: 0;
+    padding: 0 0 0 18px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.melee-section-notes li {
+    margin-bottom: 2px;
+}
+
+
 .combo-damage {
     display: inline-block;
     font-size: 11px;
@@ -6147,6 +6189,43 @@ kbd.pickup-key {
     color: var(--text-dim);
     white-space: normal;
     text-align: left;
+}
+
+/* ── Weapon Variant Tabs ──────────────────────────────────── */
+
+.weapon-variant-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-dim);
+    margin-bottom: 12px;
+}
+
+.weapon-variant-tab {
+    flex: 1;
+    max-width: 200px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    background: transparent;
+    border: 1px solid var(--border-dim);
+    border-radius: 2px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.weapon-variant-tab:hover {
+    border-color: var(--border-accent);
+    color: var(--text-base);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.weapon-variant-tab--active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(200, 180, 50, 0.1);
 }
 
 .combo-clan-link-btn {
@@ -7772,8 +7851,7 @@ body.is-mobile-landscape .mobile-detail-hint {
     .tab-bar--fabien,
     .tab-bar--benny,
     .tab-bar--combos,
-    .tab-bar--pickups,
-    .clan-selector-toggle {
+    .tab-bar--pickups {
         display: none !important;
     }
 
@@ -7797,11 +7875,7 @@ body.is-mobile-landscape .mobile-detail-hint {
     .sidebar { display: none; }
     .detail-panel { display: none; }
 
-    /* Hide clan selector from page on mobile — it lives in #mobile-clan-bar instead */
-    .clan-selector,
-    .clan-selector.collapsed {
-        display: none !important;
-    }
+    /* Keep clan selector available on mobile so clan switching is always accessible. */
 
     /* Mobile Clan Bar — slides up from above bottom tabs */
     .mobile-clan-bar {
@@ -9153,6 +9227,465 @@ body.is-mobile-landscape .mobile-detail-hint {
         height: 18px;
         object-fit: contain;
     }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Tier List
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Per-filter colour palette ──────────────────────────── */
+:root {
+    --tier-filter-clan:       #c9a84c;
+    --tier-filter-affinity:   #5fa8a0;
+    --tier-filter-outfits:    #1a9a8a;
+    --tier-filter-melee:      #c04030;
+    --tier-filter-passive:    #4a7aaa;
+    --tier-filter-strike:     #d08030;
+    --tier-filter-relocate:   #40a8cc;
+    --tier-filter-affect:     #7040b0;
+    --tier-filter-mastery:    #8a2040;
+    --tier-filter-perk:       #4a8a40;
+    --tier-filter-completion: #b06080;
+}
+
+.tierlist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    min-height: 0;
+}
+
+/* Filter bar */
+.tierlist__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 8px;
+}
+
+.tierlist__filter-all {
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-accent);
+    background: var(--bg-cell);
+    color: var(--text);
+    font-family: var(--font-mod-body);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+}
+.tierlist__filter-all:hover { background: rgba(255,255,255,0.08); }
+
+.tierlist__disclaimer {
+    margin: 0 0 8px;
+    color: var(--text-dim);
+    font-family: 'Handlee', 'Segoe UI', sans-serif;
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+/* Clan filter row */
+.tierlist__clan-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0 8px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.tierlist__clan-filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border-dim);
+    background: var(--bg-cell);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s, opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+.tierlist__clan-filter[data-clan=""] {
+    width: auto;
+    height: auto;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: var(--font-mod-body);
+    font-size: 0.8rem;
+    color: var(--text);
+}
+.tierlist__clan-filter img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 3px;
+}
+.tierlist__clan-filter:not(.is-active) { opacity: 0.3; }
+.tierlist__clan-filter:hover            { opacity: 1; transform: scale(1.1); }
+.tierlist__clan-filter.is-active        { border-color: var(--gold); opacity: 1; }
+.tierlist__clan-filter[data-clan=""].is-active { background: rgba(201,168,76,0.15); }
+
+.tierlist__filter {
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-accent);
+    background: var(--bg-cell);
+    color: var(--text);
+    font-family: var(--font-mod-body);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, opacity 0.15s, border-color 0.15s;
+}
+
+.tierlist__filter:not(.is-active) { opacity: 0.35; }
+.tierlist__filter:hover            { opacity: 1; }
+.tierlist__filter.is-hidden-filter { display: none; }
+
+/* Per-filter active colours */
+.tierlist__filter[data-filter="clan"].is-active       { background: var(--tier-filter-clan);       border-color: var(--tier-filter-clan);       color: #111; }
+.tierlist__filter[data-filter="affinity"].is-active   { 
+        border: 3px solid transparent;
+        background: linear-gradient(145deg, rgba(26, 34, 44, 0.92), rgba(40, 26, 52, 0.92)) padding-box,
+                                repeating-conic-gradient(from var(--affinity-angle),
+                                    #ff003c 0deg 18deg,
+                                    #ff7a00 18deg 36deg,
+                                    #ffe600 36deg 54deg,
+                                    #7dff00 54deg 72deg,
+                                    #00f5a0 72deg 90deg,
+                                    #00c2ff 90deg 108deg,
+                                    #245bff 108deg 126deg,
+                                    #8d2fff 126deg 144deg,
+                                    #ff00c8 144deg 162deg,
+                                    #ff003c 162deg 180deg
+                                ) border-box;
+        background-size: 100% 100%, 100% 100%;
+    color: #fff;
+        animation: affinity-rainbow-rotate 36s linear infinite;
+}
+.tierlist__filter[data-filter="outfits"].is-active    { background: var(--tier-filter-outfits);    border-color: var(--tier-filter-outfits);    color: #fff; }
+.tierlist__filter[data-filter="melee"].is-active      { background: var(--tier-filter-melee);      border-color: var(--tier-filter-melee);      color: #fff; }
+.tierlist__filter[data-filter="passive"].is-active    { background: var(--tier-filter-passive);    border-color: var(--tier-filter-passive);    color: #fff; }
+.tierlist__filter[data-filter="strike"].is-active     { background: var(--tier-filter-strike);     border-color: var(--tier-filter-strike);     color: #111; }
+.tierlist__filter[data-filter="relocate"].is-active   { background: var(--tier-filter-relocate);   border-color: var(--tier-filter-relocate);   color: #111; }
+.tierlist__filter[data-filter="affect"].is-active     { background: var(--tier-filter-affect);     border-color: var(--tier-filter-affect);     color: #fff; }
+.tierlist__filter[data-filter="mastery"].is-active    { background: var(--tier-filter-mastery);    border-color: var(--tier-filter-mastery);    color: #fff; }
+.tierlist__filter[data-filter="perk"].is-active       { background: var(--tier-filter-perk);       border-color: var(--tier-filter-perk);       color: #fff; }
+.tierlist__filter[data-filter="completion"].is-active { background: var(--tier-filter-completion); border-color: var(--tier-filter-completion); color: #fff; }
+
+/* Tier grid */
+.tierlist__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tierlist__row {
+    display: flex;
+    align-items: stretch;
+    min-height: 58px;
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tierlist__label {
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #111;
+    user-select: none;
+}
+
+.tierlist__label--s-plus {
+    background: #c9a84c;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(160deg, #fff8d6 10%, #e8c84a 35%, #7a4f00 55%, #e8c84a 75%, #fff0a0 95%);
+    text-shadow: none;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+}
+.tierlist__label--s { background: #ff7f7f; }
+.tierlist__label--a { background: #ffdf80; }
+.tierlist__label--b { background: #bfef7f; }
+.tierlist__label--c { background: #7fbfff; }
+.tierlist__label--d { background: #9f9fef; }
+.tierlist__label--f { background: #8a7f8f; color: var(--text-bright); }
+
+.tierlist__items {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--bg-cell);
+}
+
+/* Individual tier icons */
+.tierlist__item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 4px;
+    border: 2px solid var(--border-dim);
+    background: var(--bg-panel);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+/* Per-filter accent borders */
+.tierlist__item--clan       { border-color: rgba(201,168, 76, 0.45); background: rgba(201,168, 76, 0.06); }
+.tierlist__item--affinity   { 
+  position: relative;
+    border: 3px solid transparent;
+        background: linear-gradient(var(--bg-panel), var(--bg-panel)) padding-box,
+                            repeating-conic-gradient(from var(--affinity-angle),
+                                #ff003c 0deg 18deg,
+                                #ff7a00 18deg 36deg,
+                                #ffe600 36deg 54deg,
+                                #7dff00 54deg 72deg,
+                                #00f5a0 72deg 90deg,
+                                #00c2ff 90deg 108deg,
+                                #245bff 108deg 126deg,
+                                #8d2fff 126deg 144deg,
+                                #ff00c8 144deg 162deg,
+                                #ff003c 162deg 180deg
+                            ) border-box;
+    background-size: 100% 100%, 100% 100%;
+    animation: affinity-rainbow-rotate 36s linear infinite;
+}
+.tierlist__item--outfits    { border-color: rgba( 26,154,138, 0.45); background: rgba( 26,154,138, 0.06); }
+.tierlist__item--melee      { border-color: rgba(192, 64, 48, 0.45); background: rgba(192, 64, 48, 0.06); }
+.tierlist__item--passive    { border-color: rgba( 74,122,170, 0.45); background: rgba( 74,122,170, 0.06); }
+.tierlist__item--strike     { border-color: rgba(208,128, 48, 0.45); background: rgba(208,128, 48, 0.06); }
+.tierlist__item--relocate   { border-color: rgba( 64,168,204, 0.45); background: rgba( 64,168,204, 0.06); }
+.tierlist__item--affect     { border-color: rgba(112, 64,176, 0.45); background: rgba(112, 64,176, 0.06); }
+.tierlist__item--mastery    { border-color: rgba(138, 32, 64, 0.45); background: rgba(138, 32, 64, 0.06); }
+.tierlist__item--perk       { border-color: rgba( 74,138, 64, 0.45); background: rgba( 74,138, 64, 0.06); }
+.tierlist__item--completion { border-color: rgba(176, 96,128, 0.45); background: rgba(176, 96,128, 0.06); }
+
+/* Per-filter hover intensifies the accent */
+.tierlist__item--clan:hover       { border-color: var(--tier-filter-clan);       box-shadow: 0 0 0 1px var(--tier-filter-clan); }
+.tierlist__item--affinity:hover   { box-shadow: 0 0 12px 3px rgba(95,168,160,0.6); }
+.tierlist__item--outfits:hover    { border-color: var(--tier-filter-outfits);    box-shadow: 0 0 0 1px var(--tier-filter-outfits); }
+.tierlist__item--melee:hover      { border-color: var(--tier-filter-melee);      box-shadow: 0 0 0 1px var(--tier-filter-melee); }
+.tierlist__item--passive:hover    { border-color: var(--tier-filter-passive);    box-shadow: 0 0 0 1px var(--tier-filter-passive); }
+.tierlist__item--strike:hover     { border-color: var(--tier-filter-strike);     box-shadow: 0 0 0 1px var(--tier-filter-strike); }
+.tierlist__item--relocate:hover   { border-color: var(--tier-filter-relocate);   box-shadow: 0 0 0 1px var(--tier-filter-relocate); }
+.tierlist__item--affect:hover     { border-color: var(--tier-filter-affect);     box-shadow: 0 0 0 1px var(--tier-filter-affect); }
+.tierlist__item--mastery:hover    { border-color: var(--tier-filter-mastery);    box-shadow: 0 0 0 1px var(--tier-filter-mastery); }
+.tierlist__item--perk:hover       { border-color: var(--tier-filter-perk);       box-shadow: 0 0 0 1px var(--tier-filter-perk); }
+.tierlist__item--completion:hover { border-color: var(--tier-filter-completion); box-shadow: 0 0 0 1px var(--tier-filter-completion); }
+
+/* Selected clan glow — one rule per filter type so we can use the right accent */
+.tierlist__item--selected-clan.tierlist__item--clan       { border-color: var(--tier-filter-clan);       box-shadow: 0 0 8px 2px rgba(201,168, 76, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--melee      { border-color: var(--tier-filter-melee);      box-shadow: 0 0 8px 2px rgba(192, 64, 48, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--passive    { border-color: var(--tier-filter-passive);    box-shadow: 0 0 8px 2px rgba( 74,122,170, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--strike     { border-color: var(--tier-filter-strike);     box-shadow: 0 0 8px 2px rgba(208,128, 48, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--relocate   { border-color: var(--tier-filter-relocate);   box-shadow: 0 0 8px 2px rgba( 64,168,204, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--affect     { border-color: var(--tier-filter-affect);     box-shadow: 0 0 8px 2px rgba(112, 64,176, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--mastery    { border-color: var(--tier-filter-mastery);    box-shadow: 0 0 8px 2px rgba(138, 32, 64, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--perk       { border-color: var(--tier-filter-perk);       box-shadow: 0 0 8px 2px rgba( 74,138, 64, 0.55); }
+.tierlist__item--selected-clan.tierlist__item--completion { border-color: var(--tier-filter-completion); box-shadow: 0 0 8px 2px rgba(176, 96,128, 0.55); }
+
+.tierlist__item:hover { transform: scale(1.08); z-index: 1; }
+
+/* Rainbow animation for affinity items */
+@property --affinity-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@keyframes affinity-rainbow-rotate {
+    0% { --affinity-angle: 0deg; }
+    100% { --affinity-angle: 360deg; }
+}
+
+.tierlist__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.tierlist__item--clan img { padding: 6px; }
+.tierlist__item.is-hidden { display: none; }
+
+/* Flash animation (navigating back from skill tree) */
+@keyframes tierlist-flash {
+    0%, 100% { box-shadow: none; }
+    20%, 60% { box-shadow: 0 0 0 3px var(--gold-bright); }
+}
+.tierlist__item--flash { animation: tierlist-flash 1.2s ease; }
+
+/* ── Tier List Popover ───────────────────────────────────── */
+
+.tierlist-popover {
+    display: none;
+    position: fixed;
+    z-index: 650;
+    width: 268px;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--bg-panel);
+    border: 1px solid var(--pop-accent, var(--border-accent));
+    border-radius: 6px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.75);
+    font-family: var(--font-mod-body);
+}
+.tierlist-popover.is-open { display: flex; }
+
+.tierlist-popover__close {
+    position: absolute;
+    top: 8px; right: 10px;
+    background: none; border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 2px 5px;
+    transition: color 0.12s;
+}
+.tierlist-popover__close:hover { color: var(--text-bright); }
+
+.tierlist-popover__header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-right: 18px;
+}
+.tierlist-popover__icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: var(--bg-cell);
+    padding: 3px;
+    flex-shrink: 0;
+}
+.tierlist-popover__name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    color: var(--gold-bright);
+    margin: 0;
+    line-height: 1.25;
+}
+.tierlist-popover__subtitle {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin: 3px 0 0;
+}
+.tierlist-popover__affinities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 2px 0 0;
+}
+.tierlist-popover__affinities:empty { display: none; }
+.tierlist-popover__affinity {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 4px;
+    border: 1px solid var(--border-dim);
+    border-radius: 999px;
+    background: var(--bg-cell);
+    font-size: 0.72rem;
+    color: var(--text);
+}
+.tierlist-popover__affinity img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+.tierlist-popover__body {
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.58;
+    margin: 0;
+    white-space: pre-wrap;
+}
+.ability-inline-link {
+    display: inline;
+    background: none;
+    border: none;
+    border-bottom: 1px dashed var(--pop-accent, var(--border-accent));
+    color: var(--pop-accent, var(--border-accent));
+    font: inherit;
+    font-size: inherit;
+    padding: 0;
+    cursor: pointer;
+    line-height: inherit;
+}
+.ability-inline-link:hover {
+    border-bottom-style: solid;
+    opacity: 0.85;
+}
+.tierlist-popover__links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 2px;
+}
+.tierlist-popover__link {
+    background: none;
+    border: 1px solid var(--pop-accent, var(--border-dim));
+    border-radius: 3px;
+    color: var(--pop-accent, var(--gold));
+    font-family: var(--font-mod-body);
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+}
+.tierlist-popover__link:hover { background: rgba(255,255,255,0.06); }
+
+/* ── Skill-tree tier rank badge ─────────────────────────── */
+
+.detail-panel__tier-rank {
+    display: inline-block;
+    padding: 1px 9px 2px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    margin: 3px 0 0;
+    transition: filter 0.12s;
+}
+.detail-panel__tier-rank:hover { filter: brightness(1.2); }
+
+.tier-rank--s-plus { background: #c9a84c; color: #111; border-color: #e8c84a; }
+.tier-rank--s      { background: #ff7f7f; color: #111; }
+.tier-rank--a      { background: #ffdf80; color: #111; }
+.tier-rank--b      { background: #bfef7f; color: #111; }
+.tier-rank--c      { background: #7fbfff; color: #111; }
+.tier-rank--d      { background: #9f9fef; color: #111; }
+.tier-rank--f      { background: #8a7f8f; color: var(--text-bright); }
+
 
     .benny-mobile-feature-btn:active {
         background: rgba(255,255,255,0.08);
@@ -9196,9 +9729,9 @@ body.is-mobile-landscape .mobile-detail-hint {
         padding: 0 var(--mobile-pad);
     }
 
-    /* Hide clan selector toggle on mobile */
+    /* Keep clan selector toggle visible so collapsed selector can be reopened. */
     #clan-selector-toggle {
-        display: none;
+        display: block;
     }
 
     /* Ensure #app has no overflow issues */
@@ -9255,11 +9788,8 @@ body.is-mobile-landscape .mobile-detail-hint {
   body.is-mobile .tab-bar--fabien,
   body.is-mobile .tab-bar--benny,
   body.is-mobile .tab-bar--combos,
-  body.is-mobile .tab-bar--pickups,
-  body.is-mobile .clan-selector-toggle { display: none !important; }
-  body.is-mobile .sidebar,
-  body.is-mobile .clan-selector,
-  body.is-mobile .clan-selector.collapsed { display: none !important; }
+    body.is-mobile .tab-bar--pickups { display: none !important; }
+    body.is-mobile .sidebar { display: none !important; }
   body.is-mobile .detail-panel { display: none !important; }
   body.is-mobile .fabien-detail,
   body.is-mobile #benny-detail { display: none !important; }

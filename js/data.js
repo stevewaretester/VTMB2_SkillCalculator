@@ -1022,7 +1022,10 @@ const AFFECT_REACTIONS = {
 };
 
 // ── Conversation Disposition ─────────────────────────────────
-// First convo = friendly, Second convo = aggressive, plus disposition options
+// Conversation options mapping:
+// First option: generally works for Sanguine (flirt/friendly)
+// Second option: generally works for Melancholic or Choleric (aggressive/intimidate)
+// Plus disposition options
 const CONVO_EFFECTS = {
   friendly:   { homeless: { san: false, mel: false, cho: true },  biker: { san: false, mel: true,  cho: true  }, streetwalker: { san: false, mel: true,  cho: false }, business: { san: true,  mel: false, cho: false } },
   aggressive: { homeless: { san: true,  mel: true,  cho: false }, biker: { san: true,  mel: false, cho: false }, streetwalker: { san: true,  mel: false, cho: false }, business: { san: false, mel: true,  cho: true } },
@@ -1053,13 +1056,22 @@ const COMBO_ICON = "assets/N_Textures/General/T_UI_FistOfCaine_Hover.png";
 
 const COMBOS = [
   {
+    id: "prowess-from-pain",
+    name: "Prowess from Pain",
+    reference: "Fortitude tier 5 ability in V5",
+    referenceUrl: null,
+    abilities: ["Flesh of Marble", "Cauldron of Blood"],
+    explanation: "Noisy, but effective — feeding on CoB gives you boiling blood, so you take damage over time at the benefit of regenning pips, but Flesh of Marble means you take less damage from this. The problem is that every flinch results in a metallic ping, so you'll rip your ears. Worth using when you need to regen pips, but I wouldn't abuse it for your speakers' sake.",
+    rank: "S+", patched: false,
+  },
+  {
     id: "overclocked",
     name: "Overclocked",
     reference: "Heating up and moving fast",
     referenceUrl: null,
     abilities: ["Cauldron of Blood", "Split Second"],
-    explanation: "Hit a target with Cauldron of Blood and feed off them to start regenerating blood pips, then pop Split Second to stop taking damage and freeze time. Split Second will regen during its own timestop making the timestop functionally infinite unless you're out of the CoB buff.\n\nOnly time you're vulnerable is when you're feeding. Lasombra's perk, Banu's Mastery — or a decent health bar — can help with that.",
-    rank: "S+", patched: false,
+    explanation: "Patched in Spring update, you no longer regen pips during Split Second, meaning this isn't really a combo anymore as it is two incompatible abilities, however they're still the strongest relocate and affect, and having the safety net of a timestop while you're burning hp for pips means they will probably still both live on your hotbar",
+    rank: "S", patched: true,
   },
   {
     id: "banish",
@@ -1069,6 +1081,16 @@ const COMBOS = [
     referenceUrl: "https://youtu.be/zEytZO4tIYU",
     abilities: ["Enter Oblivion", "Arms of Ahriman"],
     explanation: "Target with Enter Oblivion, then hit with Arms of Ahriman, then end Enter Oblivion — any targets still in Arms will immediately be banished, leaving no corpse.\n\nFastest way to kill multiple heavies.",
+    rank: "S", patched: false,
+  },
+  {
+    id: "subtle-hammer",
+    name: "Subtle Hammer",
+    subtitle: "Named after a V5 Potence ability",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Brutality", "Split Second"],
+    explanation: "Time dilation extends the duration of Brujah's admittedly short-lived passive, extending it and giving you easy targets to unleash combos on. Spark of Rage means you can keep that chain up throughout a timestop by chaining kills together.",
     rank: "S", patched: false,
   },
   {
@@ -1107,6 +1129,15 @@ const COMBOS = [
     abilities: ["Cauldron of Blood", "Blurred Momentum"],
     explanation: "Feed on a target with CoB to regen blood pips. Activate Blurred Momentum to become immune to all other damage (you'll still take a little from CoB's DoT — but this lets you regen Blurred Momentum and/or CoB to continue). Basically god mode. Pick up the Ventrue Perk and you'll always heal back the damage it deals.",
     rank: "A+", patched: true,
+  },
+  {
+    id: "inflame-desire",
+    name: "Inflame Desire",
+    reference: "V5 Presence power",
+    referenceUrl: null,
+    abilities: ["Entrancing Kiss", "Taunt"],
+    explanation: "Entrancing Kiss actually gives you a damage boost while you have someone influenced by it. And Taunt (Rage) increases the damage a single target takes — so the two combined together (ideally kiss one NPC and then rage the other) will actually let you lay on the beatdown.",
+    rank: "A+", patched: false,
   },
   {
     id: "over-overclocked",

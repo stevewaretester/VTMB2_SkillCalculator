@@ -223,6 +223,9 @@ function applyPersistedPosition(pos) {
       if (sub === "map" && typeof renderMapPage === "function") {
         renderMapPage();
       }
+      if (sub === "tierlist" && typeof initTierList === "function") {
+        initTierList();
+      }
     }
   } else if (page === "fabien" && sub) {
     const fabTab = document.querySelector(`.tab-bar--fabien .tab-bar__tab[data-fabtab="${sub}"]`);
@@ -596,6 +599,14 @@ function navigateToClanCombos() {
   if (typeof updateMobileChrome === "function") updateMobileChrome();
 }
 
+function navigateToClanCombosFor(clanId) {
+  navigateToClanCombos();
+  setTimeout(() => {
+    const block = document.getElementById(`clan-combo-block-${clanId}`);
+    if (block) block.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 80);
+}
+
 // ── Tab Navigation ───────────────────────────────────────────
 function bindTabs() {
   // Cross-page Map links (Fabien / Benny / Ysabelle "Map" tabs all jump to
@@ -630,6 +641,7 @@ function bindTabs() {
           if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("ability");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
           if (activeSecondary.dataset.subtab === "map" && typeof renderMapPage === "function") renderMapPage();
+          if (activeSecondary.dataset.subtab === "tierlist" && typeof initTierList === "function") initTierList();
         }
       }
       if (tab.dataset.tab === "benny" && typeof refreshBennyPage === "function") {
@@ -663,6 +675,9 @@ function bindTabs() {
       }
       if (tab.dataset.subtab === "map" && typeof renderMapPage === "function") {
         renderMapPage();
+      }
+      if (tab.dataset.subtab === "tierlist" && typeof initTierList === "function") {
+        initTierList();
       }
       persistPosition();
     });
@@ -891,6 +906,7 @@ function selectClan(clanId) {
   }
 
   updatePhyreClanCrest();
+  if (typeof _updateTierlistClanGlow === 'function') _updateTierlistClanGlow();
 }
 
 // ── Clan Selector Toggle ─────────────────────────────────────
@@ -1090,6 +1106,7 @@ function bindToggles() {
     state.completionTalents = e.target.checked;
     renderGrid();
     if (typeof renderPickupsPage === "function") renderPickupsPage();
+    if (typeof renderTierList === "function") renderTierList();
   });
   // Shift+Click on label to force-enable disabled toggle
   const completionLabel = completionToggle && completionToggle.closest('label');
@@ -2360,6 +2377,14 @@ function renderDetailPanel(targetEl) {
   html += `<div class="detail-panel__name">${ability.name}</div>`;
   html += `</div>`;
 
+  // Tier list rank badge
+  if (typeof findTierItem === 'function') {
+    const _tlItem = findTierItem(clanId, tier);
+    if (_tlItem && _tlItem.tier) {
+      html += `<button class="detail-panel__tier-rank tier-rank--${_tlItem.tier}" data-tierlist-id="${_tlItem.id}">Tier: ${tierRankLabel(_tlItem.tier)}</button>`;
+    }
+  }
+
   // Description
   if (ability.description) {
     html += `<div class="detail-panel__desc">${ability.description}</div>`;
@@ -2606,6 +2631,15 @@ function renderDetailPanel(targetEl) {
   }
 
   panel.innerHTML = html;
+
+  // Tier list rank badge click
+  const _tierRankBtn = panel.querySelector('.detail-panel__tier-rank');
+  if (_tierRankBtn && typeof openTierBadgePopover === 'function') {
+    _tierRankBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openTierBadgePopover(_tierRankBtn.dataset.tierlistId, _tierRankBtn);
+    });
+  }
 
   // Status row handlers (inline reset + advance)
   const _refreshSiblingPanel = () => {
