@@ -354,6 +354,96 @@ function _syncCompletionFilter() {
   if (btn) btn.classList.toggle('is-hidden-filter', !enabled);
 }
 
+// ── Tier descriptions ─────────────────────────────────────────
+
+const TIER_DESCRIPTIONS = {
+  'splus':  { label: 'S+', heading: 'The Best of the Best', body: 'These abilities are always useful or powerful, or so much better than similar options that they\'re in a league of their own. Pick them up regardless of build or playstyle.' },
+  's':      { label: 'S',  heading: 'Exceptional',          body: 'Excellent abilities that are nearly always worth taking. Either strong across the board or the best at what they do — rare edge cases where they underperform.' },
+  'a':      { label: 'A',  heading: 'Great',                body: 'Strong, reliable abilities that hold up well in most situations. Minor weaknesses or a narrower sweet spot keep them from S, but you won\'t be disappointed.' },
+  'b':      { label: 'B',  heading: 'Good',                 body: 'Solid and dependable, these abilities do their job without complaint. Outclassed by higher tiers but a good choice when the alternatives don\'t suit your build.' },
+  'c':      { label: 'C',  heading: 'Average',              body: 'These abilities work, but they rarely feel exciting. Situationally useful or outclassed often enough that you\'ll frequently be looking elsewhere first.' },
+  'd':      { label: 'D',  heading: 'Weak',                 body: 'Too weak or too niche to see widespread use. You may find a specific scenario where one of these shines, but for most builds and playstyles there\'s a better option.' },
+  'f':      { label: 'F',  heading: 'Actively Detrimental', body: 'Abilities that either achieve nothing of value or work against you. Avoid unless you have a very deliberate reason to pick them.' },
+};
+
+let _tierDescPopover = null;
+let _tierDescPopoverKey = null;
+let _tierDescDismiss = null;
+
+function _ensureTierDescPopover() {
+  if (_tierDescPopover) return;
+  _tierDescPopover = document.createElement('div');
+  _tierDescPopover.className = 'tier-desc-popover';
+  _tierDescPopover.setAttribute('role', 'dialog');
+  _tierDescPopover.innerHTML = `
+    <button class="tier-desc-popover__close" aria-label="Close">&#x2715;</button>
+    <p class="tier-desc-popover__heading"></p>
+    <p class="tier-desc-popover__body"></p>
+  `;
+  document.body.appendChild(_tierDescPopover);
+  _tierDescPopover.querySelector('.tier-desc-popover__close')
+    .addEventListener('click', _closeTierDescPopover);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') _closeTierDescPopover(); });
+}
+
+function _openTierDescPopover(tierKey, anchorEl) {
+  _ensureTierDescPopover();
+  const pop = _tierDescPopover;
+  const key = tierKey.replace('-', '');  // 's-plus' → 'splus'
+  const data = TIER_DESCRIPTIONS[key];
+  if (!data) return;
+
+  if (_tierDescPopoverKey === key && pop.classList.contains('is-open')) {
+    _closeTierDescPopover();
+    return;
+  }
+  _tierDescPopoverKey = key;
+
+  pop.querySelector('.tier-desc-popover__heading').textContent = `${data.label} — ${data.heading}`;
+  pop.querySelector('.tier-desc-popover__body').textContent = data.body;
+  pop.dataset.tier = key;
+
+  pop.classList.add('is-open');
+
+  // Position: prefer right of anchor, fall back left
+  const rect = anchorEl.getBoundingClientRect();
+  const margin = 10;
+  const pw = pop.offsetWidth || 260;
+  const ph = pop.offsetHeight || 100;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let left = rect.right + margin;
+  let top  = rect.top;
+  if (left + pw > vw - margin) left = rect.left - pw - margin;
+  if (left < margin) left = margin;
+  if (top + ph > vh - margin) top = vh - ph - margin;
+  if (top < margin) top = margin;
+  pop.style.left = left + 'px';
+  pop.style.top  = top  + 'px';
+
+  if (_tierDescDismiss) document.removeEventListener('click', _tierDescDismiss);
+  _tierDescDismiss = (e) => { if (!pop.contains(e.target) && !e.target.closest('[data-tier-label]')) _closeTierDescPopover(); };
+  setTimeout(() => document.addEventListener('click', _tierDescDismiss), 10);
+}
+
+function _closeTierDescPopover() {
+  if (_tierDescPopover) _tierDescPopover.classList.remove('is-open');
+  _tierDescPopoverKey = null;
+  if (_tierDescDismiss) {
+    document.removeEventListener('click', _tierDescDismiss);
+    _tierDescDismiss = null;
+  }
+}
+
+function _initTierLabelClicks() {
+  document.querySelectorAll('[data-tier-label]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      _openTierDescPopover(btn.dataset.tierLabel, btn);
+    });
+  });
+}
+
 function renderTierList() {
   const tiers = ['s-plus', 's', 'a', 'b', 'c', 'd', 'f'];
   tiers.forEach(t => {
@@ -399,6 +489,7 @@ function renderTierList() {
   _syncCompletionFilter();
   _applyTierlistFilters();
   _updateTierlistClanGlow();
+  _initTierLabelClicks();
 }
 
 // ── Clan glow ─────────────────────────────────────────────────

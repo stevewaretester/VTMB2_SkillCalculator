@@ -9406,7 +9406,14 @@ body.is-mobile-landscape .mobile-detail-hint {
     letter-spacing: 0.04em;
     color: #111;
     user-select: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.1s;
 }
+.tierlist__label:hover { filter: brightness(1.12); transform: scale(1.06); }
+.tierlist__label:active { transform: scale(0.97); }
 
 .tierlist__label--s-plus {
     background: #c9a84c;
@@ -9660,6 +9667,63 @@ body.is-mobile-landscape .mobile-detail-hint {
     transition: background 0.12s;
 }
 .tierlist-popover__link:hover { background: rgba(255,255,255,0.06); }
+
+/* ── Tier description popover ───────────────────────────── */
+
+.tier-desc-popover {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    width: 260px;
+    background: var(--bg-card, #1a222c);
+    border: 1px solid var(--border-dim, #3a4050);
+    border-radius: 6px;
+    padding: 14px 16px 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+    flex-direction: column;
+    gap: 6px;
+}
+.tier-desc-popover.is-open { display: flex; }
+
+.tier-desc-popover__close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--text-dim, #8a90a0);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+}
+.tier-desc-popover__close:hover { color: var(--text-bright, #fff); }
+
+.tier-desc-popover__heading {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-bright, #fff);
+    padding-right: 18px;
+}
+
+.tier-desc-popover__body {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted, #aab0bc);
+    line-height: 1.5;
+}
+
+/* Colour the heading to match the tier */
+.tier-desc-popover[data-tier="splus"] .tier-desc-popover__heading { color: #e8c84a; }
+.tier-desc-popover[data-tier="s"]     .tier-desc-popover__heading { color: #ff7f7f; }
+.tier-desc-popover[data-tier="a"]     .tier-desc-popover__heading { color: #ffdf80; }
+.tier-desc-popover[data-tier="b"]     .tier-desc-popover__heading { color: #bfef7f; }
+.tier-desc-popover[data-tier="c"]     .tier-desc-popover__heading { color: #7fbfff; }
+.tier-desc-popover[data-tier="d"]     .tier-desc-popover__heading { color: #9f9fef; }
+.tier-desc-popover[data-tier="f"]     .tier-desc-popover__heading { color: #a09098; }
 
 /* ── Skill-tree tier rank badge ─────────────────────────── */
 
