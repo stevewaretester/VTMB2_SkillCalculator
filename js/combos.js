@@ -598,10 +598,10 @@ const CLAN_COMBOS = {
     steps: 4,
     lightType: "Lunging",
     rows: [
-      { step: 1, lightDmg: 8,  lightMontage: "Brujah_Light1", lightLen: 0.81, heavyDmg: 15, heavyMontage: "Brujah_Heavy1", heavyLen: 0.80, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 2, lightDmg: 8,  lightMontage: "Brujah_Light2", lightLen: 1.11, heavyDmg: 15, heavyMontage: "Brujah_Heavy2", heavyLen: 0.80, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 3, lightDmg: 8,  lightMontage: "Brujah_Light3", lightLen: 1.11, heavyDmg: 15, heavyMontage: "Brujah_Heavy1", heavyLen: 0.80, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 4, lightDmg: 8,  lightMontage: "Brujah_Light4", lightLen: 2.29, heavyDmg: 15, heavyMontage: "Brujah_Heavy2", heavyLen: 0.80, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
+      { step: 1, lightDmg: 8,  lightMontage: "Brujah_Light1", lightLen: 0.81, heavyDmg: 15, heavyMontage: "Brujah_Heavy1", heavyLen: 0.80, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 2, lightDmg: 8,  lightMontage: "Brujah_Light2", lightLen: 1.11, heavyDmg: 15, heavyMontage: "Brujah_Heavy2", heavyLen: 0.80, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 3, lightDmg: 8,  lightMontage: "Brujah_Light3", lightLen: 1.11, heavyDmg: 15, heavyMontage: "Brujah_Heavy1", heavyLen: 0.80, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 4, lightDmg: 8,  lightMontage: "Brujah_Light4", lightLen: 2.29, heavyDmg: 15, heavyMontage: "Brujah_Heavy2", heavyLen: 0.80, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
     ],
     notes: [
       "Most uniform combo — all lights deal 8, all heavies deal 15",
@@ -622,10 +622,10 @@ const CLAN_COMBOS = {
     steps: 4,
     lightType: "NoLunge",
     rows: [
-      { step: 1, lightDmg: 8,  lightMontage: "TR_Light_1", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_1", heavyLen: 1.33, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 2, lightDmg: 8,  lightMontage: "TR_Light_2", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_2", heavyLen: 1.33, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 3, lightDmg: 8,  lightMontage: "TR_Light_1", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_1", heavyLen: 1.33, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 4, lightDmg: 8,  lightMontage: "TR_Light_2", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_2", heavyLen: 1.33, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
+      { step: 1, lightDmg: 8,  lightMontage: "TR_Light_1", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_1", heavyLen: 1.33, minWindup: 0.2,  maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 2, lightDmg: 8,  lightMontage: "TR_Light_2", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_2", heavyLen: 1.33, minWindup: 0.15, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 3, lightDmg: 8,  lightMontage: "TR_Light_1", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_1", heavyLen: 1.33, minWindup: 0.15, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 4, lightDmg: 8,  lightMontage: "TR_Light_2", lightLen: 0.92, heavyDmg: 12, heavyMontage: "TR_Heavy_2", heavyLen: 1.33, minWindup: 0.15, maxWindup: 0.8, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
     ],
     notes: [
       "No lunge on light attacks — hit trace range compensates (400 vs 170 units)",
@@ -646,11 +646,11 @@ const CLAN_COMBOS = {
     steps: 5,
     lightType: "Lunging",
     rows: [
-      { step: 1, lightDmg: 6,  lightMontage: "BA_Light_1", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.36 },
-      { step: 2, lightDmg: 5,  lightMontage: "BA_Light_2", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_2", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.15 },
-      { step: 3, lightDmg: 5,  lightMontage: "BA_Light_3", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.35 },
-      { step: 4, lightDmg: 7,  lightMontage: "BA_Light_4", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_2", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.30 },
-      { step: 5, lightDmg: 10, lightMontage: "BA_Light_5", lightLen: 1.12, heavyDmg: 18, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, maxWindup: 1.1, heavyThresh: 0.9,  comboDelay: 0.80, finisher: true },
+      { step: 1, lightDmg: 6,  lightMontage: "BA_Light_1", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.36 },
+      { step: 2, lightDmg: 5,  lightMontage: "BA_Light_2", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_2", heavyLen: 1.53, minWindup: 0.1, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.15 },
+      { step: 3, lightDmg: 5,  lightMontage: "BA_Light_3", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, minWindup: 0.0, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.35 },
+      { step: 4, lightDmg: 7,  lightMontage: "BA_Light_4", lightLen: 0.88, heavyDmg: 15, heavyMontage: "BA_Heavy_2", heavyLen: 1.53, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7,  comboDelay: 0.30 },
+      { step: 5, lightDmg: 10, lightMontage: "BA_Light_5", lightLen: 1.12, heavyDmg: 18, heavyMontage: "BA_Heavy_1", heavyLen: 1.53, minWindup: 0.2, maxWindup: 1.1, heavyThresh: 0.9,  comboDelay: 0.80, finisher: true },
     ],
     notes: [
       "Step 5 finisher: highest heavy threshold (0.9), longest delay, peak damage (18)",
@@ -663,7 +663,7 @@ const CLAN_COMBOS = {
       optimalDps: 14.11, optimalDmg: 70, optimalTime: 4.96,
       allLightDps: 12.41,
       burstDmg: 78,
-      note: "Steps 1–4 heavy marginals all beat the 12.41 baseline; step-5 heavy marginal is only 10.1 — light the finisher.",
+      note: "Best full-chain DPS is H/H/H/H/L; step 3 is a per-step tie, but heavy preserves the strongest full-combo average before a light finisher.",
     },
   },
   ventrue: {
@@ -671,10 +671,10 @@ const CLAN_COMBOS = {
     steps: 4,
     lightType: "Lunging",
     rows: [
-      { step: 1, lightDmg: 8,  lightMontage: "VT_Light_3",  lightLen: 0.86, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_01", heavyLen: 1.40, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 2, lightDmg: 7,  lightMontage: "VT_Light_4",  lightLen: 0.87, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_02", heavyLen: 1.40, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 3, lightDmg: 7,  lightMontage: "VE_Light_3",  lightLen: 0.73, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_01", heavyLen: 1.40, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
-      { step: 4, lightDmg: 7,  lightMontage: "VT_Light_5",  lightLen: 1.01, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_02", heavyLen: 1.40, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
+      { step: 1, lightDmg: 8,  lightMontage: "VT_Light_3",  lightLen: 0.86, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_01", heavyLen: 1.40, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 2, lightDmg: 7,  lightMontage: "VT_Light_4",  lightLen: 0.87, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_02", heavyLen: 1.40, minWindup: 0.1, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 3, lightDmg: 7,  lightMontage: "VE_Light_3",  lightLen: 0.73, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_01", heavyLen: 1.40, minWindup: 0.1, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.30 },
+      { step: 4, lightDmg: 7,  lightMontage: "VT_Light_5",  lightLen: 1.01, heavyDmg: 15, heavyMontage: "VE_Heavy_Recycle_02", heavyLen: 1.40, minWindup: 0.1, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
     ],
     notes: [
       "Only clan with a dedicated guard-stance idle animation (Shield Idle)",
@@ -693,10 +693,10 @@ const CLAN_COMBOS = {
     steps: 4,
     lightType: "Lunging",
     rows: [
-      { step: 1, lightDmg: 8,  lightMontage: "LA_Light_1",   lightLen: 1.13, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 2, lightDmg: 8,  lightMontage: "LA_Light_2",   lightLen: 0.77, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 3, lightDmg: 8,  lightMontage: "LA_Light_3",   lightLen: 1.11, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
-      { step: 4, lightDmg: 8,  lightMontage: "LA_Light_End", lightLen: 1.16, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
+      { step: 1, lightDmg: 8,  lightMontage: "LA_Light_1",   lightLen: 1.13, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 2, lightDmg: 8,  lightMontage: "LA_Light_2",   lightLen: 0.77, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 3, lightDmg: 8,  lightMontage: "LA_Light_3",   lightLen: 1.11, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.20 },
+      { step: 4, lightDmg: 8,  lightMontage: "LA_Light_End", lightLen: 1.16, heavyDmg: 15, heavyMontage: "LA_Heavy_Right", heavyLen: 0.73, minWindup: 0.2, maxWindup: 1.0, heavyThresh: 0.7, comboDelay: 0.70, finisher: true },
     ],
     notes: [
       "Borrows Ventrue windup montages — no dedicated Lasombra windups",
@@ -717,11 +717,11 @@ const CLAN_COMBOS = {
     steps: 5,
     lightType: "Lunging",
     rows: [
-      { step: 1, lightDmg: 5,  lightMontage: "Tor_Light_01", lightLen: 1.30, heavyDmg: 15, heavyMontage: "Tor_Heavy_01", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.70, comboDelay: 0.25 },
-      { step: 2, lightDmg: 5,  lightMontage: "Tor_Light_02", lightLen: 1.30, heavyDmg: 15, heavyMontage: "Tor_Heavy_02", heavyLen: 1.30, maxWindup: 1.0, heavyThresh: 0.70, comboDelay: 0.25 },
-      { step: 3, lightDmg: 6,  lightMontage: "BA_Light_3",   lightLen: 0.88, heavyDmg: 12, heavyMontage: "Tor_Heavy_01", heavyLen: 1.53, maxWindup: 1.0, heavyThresh: 0.55, comboDelay: 0.25 },
-      { step: 4, lightDmg: 6,  lightMontage: "BA_Light_4",   lightLen: 0.88, heavyDmg: 12, heavyMontage: "Tor_Heavy_02", heavyLen: 1.30, maxWindup: 1.0, heavyThresh: 0.55, comboDelay: 0.25 },
-      { step: 5, lightDmg: 7,  lightMontage: "BA_Light_5",   lightLen: 1.12, heavyDmg: 18, heavyMontage: "BA_Heavy_1",   heavyLen: 1.53, maxWindup: 1.1, heavyThresh: 0.45, comboDelay: 0.80, finisher: true },
+      { step: 1, lightDmg: 5,  lightMontage: "Tor_Light_01", lightLen: 1.30, heavyDmg: 15, heavyMontage: "Tor_Heavy_01", heavyLen: 1.53, minWindup: 0.06, maxWindup: 1.0, heavyThresh: 0.70, comboDelay: 0.25 },
+      { step: 2, lightDmg: 5,  lightMontage: "Tor_Light_02", lightLen: 1.30, heavyDmg: 15, heavyMontage: "Tor_Heavy_02", heavyLen: 1.30, minWindup: 0.03, maxWindup: 1.0, heavyThresh: 0.70, comboDelay: 0.25 },
+      { step: 3, lightDmg: 6,  lightMontage: "BA_Light_3",   lightLen: 0.88, heavyDmg: 12, heavyMontage: "Tor_Heavy_01", heavyLen: 1.53, minWindup: 0.03, maxWindup: 1.0, heavyThresh: 0.55, comboDelay: 0.25 },
+      { step: 4, lightDmg: 6,  lightMontage: "BA_Light_4",   lightLen: 0.88, heavyDmg: 12, heavyMontage: "Tor_Heavy_02", heavyLen: 1.30, minWindup: 0.03, maxWindup: 1.0, heavyThresh: 0.55, comboDelay: 0.25 },
+      { step: 5, lightDmg: 7,  lightMontage: "BA_Light_5",   lightLen: 1.12, heavyDmg: 18, heavyMontage: "BA_Heavy_1",   heavyLen: 1.53, minWindup: 0.1,  maxWindup: 1.1, heavyThresh: 0.45, comboDelay: 0.80, finisher: true },
     ],
     notes: [
       "Fastest combo chain of all clans (MinWindup as low as 0.03)",
@@ -741,6 +741,71 @@ const CLAN_COMBOS = {
 };
 
 let clanCombosFilter = null; // null = all clans
+
+function buildPatternFromMask(length, mask) {
+  const pattern = [];
+  for (let i = 0; i < length; i++) pattern.push((mask & (1 << i)) ? "H" : "L");
+  return pattern;
+}
+
+function evaluateClanPattern(rows, pattern) {
+  let damage = 0;
+  let time = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const type = pattern[i];
+    const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
+    const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
+    if (type === "H") {
+      damage += row.heavyDmg;
+      time += (row.heavyThresh * maxWindup) + row.comboDelay;
+    } else {
+      damage += row.lightDmg;
+      time += minWindup + row.comboDelay;
+    }
+  }
+  return {
+    pattern,
+    damage,
+    time,
+    dps: time > 0 ? (damage / time) : 0,
+  };
+}
+
+function findOptimalPattern(rows) {
+  const length = rows.length;
+  let best = null;
+  for (let mask = 0; mask < (1 << length); mask++) {
+    const pattern = buildPatternFromMask(length, mask);
+    const result = evaluateClanPattern(rows, pattern);
+    if (!best || result.dps > best.dps) best = result;
+  }
+  return best;
+}
+
+function findSingleRunPeakPattern(rows) {
+  const pattern = rows.map((row) => {
+    const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
+    const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
+    const lightTime = minWindup + row.comboDelay;
+    const heavyTime = (row.heavyThresh * maxWindup) + row.comboDelay;
+    const lightDps = lightTime > 0 ? (row.lightDmg / lightTime) : 0;
+    const heavyDps = heavyTime > 0 ? (row.heavyDmg / heavyTime) : 0;
+    return heavyDps > lightDps ? "H" : "L";
+  });
+  return evaluateClanPattern(rows, pattern);
+}
+
+function evaluateLoopPattern(rows, cyclePattern, cycles) {
+  const base = evaluateClanPattern(rows, cyclePattern);
+  return {
+    pattern: cyclePattern,
+    cycles,
+    damage: base.damage * cycles,
+    time: base.time * cycles,
+    dps: base.dps,
+  };
+}
 
 function buildClanComboMiniTable(clanId) {
   const data = CLAN_COMBOS[clanId];
@@ -800,6 +865,7 @@ function renderClanCombosPage() {
   html += `<ul class="combos-header__primer">
     <li><strong class="combos-header__primer-label combos-header__primer-label--light">Light attacks:</strong> Fast, low-commitment swings — easy for enemies to block, but excellent for juggling airborne targets and chaining hit-confirms.</li>
     <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Heavy attacks:</strong> Slower wind-up, but bypass guard — they break blocks outright and can knock enemies back or launch them into the air.</li>
+    <li><strong>MinWU/MaxWU:</strong> shown as <code>min/max</code> hold time in seconds (for example <code>0.2/1.0</code>). MinWU is the earliest release that can fire; MaxWU is the auto-fire cap and timing basis for heavy threshold checks.</li>
   </ul>`;
   html += `</div>`; // clan-combos-header
 
@@ -826,22 +892,24 @@ function renderClanCombosPage() {
         html += `<button class="detail-panel__tier-rank tier-rank--${_mItem.tier}" data-tierlist-id="${_mItem.id}">Melee: ${_mLabel}</button>`;
       }
     }
-    if (data.dps) {
-      const dps = data.dps;
-      const allLightDmg = data.rows.reduce((s, r) => s + r.lightDmg, 0);
-      const allLightTime = dps.allLightDps > 0 ? (allLightDmg / dps.allLightDps) : 0;
-      const optPatHtml = dps.optimalPattern.map(t =>
+    if (data.rows && data.rows.length) {
+      const comboPeak = findSingleRunPeakPattern(data.rows);
+      const loopCycleOptimal = findOptimalPattern(data.rows);
+      const loopOptimal = evaluateLoopPattern(data.rows, loopCycleOptimal.pattern, 3);
+      const comboPatHtml = comboPeak.pattern.map(t =>
         `<span class="dps-chip__pat-step dps-chip__pat-step--${t === 'H' ? 'h' : 'l'}">${t}</span>`
       ).join("");
-      const lightsPatHtml = data.rows.map(() => `<span class="dps-chip__pat-step dps-chip__pat-step--l">L</span>`).join("");
+      const loopPatHtml = loopOptimal.pattern.map(t =>
+        `<span class="dps-chip__pat-step dps-chip__pat-step--${t === 'H' ? 'h' : 'l'}">${t}</span>`
+      ).join("");
       html += `<div class="dps-chip-group">`;
-      html += `<div class="dps-chip dps-chip--opt" data-clan="${clanId}" data-mode="opt" tabindex="0" role="button" title="Optimal DPS pattern">`;
-      html += `<span class="dps-chip__head"><span class="dps-chip__label">OPT</span><span class="dps-chip__val">${dps.optimalDps.toFixed(2)}</span></span>`;
-      html += `<div class="dps-chip__panel"><span class="dps-chip__panel-row"><span class="dps-chip__row-label">DPS</span><span class="dps-chip__row-val">${dps.optimalDps.toFixed(2)}</span></span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Dmg</span><span class="dps-chip__row-val">${dps.optimalDmg}</span></span><span class="dps-chip__rotation">${optPatHtml}</span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Time</span><span class="dps-chip__row-val">${dps.optimalTime.toFixed(2)}s</span></span></div>`;
+      html += `<div class="dps-chip dps-chip--opt" data-clan="${clanId}" data-mode="combo" data-pattern="${comboPeak.pattern.join("")}" tabindex="0" role="button" title="Single-run combo peak mix (step-by-step best damage rate)">`;
+      html += `<span class="dps-chip__head"><span class="dps-chip__label">Combo</span><span class="dps-chip__val">${comboPeak.dps.toFixed(2)}</span></span>`;
+      html += `<div class="dps-chip__panel"><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Dmg</span><span class="dps-chip__row-val">${comboPeak.damage}</span></span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">DPS</span><span class="dps-chip__row-val">${comboPeak.dps.toFixed(2)}</span></span><span class="dps-chip__rotation">${comboPatHtml}</span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Time</span><span class="dps-chip__row-val">${comboPeak.time.toFixed(2)}s</span></span></div>`;
       html += `</div>`;
-      html += `<div class="dps-chip dps-chip--lights" data-clan="${clanId}" data-mode="lights" tabindex="0" role="button" title="All-light DPS">`;
-      html += `<span class="dps-chip__head"><span class="dps-chip__label">L's</span><span class="dps-chip__val">${dps.allLightDps.toFixed(2)}</span></span>`;
-      html += `<div class="dps-chip__panel"><span class="dps-chip__panel-row"><span class="dps-chip__row-label">DPS</span><span class="dps-chip__row-val">${dps.allLightDps.toFixed(2)}</span></span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Dmg</span><span class="dps-chip__row-val">${allLightDmg}</span></span><span class="dps-chip__rotation">${lightsPatHtml}</span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Time</span><span class="dps-chip__row-val">${allLightTime.toFixed(2)}s</span></span></div>`;
+      html += `<div class="dps-chip dps-chip--lights" data-clan="${clanId}" data-mode="loop" data-pattern="${loopOptimal.pattern.join("")}" tabindex="0" role="button" title="Sustained DPS across repeated combos">`;
+      html += `<span class="dps-chip__head"><span class="dps-chip__label">Loop</span><span class="dps-chip__val">${loopOptimal.dps.toFixed(2)}</span></span>`;
+      html += `<div class="dps-chip__panel"><span class="dps-chip__panel-row"><span class="dps-chip__row-label">DPS</span><span class="dps-chip__row-val">${loopOptimal.dps.toFixed(2)}</span></span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Dmg</span><span class="dps-chip__row-val">${loopOptimal.damage}</span></span><span class="dps-chip__rotation">${loopPatHtml}</span><span class="dps-chip__panel-row"><span class="dps-chip__row-label">Time</span><span class="dps-chip__row-val">${loopOptimal.time.toFixed(2)}s (x${loopOptimal.cycles})</span></span></div>`;
       html += `</div>`;
       html += `</div>`; // dps-chip-group
     }
@@ -851,29 +919,42 @@ function renderClanCombosPage() {
     html += `<table class="combos-table clan-combos-table">`;
     html += `<thead><tr>
       <th class="combos-table__th clan-combos-table__th--step">Step</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Time between light attacks">Light Step Time</th>
       <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack damage">Light Dmg</th>
-      <th class="combos-table__th clan-combos-table__th--llen" title="Full light montage length — only plays if combo lapses">L.Len</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Light damage per second">Light Dmg/s</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Time between heavy attacks">Heavy Step Time</th>
       <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack damage">Heavy Dmg</th>
-      <th class="combos-table__th clan-combos-table__th--hlen" title="Full heavy montage length — only plays if combo lapses">H.Len</th>
-      <th class="combos-table__th clan-combos-table__th--windup" title="How long a heavy attack takes to charge">Heavy Windup</th>
-      <th class="combos-table__th clan-combos-table__th--thresh" title="Normalized hold required to trigger heavy (0 = instant, 1 = full hold)">H. Threshold</th>
-      <th class="combos-table__th clan-combos-table__th--delay" title="Window to chain to the next combo step">Combo Delay</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Heavy damage per second">Heavy Dmg/s</th>
     </tr></thead><tbody>`;
 
     for (const row of data.rows) {
       const isFinisher = row.finisher;
       html += `<tr class="clan-combos-table__row${isFinisher ? " clan-combos-table__row--finisher" : ""}" data-step="${row.step - 1}">`;
       html += `<td class="combos-table__td clan-combos-table__td--step">${row.step}${isFinisher ? `<span class="clan-combo-star" title="Finisher">★</span>` : ""}</td>`;
-      html += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg">${row.lightDmg}</td>`;
-      html += `<td class="combos-table__td clan-combos-table__td--len"${row.lightMontage ? ` title="${row.lightMontage}"` : ""}>${row.lightLen.toFixed(2)}s</td>`;
+      
+      const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
+      const lightStepTime = minWindup + row.comboDelay;
+      const lightStepTooltip = `MinWU + ComboDelay = ${minWindup.toFixed(2)} + ${row.comboDelay.toFixed(2)} = ${lightStepTime.toFixed(2)}s`;
+      html += `<td class="combos-table__td clan-combos-table__td--steptime" title="${lightStepTooltip}">${lightStepTime.toFixed(2)}s</td>`;
+      
+      const lightMontageTooltip = row.lightMontage ? `${row.lightMontage}` : "";
+      html += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg" title="${lightMontageTooltip}">${row.lightDmg}</td>`;
+      
+      const lightDmgPerSec = row.lightDmg / lightStepTime;
+      html += `<td class="combos-table__td clan-combos-table__td--dps">${lightDmgPerSec.toFixed(2)}</td>`;
+      
+      const heavyHoldTime = row.heavyThresh * row.maxWindup;
+      const heavyStepTime = heavyHoldTime + row.comboDelay;
+      const heavyStepTooltip = `(HeavyThreshold × MaxWU) + ComboDelay = (${row.heavyThresh.toFixed(2)} × ${row.maxWindup.toFixed(1)}) + ${row.comboDelay.toFixed(2)} = ${heavyStepTime.toFixed(2)}s`;
+      html += `<td class="combos-table__td clan-combos-table__td--steptime" title="${heavyStepTooltip}">${heavyStepTime.toFixed(2)}s</td>`;
+      
       const heavyClass = row.heavyDmg >= 18 ? "clan-combo__dmg--peak" : "";
-      html += `<td class="combos-table__td clan-combos-table__td--dmg ${heavyClass}" data-cell="hdmg">${row.heavyDmg}</td>`;
-      html += `<td class="combos-table__td clan-combos-table__td--len"${row.heavyMontage ? ` title="${row.heavyMontage}"` : ""}>${row.heavyLen.toFixed(2)}s</td>`;
-      const windupClass = row.maxWindup !== 1.0 ? " clan-combo__windup--notable" : "";
-      html += `<td class="combos-table__td clan-combos-table__td--windup${windupClass}">${row.maxWindup.toFixed(1)}</td>`;
-      const threshClass = row.heavyThresh <= 0.5 ? "clan-combo__thresh--easy" : row.heavyThresh >= 0.85 ? "clan-combo__thresh--hard" : "";
-      html += `<td class="combos-table__td clan-combos-table__td--thresh ${threshClass}">${row.heavyThresh.toFixed(2)}</td>`;
-      html += `<td class="combos-table__td clan-combos-table__td--delay">${row.comboDelay.toFixed(2)}s</td>`;
+      const heavyMontageTooltip = row.heavyMontage ? `${row.heavyMontage}` : "";
+      html += `<td class="combos-table__td clan-combos-table__td--dmg ${heavyClass}" data-cell="hdmg" title="${heavyMontageTooltip}">${row.heavyDmg}</td>`;
+      
+      const heavyDmgPerSec = row.heavyDmg / heavyStepTime;
+      html += `<td class="combos-table__td clan-combos-table__td--dps">${heavyDmgPerSec.toFixed(2)}</td>`;
+      
       html += `</tr>`;
     }
     html += `</tbody></table>`;
@@ -1241,21 +1322,20 @@ function renderClanCombosPage() {
     });
   });
 
-  // DPS chip click: highlight optimal/light cells in that block
+  // DPS chip click: highlight damage cells for the chip's pattern
   container.querySelectorAll('.dps-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       e.stopPropagation();
       const clanId = chip.dataset.clan;
-      const mode = chip.dataset.mode;
+      const patternStr = chip.dataset.pattern || "";
+      const pattern = patternStr.split("").filter(t => t === "L" || t === "H");
       const block = container.querySelector(`#clan-combo-block-${clanId}`);
-      if (!block) return;
+      if (!block || !pattern.length) return;
       const isActive = chip.classList.contains('dps-chip--active');
       block.querySelectorAll('.dps-chip').forEach(c => c.classList.remove('dps-chip--active'));
       block.querySelectorAll('.dps-cell--highlight').forEach(c => c.classList.remove('dps-cell--highlight'));
       if (!isActive) {
         chip.classList.add('dps-chip--active');
-        const cdata = CLAN_COMBOS[clanId];
-        const pattern = mode === 'opt' ? cdata.dps.optimalPattern : cdata.rows.map(() => 'L');
         block.querySelectorAll('.clan-combos-table__row[data-step]').forEach(row => {
           const step = parseInt(row.dataset.step, 10);
           if (isNaN(step) || step < 0 || step >= pattern.length) return;
@@ -1661,6 +1741,136 @@ function renderWeaponDpsChip(label, title, data) {
   return `<div class="dps-chip ${cls}" title="${tooltip}"><span class="dps-chip__head"><span class="dps-chip__label">${label}</span><span class="dps-chip__val">${data.dps.toFixed(2)}</span></span></div>`;
 }
 
+function getWeaponStepTiming(row, mode) {
+  if (mode === "L") {
+    if (typeof row.lightMinWindup === "number" && typeof row.lightComboDelay === "number") {
+      return {
+        time: row.lightMinWindup + row.lightComboDelay,
+        tooltip: `Light: MinWU + ComboDelay = ${row.lightMinWindup.toFixed(2)} + ${row.lightComboDelay.toFixed(2)}`,
+      };
+    }
+    if (typeof row.minWindup === "number" && typeof row.lightComboDelay === "number") {
+      return {
+        time: row.minWindup + row.lightComboDelay,
+        tooltip: `Light: MinWU + ComboDelay = ${row.minWindup.toFixed(2)} + ${row.lightComboDelay.toFixed(2)}`,
+      };
+    }
+    return {
+      time: row.lightLen,
+      tooltip: `${row.lightMontage} (montage length fallback)`,
+    };
+  }
+  if (mode === "F") {
+    if (typeof row.fwdWindup === "number" && typeof row.fwdComboDelay === "number") {
+      return {
+        time: row.fwdWindup + row.fwdComboDelay,
+        tooltip: `Forward: Windup + ComboDelay = ${row.fwdWindup.toFixed(2)} + ${row.fwdComboDelay.toFixed(2)}`,
+      };
+    }
+    return {
+      time: row.fwdLen,
+      tooltip: `${row.fwdMontage || "Forward"} (montage length fallback)`,
+    };
+  }
+  if (typeof row.shoveWindup === "number" && typeof row.shoveComboDelay === "number") {
+    return {
+      time: row.shoveWindup + row.shoveComboDelay,
+      tooltip: `Shove: Windup + ComboDelay = ${row.shoveWindup.toFixed(2)} + ${row.shoveComboDelay.toFixed(2)}`,
+    };
+  }
+  return {
+    time: row.shoveLen,
+    tooltip: `${row.shoveMontage} (montage length fallback)`,
+  };
+}
+
+function getWeaponStepModes(row) {
+  const modes = ["L", "S"];
+  if (row.fwdMontage && row.fwdLen > 0) modes.push("F");
+  return modes;
+}
+
+function evaluateWeaponPattern(rows, pattern) {
+  let damage = 0;
+  let time = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const mode = pattern[i];
+    const timing = getWeaponStepTiming(row, mode);
+    if (mode === "L") damage += row.lightDmg;
+    else if (mode === "F") damage += row.fwdDmg;
+    else damage += row.shoveDmg;
+    time += timing.time;
+  }
+  return {
+    pattern,
+    damage,
+    time,
+    dps: time > 0 ? (damage / time) : 0,
+  };
+}
+
+function findWeaponComboPeakPattern(rows) {
+  const pattern = rows.map((row) => {
+    let bestMode = "L";
+    let bestDps = -1;
+    for (const mode of getWeaponStepModes(row)) {
+      const timing = getWeaponStepTiming(row, mode);
+      const dmg = mode === "L" ? row.lightDmg : mode === "F" ? row.fwdDmg : row.shoveDmg;
+      const dps = timing.time > 0 ? (dmg / timing.time) : 0;
+      if (dps > bestDps) {
+        bestDps = dps;
+        bestMode = mode;
+      }
+    }
+    return bestMode;
+  });
+  return evaluateWeaponPattern(rows, pattern);
+}
+
+function findWeaponLoopOptimalPattern(rows) {
+  const best = { pattern: null, damage: 0, time: 0, dps: -1 };
+
+  function walk(step, path) {
+    if (step >= rows.length) {
+      const result = evaluateWeaponPattern(rows, path.slice());
+      if (result.dps > best.dps) {
+        best.pattern = result.pattern;
+        best.damage = result.damage;
+        best.time = result.time;
+        best.dps = result.dps;
+      }
+      return;
+    }
+    for (const mode of getWeaponStepModes(rows[step])) {
+      path.push(mode);
+      walk(step + 1, path);
+      path.pop();
+    }
+  }
+
+  walk(0, []);
+  return best;
+}
+
+function evaluateWeaponLoopPattern(rows, cyclePattern, cycles) {
+  const base = evaluateWeaponPattern(rows, cyclePattern);
+  return {
+    pattern: cyclePattern,
+    cycles,
+    damage: base.damage * cycles,
+    time: base.time * cycles,
+    dps: base.dps,
+  };
+}
+
+function renderWeaponPatternSteps(pattern) {
+  return pattern.map((t) => {
+    const cls = t === "L" ? "l" : "h";
+    return `<span class="dps-chip__pat-step dps-chip__pat-step--${cls}">${t}</span>`;
+  }).join("");
+}
+
 function navigateToMeleeWeapons() {
   // Switch to primary Phyre tab if not already there
   const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
@@ -1697,23 +1907,18 @@ function renderMeleeWeaponsPage() {
     <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Heavy slot:</strong> hold-to-charge release; bypasses block on heavy classes. <strong>Heavy attacks BREAK the weapon</strong> — single-use, throws the weapon away after impact, but deals significant damage.</li>
     <li><strong class="combos-header__primer-label">Forward (W+attack):</strong> directional overhead/stab variant — usually higher damage than the light.</li>
     <li><strong class="combos-header__primer-label">Backward (S+attack):</strong> quick shove — low damage, mainly for spacing.</li>
-    <li><strong class="combos-header__primer-label">DPS chips:</strong> Optimal sustained DPS for spamming each rotation (Light → Forward → Shove). Heavies are <em>excluded</em> — they break the weapon, so DPS is undefined.</li>
+    <li><strong class="combos-header__primer-label">DPS chips:</strong> header chips show sustained DPS for the Light, Forward, and Shove lanes only. Heavy is excluded because it breaks the weapon.</li>
   </ul>`;
   h += `</div>`; // header
 
   // Per-weapon tables
   h += `<div class="clan-combos-tables">`;
   for (const w of MELEE_WEAPONS) {
-    // Compute DPS once so it can sit in the heading row.
-    // Heavy attacks omitted on purpose: a heavy strike BREAKS the weapon, so it's not
-    // a sustainable rotation. We compute optimal sustained DPS per attack type as
-    // sum(damage)/sum(montage length) across the chain, ignoring slots without a montage.
     const dpsLight = computeWeaponRotationDps(w.rows, "light");
     const dpsFwd   = computeWeaponRotationDps(w.rows, "fwd");
     const dpsShove = computeWeaponRotationDps(w.rows, "shove");
 
     h += `<div class="clan-combo-block" id="mw-${w.id}">`;
-    // Heading — name + meta on the left, DPS chips on the right
     h += `<div class="clan-combo-block__heading clan-combo-block__heading--with-dps">`;
     h += `<div class="clan-combo-block__heading-text">`;
     h += `<span class="clan-combo-block__name">${w.name}</span>`;
@@ -1740,32 +1945,48 @@ function renderMeleeWeaponsPage() {
     h += `<div class="weapon-variant-content" data-variant="main" data-weapon-id="${w.id}">`;
     h += `<table class="combos-table clan-combos-table"><thead><tr>
       <th class="combos-table__th clan-combos-table__th--step">Step</th>
-      <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">L.Dmg</th>
-      <th class="combos-table__th clan-combos-table__th--llen" title="Light montage sequence length">L.Len</th>
-      <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">H.Dmg</th>
-      <th class="combos-table__th clan-combos-table__th--hlen" title="Heavy montage sequence length">H.Len</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Light step time">Light Time</th>
+      <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">Light Dmg</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Light damage per second">Light Dmg/s</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Forward step time (W+attack)">Fwd Time</th>
       <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
-      <th class="combos-table__th" title="Forward variant montage length">Fwd Len</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Forward damage per second">Fwd Dmg/s</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Backward shove step time (S+attack)">Shove Time</th>
       <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
-      <th class="combos-table__th" title="Shove montage length">Shove Len</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Shove damage per second">Shove Dmg/s</th>
+      <th class="combos-table__th clan-combos-table__th--steptime" title="Heavy step time">Heavy Time</th>
+      <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">Heavy Dmg</th>
+      <th class="combos-table__th clan-combos-table__th--dps" title="Heavy damage per second">Heavy Dmg/s</th>
     </tr></thead><tbody>`;
     for (const r of w.rows) {
       const isPeak = r.heavyDmg >= 30;
+      const lightTiming = getWeaponStepTiming(r, "L");
+      const heavyDps = r.heavyLen > 0 ? (r.heavyDmg / r.heavyLen) : 0;
+      const shoveTiming = getWeaponStepTiming(r, "S");
+      const lightDps = lightTiming.time > 0 ? (r.lightDmg / lightTiming.time) : 0;
+      const shoveDps = shoveTiming.time > 0 ? (r.shoveDmg / shoveTiming.time) : 0;
       h += `<tr class="clan-combos-table__row">`;
       h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${lightTiming.tooltip}">${lightTiming.time.toFixed(2)}s</td>`;
       h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg">${r.lightDmg}</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.lightMontage}">${r.lightLen.toFixed(2)}s</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dps">${lightDps.toFixed(2)}</td>`;
       if (r.fwdMontage) {
-        h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.fwdDmg}</td>`;
-        h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.fwdMontage}">${r.fwdLen.toFixed(2)}s</td>`;
+        const fwdTiming = getWeaponStepTiming(r, "F");
+        const fwdDps = fwdTiming.time > 0 ? (r.fwdDmg / fwdTiming.time) : 0;
+        h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${fwdTiming.tooltip}">${fwdTiming.time.toFixed(2)}s</td>`;
+        h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="fdmg">${r.fwdDmg}</td>`;
+        h += `<td class="combos-table__td clan-combos-table__td--dps">${fwdDps.toFixed(2)}</td>`;
       } else {
         h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
         h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+        h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
       }
-      h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.shoveDmg}</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.shoveMontage}">${r.shoveLen.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${shoveTiming.tooltip}">${shoveTiming.time.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="sdmg">${r.shoveDmg}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dps">${shoveDps.toFixed(2)}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--dps">${heavyDps.toFixed(2)}</td>`;
       h += `</tr>`;
     }
     h += `</tbody></table>`;
@@ -1774,38 +1995,51 @@ function renderMeleeWeaponsPage() {
     // Variant tables
     if (w.variants && w.variants.length > 0) {
       for (const v of w.variants) {
-        const vDpsLight = computeWeaponRotationDps(v.rows, "light");
-        const vDpsFwd   = computeWeaponRotationDps(v.rows, "fwd");
-        const vDpsShove = computeWeaponRotationDps(v.rows, "shove");
         h += `<div class="weapon-variant-content" data-variant="${v.id}" data-weapon-id="${w.id}" style="display:none;">`;
         h += `<table class="combos-table clan-combos-table"><thead><tr>
           <th class="combos-table__th clan-combos-table__th--step">Step</th>
-          <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">L.Dmg</th>
-          <th class="combos-table__th clan-combos-table__th--llen" title="Light montage sequence length">L.Len</th>
-          <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">H.Dmg</th>
-          <th class="combos-table__th clan-combos-table__th--hlen" title="Heavy montage sequence length">H.Len</th>
+          <th class="combos-table__th clan-combos-table__th--steptime" title="Light step time">Light Time</th>
+          <th class="combos-table__th clan-combos-table__th--ldmg" title="Light attack base damage">Light Dmg</th>
+          <th class="combos-table__th clan-combos-table__th--dps" title="Light damage per second">Light Dmg/s</th>
+          <th class="combos-table__th clan-combos-table__th--steptime" title="Forward step time (W+attack)">Fwd Time</th>
           <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
-          <th class="combos-table__th" title="Forward variant montage length">Fwd Len</th>
+          <th class="combos-table__th clan-combos-table__th--dps" title="Forward damage per second">Fwd Dmg/s</th>
+          <th class="combos-table__th clan-combos-table__th--steptime" title="Backward shove step time (S+attack)">Shove Time</th>
           <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
-          <th class="combos-table__th" title="Shove montage length">Shove Len</th>
+          <th class="combos-table__th clan-combos-table__th--dps" title="Shove damage per second">Shove Dmg/s</th>
+          <th class="combos-table__th clan-combos-table__th--steptime" title="Heavy step time">Heavy Time</th>
+          <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">Heavy Dmg</th>
+          <th class="combos-table__th clan-combos-table__th--dps" title="Heavy damage per second">Heavy Dmg/s</th>
         </tr></thead><tbody>`;
         for (const r of v.rows) {
           const isPeak = r.heavyDmg >= 30;
+          const lightTiming = getWeaponStepTiming(r, "L");
+          const heavyDps = r.heavyLen > 0 ? (r.heavyDmg / r.heavyLen) : 0;
+          const shoveTiming = getWeaponStepTiming(r, "S");
+          const lightDps = lightTiming.time > 0 ? (r.lightDmg / lightTiming.time) : 0;
+          const shoveDps = shoveTiming.time > 0 ? (r.shoveDmg / shoveTiming.time) : 0;
           h += `<tr class="clan-combos-table__row">`;
           h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${lightTiming.tooltip}">${lightTiming.time.toFixed(2)}s</td>`;
           h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="ldmg">${r.lightDmg}</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.lightMontage}">${r.lightLen.toFixed(2)}s</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dps">${lightDps.toFixed(2)}</td>`;
           if (r.fwdMontage) {
-            h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.fwdDmg}</td>`;
-            h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.fwdMontage}">${r.fwdLen.toFixed(2)}s</td>`;
+            const fwdTiming = getWeaponStepTiming(r, "F");
+            const fwdDps = fwdTiming.time > 0 ? (r.fwdDmg / fwdTiming.time) : 0;
+            h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${fwdTiming.tooltip}">${fwdTiming.time.toFixed(2)}s</td>`;
+            h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="fdmg">${r.fwdDmg}</td>`;
+            h += `<td class="combos-table__td clan-combos-table__td--dps">${fwdDps.toFixed(2)}</td>`;
           } else {
             h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
             h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
+            h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
           }
-          h += `<td class="combos-table__td clan-combos-table__td--dmg">${r.shoveDmg}</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--len" title="${r.shoveMontage}">${r.shoveLen.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${shoveTiming.tooltip}">${shoveTiming.time.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="sdmg">${r.shoveDmg}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dps">${shoveDps.toFixed(2)}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--dps">${heavyDps.toFixed(2)}</td>`;
           h += `</tr>`;
         }
         h += `</tbody></table>`;

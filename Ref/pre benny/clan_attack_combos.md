@@ -12,13 +12,13 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Banu Haqim — 5 steps
 
-| Step | Windup                                                 | MinWU   | MaxWU   | Light Montage                                        | L.Dmg | ComboDelay | L.Len | Heavy Montage                                        | H.Dmg  | H.Len | HeavyThresh |
-| ---- | ------------------------------------------------------ | ------- | ------- | ---------------------------------------------------- | ----- | ---------- | ----- | ---------------------------------------------------- | ------ | ----- | ----------- |
-| 1    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | 0.2     | 1.0     | <abbr title="AM_Combat_BA_Light_1">BA_Light_1</abbr> | 6     | 0.36       | 0.88  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | 15     | 1.53  | 0.7         |
-| 2    | <abbr title="AM_Combat_BA_Windup_2">BA_Windup_2</abbr> | 0.1     | 1.0     | <abbr title="AM_Combat_BA_Light_2">BA_Light_2</abbr> | 5     | 0.15       | 0.88  | <abbr title="AM_Combat_BA_Heavy_2">BA_Heavy_2</abbr> | 15     | 1.53  | 0.7         |
-| 3    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | **0.0** | 1.0     | <abbr title="AM_Combat_BA_Light_3">BA_Light_3</abbr> | 5     | 0.35       | 0.88  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | 15     | 1.53  | 0.7         |
-| 4    | <abbr title="AM_Combat_BA_Windup_2">BA_Windup_2</abbr> | 0.2     | 1.0     | <abbr title="AM_Combat_BA_Light_4">BA_Light_4</abbr> | 7     | 0.30       | 0.88  | <abbr title="AM_Combat_BA_Heavy_2">BA_Heavy_2</abbr> | 15     | 1.53  | 0.7         |
-| 5    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | 0.2     | **1.1** | <abbr title="AM_Combat_BA_Light_5">BA_Light_5</abbr> | 10    | 0.80       | 1.12  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | **18** | 1.53  | **0.9**     |
+| Step | Windup                                                 | MinWU   | MaxWU   | Light Montage                                        | ComboDelay | L.Dmg | L.Len | Heavy Montage                                        | H.Dmg  | H.Len | HeavyThresh |
+| ---- | ------------------------------------------------------ | ------- | ------- | ---------------------------------------------------- | ---------- | ----- | ----- | ---------------------------------------------------- | ------ | ----- | ----------- |
+| 1    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | 0.2     | 1.0     | <abbr title="AM_Combat_BA_Light_1">BA_Light_1</abbr> | 0.36       | 6     | 0.88  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | 15     | 1.53  | 0.7         |
+| 2    | <abbr title="AM_Combat_BA_Windup_2">BA_Windup_2</abbr> | 0.1     | 1.0     | <abbr title="AM_Combat_BA_Light_2">BA_Light_2</abbr> | 0.15       | 5     | 0.88  | <abbr title="AM_Combat_BA_Heavy_2">BA_Heavy_2</abbr> | 15     | 1.53  | 0.7         |
+| 3    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | **0.0** | 1.0     | <abbr title="AM_Combat_BA_Light_3">BA_Light_3</abbr> | 0.35       | 5     | 0.88  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | 15     | 1.53  | 0.7         |
+| 4    | <abbr title="AM_Combat_BA_Windup_2">BA_Windup_2</abbr> | 0.2     | 1.0     | <abbr title="AM_Combat_BA_Light_4">BA_Light_4</abbr> | 0.30       | 7     | 0.88  | <abbr title="AM_Combat_BA_Heavy_2">BA_Heavy_2</abbr> | 15     | 1.53  | 0.7         |
+| 5    | <abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr> | 0.2     | **1.1** | <abbr title="AM_Combat_BA_Light_5">BA_Light_5</abbr> | 0.80       | 10    | 1.12  | <abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr> | **18** | 1.53  | **0.9**     |
 
 - All lights: `Combat.Ability.Melee.Light.Lunging`
 - Step 5 is the finisher: highest threshold (0.9), longest delay, biggest damage
@@ -27,13 +27,29 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Brujah — 4 steps
 
-| Step | Windup                                          | MinWU | MaxWU | Light Montage                                              | L.Dmg | ComboDelay | L.Len    | Heavy Montage                                              | H.Dmg | H.Len | HeavyThresh |
-| ---- | ----------------------------------------------- | ----- | ----- | ---------------------------------------------------------- | ----- | ---------- | -------- | ---------------------------------------------------------- | ----- | ----- | ----------- |
-| 1    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light1">Brujah_Light1</abbr> | 8     | 0.20       | 0.81     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
-| 2    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light2">Brujah_Light2</abbr> | 8     | 0.20       | 1.11     | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
-| 3    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light3">Brujah_Light3</abbr> | 8     | 0.20       | 1.11     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
-| 4    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light4">Brujah_Light4</abbr> | 8     | 0.70       | **2.29** | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
+| Step | Windup                                          | MinWU | MaxWU | Light Montage                                              | ComboDelay | L.Dmg | L.Len    | Heavy Montage                                              | H.Dmg | H.Len | HeavyThresh |
+| ---- | ----------------------------------------------- | ----- | ----- | ---------------------------------------------------------- | ---------- | ----- | -------- | ---------------------------------------------------------- | ----- | ----- | ----------- |
+| 1    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light1">Brujah_Light1</abbr> | 0.20       | 8     | 0.81     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
+| 2    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light2">Brujah_Light2</abbr> | 0.20       | 8     | 1.11     | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
+| 3    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light3">Brujah_Light3</abbr> | 0.20       | 8     | 1.11     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
+| 4    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light4">Brujah_Light4</abbr> | 0.70       | 8     | **2.29** | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
 
+- All lights: Lunging
+- Most uniform set — every light deals 8, every heavy deals 15
+- Step 4 has a long combo delay (0.7) acting as a natural finisher pause
+
+---
+
+## Benny — 4 steps
+
+| Step | Windup                                          | MinWU | MaxWU | Light Montage                                              | ComboDelay | L.Dmg | L.Len    | Heavy Montage                                              | H.Dmg | H.Len | HeavyThresh |
+| ---- | ----------------------------------------------- | ----- | ----- | ---------------------------------------------------------- | ---------- | ----- | -------- | ---------------------------------------------------------- | ----- | ----- | ----------- |
+| 1    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light1">Brujah_Light1</abbr> | 0.20       | 8     | 0.81     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
+| 2    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light2">Brujah_Light2</abbr> | 0.20       | 8     | 1.11     | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
+| 3    | <abbr title="AM_ChargedAttack_Br_1">Br_1</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light3">Brujah_Light3</abbr> | 0.20       | 8     | 1.11     | <abbr title="AM_Combat_Brujah_Heavy1">Brujah_Heavy1</abbr> | 15    | 0.80  | 0.7         |
+| 4    | <abbr title="AM_ChargedAttack_Br_2">Br_2</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_Brujah_Light4">Brujah_Light4</abbr> | 0.70       | 8     | **2.29** | <abbr title="AM_Combat_Brujah_Heavy2">Brujah_Heavy2</abbr> | 15    | 0.80  | 0.7         |
+
+- Identical to Brujah standard combos
 - All lights: Lunging
 - Most uniform set — every light deals 8, every heavy deals 15
 - Step 4 has a long combo delay (0.7) acting as a natural finisher pause
@@ -42,12 +58,12 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Tremere — 4 steps
 
-| Step | Windup                                                 | MinWU | MaxWU   | Light Montage                                        | L.Dmg | ComboDelay | L.Len | Heavy Montage                                        | H.Dmg | H.Len | HeavyThresh |
-| ---- | ------------------------------------------------------ | ----- | ------- | ---------------------------------------------------- | ----- | ---------- | ----- | ---------------------------------------------------- | ----- | ----- | ----------- |
-| 1    | <abbr title="AM_TR_Combat_Windup_1">TR_Windup_1</abbr> | 0.2   | **0.8** | <abbr title="AM_TR_Combat_Light_1">TR_Light_1</abbr> | 8     | 0.30       | 0.92  | <abbr title="AM_TR_Combat_Heavy_1">TR_Heavy_1</abbr> | 12    | 1.33  | 0.7         |
-| 2    | <abbr title="AM_TR_Combat_Windup_2">TR_Windup_2</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_2">TR_Light_2</abbr> | 8     | 0.30       | 0.92  | <abbr title="AM_TR_Combat_Heavy_2">TR_Heavy_2</abbr> | 12    | 1.33  | 0.7         |
-| 3    | <abbr title="AM_TR_Combat_Windup_1">TR_Windup_1</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_1">TR_Light_1</abbr> | 8     | 0.30       | 0.92  | <abbr title="AM_TR_Combat_Heavy_1">TR_Heavy_1</abbr> | 12    | 1.33  | 0.7         |
-| 4    | <abbr title="AM_TR_Combat_Windup_2">TR_Windup_2</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_2">TR_Light_2</abbr> | 8     | 0.70       | 0.92  | <abbr title="AM_TR_Combat_Heavy_2">TR_Heavy_2</abbr> | 12    | 1.33  | 0.7         |
+| Step | Windup                                                 | MinWU | MaxWU   | Light Montage                                        | ComboDelay | L.Dmg | L.Len | Heavy Montage                                        | H.Dmg | H.Len | HeavyThresh |
+| ---- | ------------------------------------------------------ | ----- | ------- | ---------------------------------------------------- | ---------- | ----- | ----- | ---------------------------------------------------- | ----- | ----- | ----------- |
+| 1    | <abbr title="AM_TR_Combat_Windup_1">TR_Windup_1</abbr> | 0.2   | **0.8** | <abbr title="AM_TR_Combat_Light_1">TR_Light_1</abbr> | 0.30       | 8     | 0.92  | <abbr title="AM_TR_Combat_Heavy_1">TR_Heavy_1</abbr> | 12    | 1.33  | 0.7         |
+| 2    | <abbr title="AM_TR_Combat_Windup_2">TR_Windup_2</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_2">TR_Light_2</abbr> | 0.30       | 8     | 0.92  | <abbr title="AM_TR_Combat_Heavy_2">TR_Heavy_2</abbr> | 12    | 1.33  | 0.7         |
+| 3    | <abbr title="AM_TR_Combat_Windup_1">TR_Windup_1</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_1">TR_Light_1</abbr> | 0.30       | 8     | 0.92  | <abbr title="AM_TR_Combat_Heavy_1">TR_Heavy_1</abbr> | 12    | 1.33  | 0.7         |
+| 4    | <abbr title="AM_TR_Combat_Windup_2">TR_Windup_2</abbr> | 0.15  | **0.8** | <abbr title="AM_TR_Combat_Light_2">TR_Light_2</abbr> | 0.70       | 8     | 0.92  | <abbr title="AM_TR_Combat_Heavy_2">TR_Heavy_2</abbr> | 12    | 1.33  | 0.7         |
 
 - All lights: **`Combat.Ability.Melee.Light.NoLunge`** — unique to Tremere, no dash on light attacks
 - MaxWindup capped at **0.8** (all others = 1.0)
@@ -58,12 +74,12 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Lasombra — 4 steps
 
-| Step | Windup                                                     | MinWU | MaxWU | Light Montage                                            | L.Dmg | ComboDelay | L.Len | Heavy Montage                                                | H.Dmg | H.Len | HeavyThresh |
-| ---- | ---------------------------------------------------------- | ----- | ----- | -------------------------------------------------------- | ----- | ---------- | ----- | ------------------------------------------------------------ | ----- | ----- | ----------- |
-| 1    | **<abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_1">LA_Light_1</abbr>     | 8     | 0.20       | 1.13  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
-| 2    | **<abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_2">LA_Light_2</abbr>     | 8     | 0.20       | 0.77  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
-| 3    | **<abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_3">LA_Light_3</abbr>     | 8     | 0.20       | 1.11  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
-| 4    | **<abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_End">LA_Light_End</abbr> | 8     | 0.70       | 1.16  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
+| Step | Windup                                                     | MinWU | MaxWU | Light Montage                                            | ComboDelay | L.Dmg | L.Len | Heavy Montage                                                | H.Dmg | H.Len | HeavyThresh |
+| ---- | ---------------------------------------------------------- | ----- | ----- | -------------------------------------------------------- | ---------- | ----- | ----- | ------------------------------------------------------------ | ----- | ----- | ----------- |
+| 1    | **<abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_1">LA_Light_1</abbr>     | 0.20       | 8     | 1.13  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
+| 2    | **<abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_2">LA_Light_2</abbr>     | 0.20       | 8     | 0.77  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
+| 3    | **<abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_3">LA_Light_3</abbr>     | 0.20       | 8     | 1.11  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
+| 4    | **<abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr>** | 0.2   | 1.0   | <abbr title="AM_Combat_LA_Light_End">LA_Light_End</abbr> | 0.70       | 8     | 1.16  | <abbr title="AM_Combat_LA_Heavy_Right">LA_Heavy_Right</abbr> | 15    | 0.73  | 0.7         |
 
 - Borrows **Ventrue windups** (VT_Windup_3/4) — no dedicated Lasombra windup montages
 - Single heavy montage (`LA_Heavy_Right`) used on every step — intentional design
@@ -73,13 +89,13 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Toreador — 5 steps
 
-| Step | Windup                                                          | MinWU | MaxWU   | Light Montage                                                 | L.Dmg | ComboDelay | L.Len | Heavy Montage                                                 | H.Dmg  | H.Len | HeavyThresh |
-| ---- | --------------------------------------------------------------- | ----- | ------- | ------------------------------------------------------------- | ----- | ---------- | ----- | ------------------------------------------------------------- | ------ | ----- | ----------- |
-| 1    | <abbr title="AM_Combat_Toreador_Windup_01">Tor_Windup_01</abbr> | 0.06  | 1.0     | <abbr title="AM_Combat_Toreador_Light_01">Tor_Light_01</abbr> | 5     | 0.25       | 1.30  | <abbr title="AM_Combat_Toreador_Heavy_01">Tor_Heavy_01</abbr> | 15     | 1.53  | 0.7         |
-| 2    | <abbr title="AM_Combat_Toreador_Windup_02">Tor_Windup_02</abbr> | 0.03  | 1.0     | <abbr title="AM_Combat_Toreador_Light_02">Tor_Light_02</abbr> | 5     | 0.25       | 1.30  | <abbr title="AM_Combat_Toreador_Heavy_02">Tor_Heavy_02</abbr> | 15     | 1.30  | 0.7         |
-| 3    | <abbr title="AM_Combat_Toreador_Windup_01">Tor_Windup_01</abbr> | 0.03  | 1.0     | **<abbr title="AM_Combat_BA_Light_3">BA_Light_3</abbr>**      | 6     | 0.25       | 0.88  | <abbr title="AM_Combat_Toreador_Heavy_01">Tor_Heavy_01</abbr> | 12     | 1.53  | **0.55**    |
-| 4    | <abbr title="AM_Combat_Toreador_Windup_02">Tor_Windup_02</abbr> | 0.03  | 1.0     | **<abbr title="AM_Combat_BA_Light_4">BA_Light_4</abbr>**      | 6     | 0.25       | 0.88  | <abbr title="AM_Combat_Toreador_Heavy_02">Tor_Heavy_02</abbr> | 12     | 1.30  | **0.55**    |
-| 5    | **<abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr>**      | 0.1   | **1.1** | **<abbr title="AM_Combat_BA_Light_5">BA_Light_5</abbr>**      | 7     | 0.80       | 1.12  | **<abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr>**      | **18** | 1.53  | **0.45**    |
+| Step | Windup                                                          | MinWU | MaxWU   | Light Montage                                                 | ComboDelay | L.Dmg | L.Len | Heavy Montage                                                 | H.Dmg  | H.Len | HeavyThresh |
+| ---- | --------------------------------------------------------------- | ----- | ------- | ------------------------------------------------------------- | ---------- | ----- | ----- | ------------------------------------------------------------- | ------ | ----- | ----------- |
+| 1    | <abbr title="AM_Combat_Toreador_Windup_01">Tor_Windup_01</abbr> | 0.06  | 1.0     | <abbr title="AM_Combat_Toreador_Light_01">Tor_Light_01</abbr> | 0.25       | 5     | 1.30  | <abbr title="AM_Combat_Toreador_Heavy_01">Tor_Heavy_01</abbr> | 15     | 1.53  | 0.7         |
+| 2    | <abbr title="AM_Combat_Toreador_Windup_02">Tor_Windup_02</abbr> | 0.03  | 1.0     | <abbr title="AM_Combat_Toreador_Light_02">Tor_Light_02</abbr> | 0.25       | 5     | 1.30  | <abbr title="AM_Combat_Toreador_Heavy_02">Tor_Heavy_02</abbr> | 15     | 1.30  | 0.7         |
+| 3    | <abbr title="AM_Combat_Toreador_Windup_01">Tor_Windup_01</abbr> | 0.03  | 1.0     | **<abbr title="AM_Combat_BA_Light_3">BA_Light_3</abbr>**      | 0.25       | 6     | 0.88  | <abbr title="AM_Combat_Toreador_Heavy_01">Tor_Heavy_01</abbr> | 12     | 1.53  | **0.55**    |
+| 4    | <abbr title="AM_Combat_Toreador_Windup_02">Tor_Windup_02</abbr> | 0.03  | 1.0     | **<abbr title="AM_Combat_BA_Light_4">BA_Light_4</abbr>**      | 0.25       | 6     | 0.88  | <abbr title="AM_Combat_Toreador_Heavy_02">Tor_Heavy_02</abbr> | 12     | 1.30  | **0.55**    |
+| 5    | **<abbr title="AM_Combat_BA_Windup_1">BA_Windup_1</abbr>**      | 0.1   | **1.1** | **<abbr title="AM_Combat_BA_Light_5">BA_Light_5</abbr>**      | 0.80       | 7     | 1.12  | **<abbr title="AM_Combat_BA_Heavy_1">BA_Heavy_1</abbr>**      | **18** | 1.53  | **0.45**    |
 
 - Steps 3–4 reuse Banu light montages; step 5 is fully Banu (windup + light + heavy)
 - Heavy threshold drops across the chain: 0.7 → 0.55 → 0.45 — heavies become easier to trigger as the combo progresses
@@ -89,12 +105,12 @@ Each set is a `DABP_PlayerAttackConfig` with an `Attacks` array. Each step has a
 
 ## Ventrue — 4 steps
 
-| Step | Windup                                                 | MinWU | MaxWU | Light Montage                                        | L.Dmg | ComboDelay | L.Len | Heavy Montage                                                          | H.Dmg | H.Len | HeavyThresh |
-| ---- | ------------------------------------------------------ | ----- | ----- | ---------------------------------------------------- | ----- | ---------- | ----- | ---------------------------------------------------------------------- | ----- | ----- | ----------- |
-| 1    | <abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_VT_Light_3">VT_Light_3</abbr> | 8     | 0.30       | 0.86  | <abbr title="AM_VE_Combat_Heavy_Recycle_01">VE_Heavy_Recycle_01</abbr> | 15    | 1.40  | 0.7         |
-| 2    | <abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VT_Light_4">VT_Light_4</abbr> | 7     | 0.30       | 0.87  | <abbr title="AM_VE_Combat_Heavy_Recycle_02">VE_Heavy_Recycle_02</abbr> | 15    | 1.40  | 0.7         |
-| 3    | <abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VE_Light_3">VE_Light_3</abbr> | 7     | 0.30       | 0.73  | <abbr title="AM_VE_Combat_Heavy_Recycle_01">VE_Heavy_Recycle_01</abbr> | 15    | 1.40  | 0.7         |
-| 4    | <abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VT_Light_5">VT_Light_5</abbr> | 7     | 0.70       | 1.01  | <abbr title="AM_VE_Combat_Heavy_Recycle_02">VE_Heavy_Recycle_02</abbr> | 15    | 1.40  | 0.7         |
+| Step | Windup                                                 | MinWU | MaxWU | Light Montage                                        | ComboDelay | L.Dmg | L.Len | Heavy Montage                                                          | H.Dmg | H.Len | HeavyThresh |
+| ---- | ------------------------------------------------------ | ----- | ----- | ---------------------------------------------------- | ---------- | ----- | ----- | ---------------------------------------------------------------------- | ----- | ----- | ----------- |
+| 1    | <abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr> | 0.2   | 1.0   | <abbr title="AM_Combat_VT_Light_3">VT_Light_3</abbr> | 0.30       | 8     | 0.86  | <abbr title="AM_VE_Combat_Heavy_Recycle_01">VE_Heavy_Recycle_01</abbr> | 15    | 1.40  | 0.7         |
+| 2    | <abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VT_Light_4">VT_Light_4</abbr> | 0.30       | 7     | 0.87  | <abbr title="AM_VE_Combat_Heavy_Recycle_02">VE_Heavy_Recycle_02</abbr> | 15    | 1.40  | 0.7         |
+| 3    | <abbr title="AM_Combat_VT_Windup_3">VT_Windup_3</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VE_Light_3">VE_Light_3</abbr> | 0.30       | 7     | 0.73  | <abbr title="AM_VE_Combat_Heavy_Recycle_01">VE_Heavy_Recycle_01</abbr> | 15    | 1.40  | 0.7         |
+| 4    | <abbr title="AM_Combat_VT_Windup_4">VT_Windup_4</abbr> | 0.1   | 1.0   | <abbr title="AM_Combat_VT_Light_5">VT_Light_5</abbr> | 0.70       | 7     | 1.01  | <abbr title="AM_VE_Combat_Heavy_Recycle_02">VE_Heavy_Recycle_02</abbr> | 15    | 1.40  | 0.7         |
 
 - Only clan using "Recycle" naming on heavy montages (`VE_Heavy_Recycle_01/02`)
 - Step 3 uses `VE_Light_3` (different prefix from `VT_Light_3` on step 1)
