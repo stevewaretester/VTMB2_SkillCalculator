@@ -1157,7 +1157,7 @@
     // Touch (basic 1-finger pan, 2-finger pinch)
     let lastTouches = null;
     vp.addEventListener("touchstart", (e) => {
-      if (e.target.closest(".hubmap__pin") || e.target.closest(".hubmap__building")) return;
+      if (e.target.closest(".hubmap__pin") || e.target.closest(".hubmap__building") || e.target.closest(".hubmap__panel")) return;
       lastTouches = touchInfo(e);
     }, { passive: true });
     vp.addEventListener("touchmove", (e) => {

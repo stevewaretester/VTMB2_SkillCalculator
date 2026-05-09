@@ -163,10 +163,19 @@ function getCurrentPos() {
   if (page === "phyre") {
     const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active");
     if (secondary) {
-      pos = `phyre.${secondary.dataset.subtab}`;
+      const secondaryCrumb = secondary.dataset.subtab === "combos" ? "combat" : secondary.dataset.subtab;
+      pos = `phyre.${secondaryCrumb}`;
       if (secondary.dataset.subtab === "combos") {
         const combosSub = document.querySelector(".tab-bar--combos .tab-bar__tab.active");
-        if (combosSub) pos += `.${combosSub.dataset.combotab}`;
+        if (combosSub) {
+          const comboCrumb = combosSub.dataset.combotab === "melee"
+            ? "tutorial"
+            : (combosSub.dataset.combotab === "weapons" ? "melee" : combosSub.dataset.combotab);
+          pos += `.${comboCrumb}`;
+        }
+      } else if (secondary.dataset.subtab === "skilltree") {
+        const skillSub = document.querySelector(".tab-bar--skilltree-sub .tab-bar__tab.active");
+        if (skillSub) pos += `.${skillSub.dataset.skilltab}`;
       }
     }
   } else if (page === "fabien") {
@@ -190,6 +199,7 @@ function applyPersistedPosition(pos) {
   const page = parts[0];
   const sub = parts[1];
   const subsub = parts[2];
+  const normalizedSub = sub === "combat" ? "combos" : sub;
 
   // Activate primary tab
   const primaryTab = document.querySelector(`.tab-bar--primary .tab-bar__tab[data-tab="${page}"]`);
@@ -200,30 +210,40 @@ function applyPersistedPosition(pos) {
   const pageEl = document.getElementById(`page-${page}`);
   if (pageEl) pageEl.classList.remove("hidden");
 
-  if (page === "phyre" && sub) {
-    const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="${sub}"]`);
+  if (page === "phyre" && normalizedSub) {
+    const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="${normalizedSub}"]`);
     if (secondaryTab) {
       document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
       secondaryTab.classList.add("active");
       document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-      const subEl = document.getElementById(`subpage-${sub}`);
+      const subEl = document.getElementById(`subpage-${normalizedSub}`);
       if (subEl) subEl.classList.remove("hidden");
-      if (sub === "combos" && typeof setActiveCombosSubtab === "function") {
-        setActiveCombosSubtab(subsub || "ability");
+      if (normalizedSub === "combos" && typeof setActiveCombosSubtab === "function") {
+        let comboTab = subsub || "melee";
+        if (sub === "combat") {
+          if (comboTab === "tutorial" || comboTab === "attacks") comboTab = "melee";
+          else if (comboTab === "melee") comboTab = "weapons";
+        } else {
+          if (comboTab === "tutorial" || comboTab === "attacks") comboTab = "melee";
+        }
+        if (!setActiveCombosSubtab(comboTab)) setActiveCombosSubtab("melee");
+      }
+      if (normalizedSub === "skilltree" && typeof setActiveSkilltreeSubtab === "function") {
+        setActiveSkilltreeSubtab(subsub || "abilities");
       }
       // Trigger renderers for subpages whose content is populated lazily on
       // tab activation. Without these the page DOM stays empty when arriving
       // via a deep-link like ?at=phyre.outfits.
-      if (sub === "outfits" && typeof refreshOutfitsPage === "function") {
+      if (normalizedSub === "outfits" && typeof refreshOutfitsPage === "function") {
         refreshOutfitsPage();
       }
-      if (sub === "pickups" && typeof renderPickupsPage === "function") {
+      if (normalizedSub === "pickups" && typeof renderPickupsPage === "function") {
         renderPickupsPage();
       }
-      if (sub === "map" && typeof renderMapPage === "function") {
+      if (normalizedSub === "map" && typeof renderMapPage === "function") {
         renderMapPage();
       }
-      if (sub === "tierlist" && typeof initTierList === "function") {
+      if (normalizedSub === "tierlist" && typeof initTierList === "function") {
         initTierList();
       }
     }
@@ -494,6 +514,23 @@ function setActivePickupsSubtab(tabId) {
   return true;
 }
 
+function setActiveSkilltreeSubtab(tabId) {
+  const tabs = document.querySelectorAll(".tab-bar--skilltree-sub .tab-bar__tab");
+  const targetTab = document.querySelector(`.tab-bar--skilltree-sub .tab-bar__tab[data-skilltab="${tabId}"]`);
+  const targetSubpage = document.getElementById(`skilltree-subpage-${tabId}`);
+  if (!targetTab || !targetSubpage) return false;
+
+  tabs.forEach(t => t.classList.remove("active"));
+  targetTab.classList.add("active");
+  document.querySelectorAll(".skilltree-subpage").forEach(p => p.classList.add("hidden"));
+  targetSubpage.classList.remove("hidden");
+
+  if (tabId === "combos") {
+    if (typeof renderCombosPage === "function") renderCombosPage();
+  }
+  return true;
+}
+
 function setActiveCombosSubtab(tabId) {
   const tabs = document.querySelectorAll(".tab-bar--combos .tab-bar__tab");
   const targetTab = document.querySelector(`.tab-bar--combos .tab-bar__tab[data-combotab="${tabId}"]`);
@@ -513,6 +550,8 @@ function setActiveCombosSubtab(tabId) {
     if (typeof renderClanCombosPage === "function") renderClanCombosPage();
   } else if (tabId === "weapons") {
     if (typeof renderMeleeWeaponsPage === "function") renderMeleeWeaponsPage();
+  } else if (tabId === "graph") {
+    if (typeof renderCombatGraphPage === "function") renderCombatGraphPage();
   }
   return true;
 }
@@ -638,7 +677,8 @@ function bindTabs() {
           const subpage = document.getElementById(`subpage-${activeSecondary.dataset.subtab}`);
           if (subpage) subpage.classList.remove("hidden");
           if (activeSecondary.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") refreshOutfitsPage();
-          if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("ability");
+          if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("melee");
+          if (activeSecondary.dataset.subtab === "skilltree" && typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
           if (activeSecondary.dataset.subtab === "map" && typeof renderMapPage === "function") renderMapPage();
           if (activeSecondary.dataset.subtab === "tierlist" && typeof initTierList === "function") initTierList();
@@ -664,8 +704,11 @@ function bindTabs() {
       if (tab.dataset.subtab === "outfits" && typeof refreshOutfitsPage === "function") {
         refreshOutfitsPage();
       }
+      if (tab.dataset.subtab === "skilltree" && typeof setActiveSkilltreeSubtab === "function") {
+        setActiveSkilltreeSubtab("abilities");
+      }
       if (tab.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") {
-        setActiveCombosSubtab("ability");
+        setActiveCombosSubtab("melee");
       }
       if (tab.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") {
         renderPickupsPage();
@@ -726,6 +769,15 @@ function bindTabs() {
   combosTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       setActiveCombosSubtab(tab.dataset.combotab);
+      persistPosition();
+    });
+  });
+
+  // Skill Tree sub-tabs
+  const skillTabs = document.querySelectorAll(".tab-bar--skilltree-sub .tab-bar__tab");
+  skillTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      setActiveSkilltreeSubtab(tab.dataset.skilltab);
       persistPosition();
     });
   });
@@ -802,7 +854,10 @@ function renderClanSelector() {
     const clanBarHandle = document.createElement('div');
     clanBarHandle.className = 'clan-bar-handle';
     clanBarHandle.innerHTML = '<div class="clan-bar-handle__drag"></div><button class="clan-bar-handle__close" aria-label="Close clan selector"><img src="assets/N_Textures/HUD/EnemyStatus/T_UI_HUD_EnemyStatus_Position_Patrolling.png" alt="" aria-hidden="true"></button>';
-    clanBarHandle.querySelector('.clan-bar-handle__close').addEventListener('click', () => mobileBar.classList.remove('is-open'));
+    clanBarHandle.querySelector('.clan-bar-handle__close').addEventListener('click', () => {
+      mobileBar.classList.remove('is-open');
+      if (typeof updateMobileChrome === 'function') updateMobileChrome();
+    });
     mobileBar.appendChild(clanBarHandle);
     for (const clanId of CLAN_ORDER) {
       const clan = CLANS[clanId];
@@ -1043,7 +1098,7 @@ function renderPhyreInnateDetail(panel) {
       }
       html += `</div></details>`;
     }
-    html += `<div class="innate-tip innate-tip--link" id="innate-combos-link">&#8658; Full breakdown in the <strong>Combos → Clan</strong> tab</div>`;
+    html += `<div class="innate-tip innate-tip--link" id="innate-combos-link">&#8658; Full breakdown in the <strong>Combat → Clan</strong> tab</div>`;
   } else if (itemId === "vampiricSprint") {
     html += `<div class="detail-panel__desc">Phyre can sprint at supernatural speed by holding the sprint button. Vampiric Sprint is a passive innate ability — it requires no Blood and is always available.</div>`;
     html += `<div class="innate-section-list">`;
@@ -1075,13 +1130,7 @@ function renderPhyreInnateDetail(panel) {
       link.addEventListener("click", () => {
         phyreInnateState.focused = null;
         renderPhyreInnateItems();
-        if (typeof navigateToCombos === "function") {
-          navigateToCombos();
-          // Switch to clan sub-tab after navigation settles
-          setTimeout(() => {
-            if (typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("clan");
-          }, 80);
-        }
+        if (typeof navigateToClanCombos === "function") navigateToClanCombos();
       });
     }
   }
@@ -1148,6 +1197,7 @@ function bindToggles() {
     const skillTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
     if (skillTab) skillTab.classList.add("active");
     document.getElementById("subpage-skilltree").classList.remove("hidden");
+    if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
     // Select Tremere and focus the requested tier
     state.selectedClan = "tremere";
     state.focusedAbility = { type: "ability", clanId: "tremere", tier };
@@ -2963,6 +3013,7 @@ function navigateToAbility(clanId, tier) {
   const skilltreeTab = document.querySelector(".tab-bar--secondary .tab-bar__tab[data-subtab='skilltree']");
   if (skilltreeTab) skilltreeTab.classList.add("active");
   document.getElementById("subpage-skilltree").classList.remove("hidden");
+  if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
   state.focusedAbility = { clanId, tier };
   renderGrid();
   updateCosts();
@@ -3576,10 +3627,13 @@ function buildMobileSubtabBar(activeTab) {
 
   let origTabs;
   let backTarget = null; // when set, render a back button that clicks this tab
+  let activeSub = null;
   if (activeTab === 'phyre') {
-    // Check which secondary subpage is active — combos/pickups have their own inner tabs
+    // Check which secondary subpage is active — combos/pickups have inner tabs.
+    // Skill Tree uses its own in-page tab bar on mobile, so we keep top-level
+    // Phyre tabs here to avoid trapping the back button on the same view.
     const activeSecondary = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active');
-    const activeSub = activeSecondary ? activeSecondary.dataset.subtab : null;
+    activeSub = activeSecondary ? activeSecondary.dataset.subtab : null;
     if (activeSub === 'combos') {
       origTabs = document.querySelectorAll('.tab-bar--combos .tab-bar__tab');
       backTarget = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
@@ -3640,6 +3694,12 @@ function updateMobileChrome() {
   document.querySelectorAll('.mobile-bottom-tab[data-mobile-tab]').forEach(btn => {
     btn.classList.toggle('is-active', btn.dataset.mobileTab === activeTab);
   });
+  const phyreMobileTab = document.querySelector('.mobile-bottom-tab--phyre');
+  const mobileClanBar = document.getElementById('mobile-clan-bar');
+  if (phyreMobileTab) {
+    const isClanOpen = !!(mobileClanBar && mobileClanBar.classList.contains('is-open'));
+    phyreMobileTab.classList.toggle('is-clan-open', isClanOpen);
+  }
 
   // Hide the detail hint pill when changing tabs (stale focus)
   if (typeof hideMobileDetailHint === 'function') hideMobileDetailHint();
@@ -3811,6 +3871,7 @@ function initMobileShell() {
       if (isPhyre && alreadyActive && clanBar) {
         clanBar.classList.toggle('is-open');
         if (clanBar.classList.contains('is-open')) hideMobileDetailHint();
+        requestAnimationFrame(updateMobileChrome);
         return;
       }
 

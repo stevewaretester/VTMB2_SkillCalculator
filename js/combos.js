@@ -140,11 +140,15 @@ function buildComboTotalLeft(combo) {
 
 // ── Main render ───────────────────────────────────────────────
 function renderCombosPage() {
-  // Only render if the ability subtab is active
-  const abilitySubpage = document.getElementById("combos-subpage-ability");
-  if (!abilitySubpage || abilitySubpage.classList.contains("hidden")) return;
-
-  const container = document.getElementById("combos-table-container");
+  const skilltreeCombosSubpage = document.getElementById("skilltree-subpage-combos");
+  const combatAbilitySubpage = document.getElementById("combos-subpage-ability");
+  let container = null;
+  if (skilltreeCombosSubpage && !skilltreeCombosSubpage.classList.contains("hidden")) {
+    container = document.getElementById("skilltree-combos-container");
+  } else if (combatAbilitySubpage && !combatAbilitySubpage.classList.contains("hidden")) {
+    // Legacy fallback if old combat ability subpage is used.
+    container = document.getElementById("combos-table-container");
+  }
   if (!container) return;
 
   const isMobile = document.body.classList.contains('is-mobile');
@@ -291,10 +295,10 @@ function navigateToCombos(comboId) {
   const secondaryTabs = document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny) .tab-bar__tab");
   secondaryTabs.forEach(t => t.classList.remove("active"));
   document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-  const combosTab = document.querySelector(".tab-bar--secondary .tab-bar__tab[data-subtab='combos']");
-  if (combosTab) combosTab.classList.add("active");
-  document.getElementById("subpage-combos").classList.remove("hidden");
-  setActiveCombosSubtab("ability");
+  const skilltreeTab = document.querySelector(".tab-bar--secondary .tab-bar__tab[data-subtab='skilltree']");
+  if (skilltreeTab) skilltreeTab.classList.add("active");
+  document.getElementById("subpage-skilltree").classList.remove("hidden");
+  if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("combos");
 
   if (comboId) {
     setTimeout(() => {
@@ -306,11 +310,19 @@ function navigateToCombos(comboId) {
       }
     }, 60);
   }
+  if (typeof persistPosition === "function") persistPosition();
   if (typeof updateMobileChrome === "function") updateMobileChrome();
 }
 
 // ── Re-render combos if the tab is currently visible ─────────
 function refreshCombosIfVisible() {
+  const skilltreeSubpage = document.getElementById("subpage-skilltree");
+  const skilltreeCombosSubpage = document.getElementById("skilltree-subpage-combos");
+  if (skilltreeSubpage && !skilltreeSubpage.classList.contains("hidden") && skilltreeCombosSubpage && !skilltreeCombosSubpage.classList.contains("hidden")) {
+    renderCombosPage();
+    return;
+  }
+
   const subpage = document.getElementById("subpage-combos");
   if (subpage && !subpage.classList.contains("hidden")) {
     const abilitySubpage = document.getElementById("combos-subpage-ability");
@@ -1694,6 +1706,75 @@ const MELEE_WEAPONS = [
   },
 ];
 
+const WEAPON_ATTACKSET_TIMINGS = {
+  Attackset_Bat: [
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 1.0 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 1.0 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 1.0 },
+    { minWindup: 0.24, lightComboDelay: 0.70, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 1.0 },
+  ],
+  Attackset_Baton_Empty: [
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.70, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.8 },
+  ],
+  Attackset_Baton_Loaded: [
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.24, lightComboDelay: 0.70, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.8 },
+  ],
+  Attackset_Knife: [
+    { minWindup: 0.06, lightComboDelay: 0.25, maxWindup: 1.0, heavyThresh: 0.5, heavyComboDelay: 0.8 },
+    { minWindup: 0.03, lightComboDelay: 0.25, maxWindup: 1.0, heavyThresh: 0.5, heavyComboDelay: 0.8 },
+    { minWindup: 0.03, lightComboDelay: 0.25, maxWindup: 1.0, heavyThresh: 0.5, heavyComboDelay: 0.8 },
+    { minWindup: 0.03, lightComboDelay: 0.35, maxWindup: 1.0, heavyThresh: 0.5, heavyComboDelay: 0.8 },
+  ],
+  Attackset_Machete: [
+    { minWindup: 0.20, lightComboDelay: 0.20, maxWindup: 1.0, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.06, lightComboDelay: 0.30, maxWindup: 1.0, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.06, lightComboDelay: 0.30, maxWindup: 1.0, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.06, lightComboDelay: 0.60, maxWindup: 1.0, heavyThresh: 0.7, heavyComboDelay: 0.8 },
+  ],
+  Attackset_SledgeHammer: [
+    { minWindup: 0.40, lightComboDelay: 0.40, maxWindup: 1.7, heavyThresh: 1.0, heavyComboDelay: 1.4 },
+    { minWindup: 0.40, lightComboDelay: 0.40, maxWindup: 1.7, heavyThresh: 1.0, heavyComboDelay: 1.4 },
+  ],
+  Attackset_SpikeBat: [
+    { minWindup: 0.30, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.30, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.30, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.30, lightComboDelay: 0.70, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.8 },
+  ],
+  Attackset_Sword: [
+    { minWindup: 0.20, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.22, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.25, lightComboDelay: 0.30, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.7 },
+    { minWindup: 0.30, lightComboDelay: 0.70, maxWindup: 1.1, heavyThresh: 0.7, heavyComboDelay: 0.8 },
+  ],
+  Attackset_WarHammer: [
+    { minWindup: 0.55, lightComboDelay: 0.40, maxWindup: 1.7, heavyThresh: 1.0, heavyComboDelay: 1.4 },
+    { minWindup: 0.55, lightComboDelay: 0.40, maxWindup: 1.7, heavyThresh: 1.0, heavyComboDelay: 1.4 },
+  ],
+};
+
+function applyWeaponTimingProfiles(weapon) {
+  const timingRows = WEAPON_ATTACKSET_TIMINGS[weapon.attackset];
+  if (timingRows) {
+    weapon.rows = weapon.rows.map((row, index) => ({ ...row, ...(timingRows[index] || {}) }));
+  }
+  if (weapon.variants) {
+    weapon.variants.forEach((variant) => {
+      const variantTimingRows = WEAPON_ATTACKSET_TIMINGS[variant.attackset];
+      if (!variantTimingRows) return;
+      variant.rows = variant.rows.map((row, index) => ({ ...row, ...(variantTimingRows[index] || {}) }));
+    });
+  }
+}
+
+MELEE_WEAPONS.forEach(applyWeaponTimingProfiles);
+
 // Shared GA tuning (applies to all melee-weapon strikes via GA_PlayerAttack_*)
 // Source: melee_weapons_22727210.md
 const MELEE_WEAPON_GA_DATA = [
@@ -1717,10 +1798,11 @@ function computeWeaponRotationDps(rows, kind) {
   const dmgKey = kind + "Dmg";
   const lenKey = kind + "Len";
   const mKey   = kind + "Montage";
+  const modeMap = { light: "L", fwd: "F", shove: "S" };
   const valid  = rows.filter(r => r[mKey] && r[lenKey] > 0);
   if (!valid.length) return null;
   const totalDmg  = valid.reduce((a, r) => a + (r[dmgKey] || 0), 0);
-  const totalTime = valid.reduce((a, r) => a + r[lenKey], 0);
+  const totalTime = valid.reduce((a, r) => a + getWeaponStepTiming(r, modeMap[kind]).time, 0);
   if (totalTime <= 0) return null;
   return {
     dps: totalDmg / totalTime,
@@ -1739,6 +1821,32 @@ function renderWeaponDpsChip(label, title, data) {
   const tooltip = `${title}: ${data.dmg} dmg over ${data.time.toFixed(2)}s (${data.steps} step${data.steps === 1 ? "" : "s"})`;
   const cls = label === "L" ? "dps-chip--opt" : (label === "FWD" ? "dps-chip--lights" : "dps-chip--shove");
   return `<div class="dps-chip ${cls}" title="${tooltip}"><span class="dps-chip__head"><span class="dps-chip__label">${label}</span><span class="dps-chip__val">${data.dps.toFixed(2)}</span></span></div>`;
+}
+
+function renderWeaponInfoChip(label, value, title, cls = "") {
+  return `<div class="dps-chip ${cls}" title="${title}"><span class="dps-chip__head"><span class="dps-chip__label">${label}</span><span class="dps-chip__val">${value}</span></span></div>`;
+}
+
+function getWeaponShoveSummary(rows) {
+  const shoveRow = rows.find((row) => row.shoveMontage && row.shoveLen > 0);
+  if (!shoveRow) return null;
+  const timing = getWeaponStepTiming(shoveRow, "S");
+  return {
+    damage: shoveRow.shoveDmg,
+    time: timing.time,
+    tooltip: `${shoveRow.shoveDmg} damage in ${timing.time.toFixed(2)}s`,
+  };
+}
+
+function renderWeaponSupportChips(weaponData) {
+  const shove = getWeaponShoveSummary(weaponData.rows);
+  let html = `<div class="dps-chip-group dps-chip-group--weapon dps-chip-group--utility">`;
+  html += renderWeaponInfoChip("THR", `${weaponData.thrownDmg} dmg`, `Throw damage: ${weaponData.thrownDmg}`);
+  if (shove) {
+    html += renderWeaponInfoChip("SHV", `${shove.damage} / ${shove.time.toFixed(2)}s`, `Shove: ${shove.tooltip}`, "dps-chip--shove");
+  }
+  html += `</div>`;
+  return html;
 }
 
 function getWeaponStepTiming(row, mode) {
@@ -1760,11 +1868,36 @@ function getWeaponStepTiming(row, mode) {
       tooltip: `${row.lightMontage} (montage length fallback)`,
     };
   }
+  if (mode === "H") {
+    if (typeof row.maxWindup === "number" && typeof row.heavyThresh === "number" && typeof row.heavyComboDelay === "number") {
+      const holdTime = row.heavyThresh * row.maxWindup;
+      return {
+        time: holdTime + row.heavyComboDelay,
+        tooltip: `Heavy: (Threshold × MaxWU) + ComboDelay = (${row.heavyThresh.toFixed(2)} × ${row.maxWindup.toFixed(2)}) + ${row.heavyComboDelay.toFixed(2)}`,
+      };
+    }
+    return {
+      time: row.heavyLen,
+      tooltip: `${row.heavyMontage} (montage length fallback)`,
+    };
+  }
   if (mode === "F") {
     if (typeof row.fwdWindup === "number" && typeof row.fwdComboDelay === "number") {
       return {
         time: row.fwdWindup + row.fwdComboDelay,
         tooltip: `Forward: Windup + ComboDelay = ${row.fwdWindup.toFixed(2)} + ${row.fwdComboDelay.toFixed(2)}`,
+      };
+    }
+    if (typeof row.lightMinWindup === "number" && typeof row.lightComboDelay === "number") {
+      return {
+        time: row.lightMinWindup + row.lightComboDelay,
+        tooltip: `Forward: using light cadence (MinWU + ComboDelay) = ${row.lightMinWindup.toFixed(2)} + ${row.lightComboDelay.toFixed(2)}`,
+      };
+    }
+    if (typeof row.minWindup === "number" && typeof row.lightComboDelay === "number") {
+      return {
+        time: row.minWindup + row.lightComboDelay,
+        tooltip: `Forward: using light cadence (MinWU + ComboDelay) = ${row.minWindup.toFixed(2)} + ${row.lightComboDelay.toFixed(2)}`,
       };
     }
     return {
@@ -1907,7 +2040,8 @@ function renderMeleeWeaponsPage() {
     <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Heavy slot:</strong> hold-to-charge release; bypasses block on heavy classes. <strong>Heavy attacks BREAK the weapon</strong> — single-use, throws the weapon away after impact, but deals significant damage.</li>
     <li><strong class="combos-header__primer-label">Forward (W+attack):</strong> directional overhead/stab variant — usually higher damage than the light.</li>
     <li><strong class="combos-header__primer-label">Backward (S+attack):</strong> quick shove — low damage, mainly for spacing.</li>
-    <li><strong class="combos-header__primer-label">DPS chips:</strong> header chips show sustained DPS for the Light, Forward, and Shove lanes only. Heavy is excluded because it breaks the weapon.</li>
+    <li><strong class="combos-header__primer-label">Timing model:</strong> Light and Forward use attackset light cadence by default, Heavy uses extracted Threshold / MaxWU / ComboDelay cadence, and Shove stays on its own timing path unless separate directional timing fields are available.</li>
+    <li><strong class="combos-header__primer-label">Header lozenges:</strong> Light and Forward stay as DPS chips, while Throw and Shove now sit in utility lozenges with direct damage readouts.</li>
   </ul>`;
   h += `</div>`; // header
 
@@ -1916,19 +2050,20 @@ function renderMeleeWeaponsPage() {
   for (const w of MELEE_WEAPONS) {
     const dpsLight = computeWeaponRotationDps(w.rows, "light");
     const dpsFwd   = computeWeaponRotationDps(w.rows, "fwd");
-    const dpsShove = computeWeaponRotationDps(w.rows, "shove");
 
     h += `<div class="clan-combo-block" id="mw-${w.id}">`;
     h += `<div class="clan-combo-block__heading clan-combo-block__heading--with-dps">`;
     h += `<div class="clan-combo-block__heading-text">`;
     h += `<span class="clan-combo-block__name">${w.name}</span>`;
-    h += `<span class="clan-combo-block__meta">${w.category} &middot; ${w.steps}-step chain &middot; Throw ${w.thrownDmg}</span>`;
+    h += `<span class="clan-combo-block__meta">${w.category} &middot; ${w.steps}-step chain</span>`;
     h += `</div>`;
     h += `<div class="dps-chip-group dps-chip-group--weapon dps-chip-group--heading">`;
     h += renderWeaponDpsChip("L",   "Light rotation",   dpsLight);
     h += renderWeaponDpsChip("FWD", "Forward rotation", dpsFwd);
-    h += renderWeaponDpsChip("SHV", "Shove rotation",   dpsShove);
     h += `</div>`;
+    h += `</div>`;
+    h += `<div class="weapon-variant-summary" data-variant="main" data-weapon-id="${w.id}">`;
+    h += renderWeaponSupportChips(w);
     h += `</div>`;
     
     // Variant tabs (if variants exist)
@@ -1939,6 +2074,11 @@ function renderMeleeWeaponsPage() {
         h += `<button class="weapon-variant-tab" data-variant="${v.id}" data-weapon-id="${w.id}">${v.name.split('(')[1].trim()}</button>`;
       }
       h += `</div>`;
+      for (const v of w.variants) {
+        h += `<div class="weapon-variant-summary" data-variant="${v.id}" data-weapon-id="${w.id}" style="display:none;">`;
+        h += renderWeaponSupportChips(v);
+        h += `</div>`;
+      }
     }
 
     // Step table — main weapon
@@ -1951,9 +2091,6 @@ function renderMeleeWeaponsPage() {
       <th class="combos-table__th clan-combos-table__th--steptime" title="Forward step time (W+attack)">Fwd Time</th>
       <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
       <th class="combos-table__th clan-combos-table__th--dps" title="Forward damage per second">Fwd Dmg/s</th>
-      <th class="combos-table__th clan-combos-table__th--steptime" title="Backward shove step time (S+attack)">Shove Time</th>
-      <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
-      <th class="combos-table__th clan-combos-table__th--dps" title="Shove damage per second">Shove Dmg/s</th>
       <th class="combos-table__th clan-combos-table__th--steptime" title="Heavy step time">Heavy Time</th>
       <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">Heavy Dmg</th>
       <th class="combos-table__th clan-combos-table__th--dps" title="Heavy damage per second">Heavy Dmg/s</th>
@@ -1961,10 +2098,9 @@ function renderMeleeWeaponsPage() {
     for (const r of w.rows) {
       const isPeak = r.heavyDmg >= 30;
       const lightTiming = getWeaponStepTiming(r, "L");
-      const heavyDps = r.heavyLen > 0 ? (r.heavyDmg / r.heavyLen) : 0;
-      const shoveTiming = getWeaponStepTiming(r, "S");
+      const heavyTiming = getWeaponStepTiming(r, "H");
+      const heavyDps = heavyTiming.time > 0 ? (r.heavyDmg / heavyTiming.time) : 0;
       const lightDps = lightTiming.time > 0 ? (r.lightDmg / lightTiming.time) : 0;
-      const shoveDps = shoveTiming.time > 0 ? (r.shoveDmg / shoveTiming.time) : 0;
       h += `<tr class="clan-combos-table__row">`;
       h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
       h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${lightTiming.tooltip}">${lightTiming.time.toFixed(2)}s</td>`;
@@ -1981,10 +2117,7 @@ function renderMeleeWeaponsPage() {
         h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
         h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
       }
-      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${shoveTiming.tooltip}">${shoveTiming.time.toFixed(2)}s</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="sdmg">${r.shoveDmg}</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--dps">${shoveDps.toFixed(2)}</td>`;
-      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+      h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${heavyTiming.tooltip}">${heavyTiming.time.toFixed(2)}s</td>`;
       h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
       h += `<td class="combos-table__td clan-combos-table__td--dps">${heavyDps.toFixed(2)}</td>`;
       h += `</tr>`;
@@ -2004,9 +2137,6 @@ function renderMeleeWeaponsPage() {
           <th class="combos-table__th clan-combos-table__th--steptime" title="Forward step time (W+attack)">Fwd Time</th>
           <th class="combos-table__th" title="Forward (W+attack) variant damage">Fwd Dmg</th>
           <th class="combos-table__th clan-combos-table__th--dps" title="Forward damage per second">Fwd Dmg/s</th>
-          <th class="combos-table__th clan-combos-table__th--steptime" title="Backward shove step time (S+attack)">Shove Time</th>
-          <th class="combos-table__th" title="Backward shove (S+attack) damage">Shove Dmg</th>
-          <th class="combos-table__th clan-combos-table__th--dps" title="Shove damage per second">Shove Dmg/s</th>
           <th class="combos-table__th clan-combos-table__th--steptime" title="Heavy step time">Heavy Time</th>
           <th class="combos-table__th clan-combos-table__th--hdmg" title="Heavy attack base damage">Heavy Dmg</th>
           <th class="combos-table__th clan-combos-table__th--dps" title="Heavy damage per second">Heavy Dmg/s</th>
@@ -2014,10 +2144,9 @@ function renderMeleeWeaponsPage() {
         for (const r of v.rows) {
           const isPeak = r.heavyDmg >= 30;
           const lightTiming = getWeaponStepTiming(r, "L");
-          const heavyDps = r.heavyLen > 0 ? (r.heavyDmg / r.heavyLen) : 0;
-          const shoveTiming = getWeaponStepTiming(r, "S");
+          const heavyTiming = getWeaponStepTiming(r, "H");
+          const heavyDps = heavyTiming.time > 0 ? (r.heavyDmg / heavyTiming.time) : 0;
           const lightDps = lightTiming.time > 0 ? (r.lightDmg / lightTiming.time) : 0;
-          const shoveDps = shoveTiming.time > 0 ? (r.shoveDmg / shoveTiming.time) : 0;
           h += `<tr class="clan-combos-table__row">`;
           h += `<td class="combos-table__td clan-combos-table__td--step">${r.step}</td>`;
           h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${lightTiming.tooltip}">${lightTiming.time.toFixed(2)}s</td>`;
@@ -2034,10 +2163,7 @@ function renderMeleeWeaponsPage() {
             h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
             h += `<td class="combos-table__td"><span class="crossclan__val--dim">—</span></td>`;
           }
-          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${shoveTiming.tooltip}">${shoveTiming.time.toFixed(2)}s</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--dmg" data-cell="sdmg">${r.shoveDmg}</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--dps">${shoveDps.toFixed(2)}</td>`;
-          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${r.heavyMontage}">${r.heavyLen.toFixed(2)}s</td>`;
+          h += `<td class="combos-table__td clan-combos-table__td--steptime" title="${heavyTiming.tooltip}">${heavyTiming.time.toFixed(2)}s</td>`;
           h += `<td class="combos-table__td clan-combos-table__td--dmg ${isPeak ? "clan-combo__dmg--peak" : ""}" data-cell="hdmg">${r.heavyDmg}</td>`;
           h += `<td class="combos-table__td clan-combos-table__td--dps">${heavyDps.toFixed(2)}</td>`;
           h += `</tr>`;
@@ -2133,6 +2259,9 @@ function renderMeleeWeaponsPage() {
       document.querySelectorAll(`.weapon-variant-content[data-weapon-id="${weaponId}"]`).forEach(content => {
         content.style.display = 'none';
       });
+      document.querySelectorAll(`.weapon-variant-summary[data-weapon-id="${weaponId}"]`).forEach(summary => {
+        summary.style.display = 'none';
+      });
       
       // Remove active class from all tabs for this weapon
       document.querySelectorAll(`.weapon-variant-tab[data-weapon-id="${weaponId}"]`).forEach(t => {
@@ -2142,6 +2271,8 @@ function renderMeleeWeaponsPage() {
       // Show selected variant
       const selectedContent = document.querySelector(`.weapon-variant-content[data-variant="${variantId}"][data-weapon-id="${weaponId}"]`);
       if (selectedContent) selectedContent.style.display = 'block';
+      const selectedSummary = document.querySelector(`.weapon-variant-summary[data-variant="${variantId}"][data-weapon-id="${weaponId}"]`);
+      if (selectedSummary) selectedSummary.style.display = 'block';
       
       // Mark tab as active
       tab.classList.add('weapon-variant-tab--active');
@@ -2150,5 +2281,582 @@ function renderMeleeWeaponsPage() {
 }
 
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Combat Graph — aggregate damage-over-time visualisation for clan combos and
+// melee weapons. Reuses the same rotation evaluators as the Clan / Melee tabs
+// so the curves match those tables exactly.
+// ═══════════════════════════════════════════════════════════════════════════
 
+const LOOP_GRAPH_CYCLES = 3;
 
+const CLAN_GRAPH_COLORS = {
+  brujah:    "#c44121",
+  tremere:   "#9d6dd6",
+  banuHaqim: "#4a78b5",
+  ventrue:   "#d8b352",
+  lasombra:  "#7e7ea8",
+  toreador:  "#3fb6a4",
+};
+
+const CLAN_GRAPH_ORDER = ["brujah", "tremere", "banuHaqim", "ventrue", "lasombra", "toreador"];
+
+function weaponHasMode(weapon, mode) {
+  if (mode === "L") return true;
+  if (mode === "F") return weapon.rows.some(r => r.fwdMontage && r.fwdLen >= 0 && r.fwdDmg > 0);
+  if (mode === "S") return weapon.rows.some(r => r.shoveMontage && r.shoveLen > 0);
+  return false;
+}
+
+// Flatten MELEE_WEAPONS + nested variants into a single ordered list so the
+// graph filters can show variants (e.g. Electric Baton Empty) as their own row.
+function getGraphableWeapons() {
+  const out = [];
+  for (const w of MELEE_WEAPONS) {
+    out.push({ id: w.id, name: w.name, rows: w.rows, parentId: null });
+    if (Array.isArray(w.variants)) {
+      for (const v of w.variants) {
+        out.push({ id: v.id, name: v.name, rows: v.rows, parentId: w.id });
+      }
+    }
+  }
+  return out;
+}
+
+function getWeaponGraphColor(idx) {
+  // Deterministic spread around the wheel, skipping clan-ish hues for clarity.
+  const hue = (idx * 47 + 18) % 360;
+  return `hsl(${hue}, 62%, 58%)`;
+}
+
+// ── Series construction ──────────────────────────────────────
+function buildClanSeries(clanId, mode) {
+  const data = CLAN_COMBOS[clanId];
+  if (!data) return null;
+  const rows = data.rows;
+  const cycles = mode === "loop" ? LOOP_GRAPH_CYCLES : 1;
+  const cyclePattern = mode === "loop"
+    ? findOptimalPattern(rows).pattern
+    : findSingleRunPeakPattern(rows).pattern;
+
+  const points = [{ t: 0, dmg: 0, label: "start" }];
+  let t = 0, dmg = 0;
+  for (let c = 0; c < cycles; c++) {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const type = cyclePattern[i];
+      const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
+      const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
+      let stepDmg, stepTime, stepLabel;
+      if (type === "H") {
+        stepDmg = row.heavyDmg;
+        stepTime = (row.heavyThresh * maxWindup) + row.comboDelay;
+        stepLabel = `Step ${row.step} Heavy (${row.heavyDmg})`;
+      } else {
+        stepDmg = row.lightDmg;
+        stepTime = minWindup + row.comboDelay;
+        stepLabel = `Step ${row.step} Light (${row.lightDmg})`;
+      }
+      t += stepTime;
+      dmg += stepDmg;
+      points.push({ t, dmg, label: cycles > 1 ? `Cycle ${c + 1} ${stepLabel}` : stepLabel });
+    }
+  }
+  return {
+    id: `clan:${clanId}:${mode}`,
+    kind: "clan",
+    sourceId: clanId,
+    label: `${data.name} — ${mode === "loop" ? `Loop ×${cycles}` : "Single Combo"}`,
+    icon: CLANS[clanId] && CLANS[clanId].logo ? CLANS[clanId].logo : null,
+    color: CLAN_GRAPH_COLORS[clanId] || "#aaaaaa",
+    pattern: cyclePattern.join(""),
+    points,
+    totals: {
+      damage: dmg,
+      time: t,
+      dps: t > 0 ? dmg / t : 0,
+    },
+  };
+}
+
+function buildWeaponSeries(weapon, mode, color, loop = false) {
+  if (!weaponHasMode(weapon, mode)) return null;
+  const rows = weapon.rows;
+  const cycles = (loop && (mode === "L" || mode === "F")) ? LOOP_GRAPH_CYCLES : 1;
+  const points = [{ t: 0, dmg: 0, label: "start" }];
+  let t = 0, dmg = 0;
+  const modeName = mode === "L" ? "Light" : mode === "F" ? "Forward" : "Shove";
+  for (let c = 0; c < cycles; c++) {
+    for (const row of rows) {
+      let stepDmg, stepTime;
+      if (mode === "L") {
+        stepDmg = row.lightDmg;
+        stepTime = getWeaponStepTiming(row, "L").time;
+      } else if (mode === "F") {
+        if (!row.fwdMontage) {
+          stepDmg = row.lightDmg;
+          stepTime = getWeaponStepTiming(row, "L").time;
+        } else {
+          stepDmg = row.fwdDmg;
+          stepTime = getWeaponStepTiming(row, "F").time;
+        }
+      } else {
+        stepDmg = row.shoveDmg;
+        stepTime = getWeaponStepTiming(row, "S").time;
+      }
+      t += stepTime;
+      dmg += stepDmg;
+      const stepLabel = cycles > 1 ? `Cycle ${c + 1} Step ${row.step} ${modeName} (${stepDmg})` : `Step ${row.step} ${modeName} (${stepDmg})`;
+      points.push({ t, dmg, label: stepLabel });
+    }
+  }
+  return {
+    id: `weapon:${weapon.id}:${mode}:${cycles > 1 ? "loop" : "single"}`,
+    kind: "weapon",
+    sourceId: weapon.id,
+    label: `${weapon.name} — ${modeName}${cycles > 1 ? ` Loop ×${cycles}` : ""}`,
+    color,
+    pattern: mode,
+    points,
+    totals: {
+      damage: dmg,
+      time: t,
+      dps: t > 0 ? dmg / t : 0,
+    },
+  };
+}
+
+function buildGraphSeries(state) {
+  const series = [];
+  // Clans
+  for (const clanId of CLAN_GRAPH_ORDER) {
+    const sel = state.clans[clanId];
+    if (!sel || !sel.enabled) continue;
+    const s = buildClanSeries(clanId, sel.mode);
+    if (s) series.push(s);
+  }
+  // Weapons
+  const weapons = getGraphableWeapons();
+  weapons.forEach((w, idx) => {
+    const sel = state.weapons[w.id];
+    if (!sel || !sel.enabled) return;
+    const color = getWeaponGraphColor(idx);
+    const s = buildWeaponSeries(w, sel.mode, color, !!sel.loop);
+    if (s) series.push(s);
+  });
+  return series;
+}
+
+// ── Graph state ─────────────────────────────────────────────
+const GRAPH_STATE = {
+  displayMode: "cumulative",
+  clans: {},
+  weapons: {},
+};
+
+function initGraphState() {
+  for (const clanId of CLAN_GRAPH_ORDER) {
+    if (!GRAPH_STATE.clans[clanId]) {
+      GRAPH_STATE.clans[clanId] = { enabled: false, mode: "single" };
+    }
+  }
+  for (const w of getGraphableWeapons()) {
+    if (!GRAPH_STATE.weapons[w.id]) {
+      GRAPH_STATE.weapons[w.id] = { enabled: false, mode: "L", loop: false };
+    } else if (typeof GRAPH_STATE.weapons[w.id].loop !== "boolean") {
+      GRAPH_STATE.weapons[w.id].loop = false;
+    }
+  }
+  // Sensible default selection on first open: a quick comparison.
+  const anyEnabled =
+    Object.values(GRAPH_STATE.clans).some(c => c.enabled) ||
+    Object.values(GRAPH_STATE.weapons).some(w => w.enabled);
+  if (!anyEnabled) {
+    if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "loop"; }
+    if (GRAPH_STATE.weapons.bat) { GRAPH_STATE.weapons.bat.enabled = true; }
+    if (GRAPH_STATE.weapons.knife) { GRAPH_STATE.weapons.knife.enabled = true; }
+  }
+}
+
+// ── SVG renderer ─────────────────────────────────────────────
+function getSeriesMetricPoints(series, displayMode) {
+  if (displayMode === "dps") {
+    const values = [];
+    let firstDps = 0;
+    for (let i = 1; i < series.points.length; i++) {
+      const prev = series.points[i - 1];
+      const curr = series.points[i];
+      const dt = curr.t - prev.t;
+      const dd = curr.dmg - prev.dmg;
+      const dps = dt > 0 ? (dd / dt) : 0;
+      if (i === 1) firstDps = dps;
+      values.push({ t: curr.t, val: dps, label: curr.label });
+    }
+    if (values.length > 0) {
+      values.unshift({ t: 0, val: firstDps, label: "start" });
+    }
+    return values;
+  }
+  return series.points.map((p) => ({ t: p.t, val: p.dmg, label: p.label }));
+}
+
+function renderGraphSvg(series, displayMode) {
+  const W = 700, H = 575;
+  const M = { top: 18, right: 18, bottom: 38, left: 52 };
+  const plotW = W - M.left - M.right;
+  const plotH = H - M.top - M.bottom;
+
+  if (series.length === 0) {
+    return `<div class="combat-graph__empty">Enable a clan combo or melee weapon on the left to start the comparison.</div>`;
+  }
+
+  const renderSeries = series.map((s) => ({
+    series: s,
+    points: getSeriesMetricPoints(s, displayMode),
+  }));
+
+  const xMax = Math.max(0.5, ...renderSeries.map((s) => s.points[s.points.length - 1].t));
+  const yMax = Math.max(1, ...renderSeries.map((s) => Math.max(...s.points.map((p) => p.val))));
+  const xUpper = Math.ceil(xMax / 0.5) * 0.5;
+  // Round Y up to a clean step size.
+  const yStepRaw = yMax / 5;
+  const niceSteps = [5, 10, 20, 25, 50, 100, 200];
+  const yStep = niceSteps.find(s => s >= yStepRaw) || Math.ceil(yStepRaw / 50) * 50;
+  const yUpper = Math.ceil(yMax / yStep) * yStep;
+
+  const xScale = (t) => M.left + (t / xUpper) * plotW;
+  const yScale = (d) => M.top + plotH - (d / yUpper) * plotH;
+
+  let g = `<svg class="combat-graph__svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Damage over time comparison">`;
+
+  // Gridlines + Y axis ticks
+  g += `<g class="combat-graph__grid">`;
+  for (let dy = 0; dy <= yUpper + 0.0001; dy += yStep) {
+    const y = yScale(dy);
+    g += `<line x1="${M.left}" y1="${y}" x2="${M.left + plotW}" y2="${y}" />`;
+    g += `<text class="combat-graph__axis-label combat-graph__axis-label--y" x="${M.left - 8}" y="${y + 4}" text-anchor="end">${dy}</text>`;
+  }
+  // X axis ticks every 0.5s, label every 1s when xUpper <= 6, else every step
+  const xTickStep = xUpper <= 4 ? 0.5 : (xUpper <= 10 ? 1 : 2);
+  for (let dx = 0; dx <= xUpper + 0.0001; dx += xTickStep) {
+    const x = xScale(dx);
+    g += `<line x1="${x}" y1="${M.top}" x2="${x}" y2="${M.top + plotH}" class="combat-graph__grid-x" />`;
+    g += `<text class="combat-graph__axis-label combat-graph__axis-label--x" x="${x}" y="${M.top + plotH + 18}" text-anchor="middle">${dx.toFixed(dx % 1 === 0 ? 0 : 1)}s</text>`;
+  }
+  g += `</g>`;
+
+  // Axis labels
+  g += `<text class="combat-graph__axis-title" x="${M.left + plotW / 2}" y="${H - 6}" text-anchor="middle">Time (seconds)</text>`;
+  g += `<text class="combat-graph__axis-title" transform="translate(14 ${M.top + plotH / 2}) rotate(-90)" text-anchor="middle">${displayMode === "dps" ? "DPS (damage/sec)" : "Cumulative damage"}</text>`;
+
+  // Series paths (stepped cumulative or smooth DPS lines)
+  for (const item of renderSeries) {
+    const s = item.series;
+    const pts = item.points;
+    let d = "";
+    pts.forEach((p, i) => {
+      const x = xScale(p.t);
+      const y = yScale(p.val);
+      if (i === 0) {
+        d += `M ${x.toFixed(2)} ${y.toFixed(2)}`;
+      } else if (displayMode === "dps") {
+        d += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+      } else {
+        const prev = pts[i - 1];
+        const py = yScale(prev.val);
+        // Step shape: horizontal at previous Y to new X, then vertical to new Y.
+        d += ` L ${x.toFixed(2)} ${py.toFixed(2)} L ${x.toFixed(2)} ${y.toFixed(2)}`;
+      }
+    });
+    g += `<path class="combat-graph__series-path" data-series-id="${s.id}" d="${d}" stroke="${s.color}" />`;
+  }
+
+  // Series points (on top)
+  for (const item of renderSeries) {
+    const s = item.series;
+    const pts = item.points;
+    pts.forEach((p, i) => {
+      if (i === 0) return;
+      const x = xScale(p.t);
+      const y = yScale(p.val);
+      const title = displayMode === "dps"
+        ? `${s.label} — ${p.label} · t=${p.t.toFixed(2)}s · ${p.val.toFixed(2)} DPS`
+        : `${s.label} — ${p.label} · t=${p.t.toFixed(2)}s · cum=${p.val}`;
+      g += `<circle class="combat-graph__series-point" data-series-id="${s.id}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4" fill="${s.color}"><title>${title}</title></circle>`;
+    });
+  }
+
+  g += `</svg>`;
+  return g;
+}
+
+function renderGraphLegend(series) {
+  if (series.length === 0) return "";
+  let h = `<div class="combat-graph__legend">`;
+  for (const s of series) {
+    h += `<button type="button" class="combat-graph__legend-item" data-series-id="${s.id}" title="Click to remove from graph">`;
+    h += `<span class="combat-graph__legend-swatch" style="background:${s.color};"></span>`;
+    if (s.kind === "clan" && s.icon) {
+      h += `<img class="combat-graph__legend-icon" src="${s.icon}" alt="${s.label} icon">`;
+    }
+    h += `<span class="combat-graph__legend-label">${s.label}</span>`;
+    h += `<span class="combat-graph__legend-stats">`;
+    h += `<span class="combat-graph__legend-stat" title="Total damage">${s.totals.damage} dmg</span>`;
+    h += `<span class="combat-graph__legend-stat" title="Total time">${s.totals.time.toFixed(2)}s</span>`;
+    h += `<span class="combat-graph__legend-stat combat-graph__legend-stat--dps" title="Damage per second">${s.totals.dps.toFixed(2)} DPS</span>`;
+    h += `</span>`;
+    h += `</button>`;
+  }
+  h += `</div>`;
+  return h;
+}
+
+// ── Filter panel ─────────────────────────────────────────────
+function renderGraphFilters() {
+  let h = `<aside class="combat-graph__filters">`;
+
+  // Bulk actions
+  h += `<div class="combat-graph__filter-actions">`;
+  h += `<button type="button" class="combat-graph__filter-action" data-graph-action="enable-clans">Enable all clans</button>`;
+  h += `<button type="button" class="combat-graph__filter-action" data-graph-action="disable-all">Disable all</button>`;
+  h += `<button type="button" class="combat-graph__filter-action" data-graph-action="reset">Reset</button>`;
+  h += `<div class="combat-graph__display-toggle" role="radiogroup" aria-label="Graph display mode">`;
+  h += `<label class="combat-graph__radio ${GRAPH_STATE.displayMode === "cumulative" ? "is-active" : ""}"><input type="radio" name="graph-display-mode" value="cumulative" ${GRAPH_STATE.displayMode === "cumulative" ? "checked" : ""}>Ladder</label>`;
+  h += `<label class="combat-graph__radio ${GRAPH_STATE.displayMode === "dps" ? "is-active" : ""}"><input type="radio" name="graph-display-mode" value="dps" ${GRAPH_STATE.displayMode === "dps" ? "checked" : ""}>DPS</label>`;
+  h += `</div>`;
+  h += `</div>`;
+
+  // Clans section
+  h += `<section class="combat-graph__filter-section">`;
+  h += `<h3 class="combat-graph__filter-heading">Clans</h3>`;
+  for (const clanId of CLAN_GRAPH_ORDER) {
+    const data = CLAN_COMBOS[clanId];
+    if (!data) continue;
+    const sel = GRAPH_STATE.clans[clanId];
+    const color = CLAN_GRAPH_COLORS[clanId];
+    h += `<div class="combat-graph__filter-row" data-graph-clan="${clanId}">`;
+    h += `<label class="combat-graph__filter-toggle">`;
+    h += `<input type="checkbox" data-graph-clan-toggle="${clanId}" ${sel.enabled ? "checked" : ""}>`;
+    h += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
+    h += `<span class="combat-graph__filter-name">${data.name}</span>`;
+    h += `</label>`;
+    h += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${data.name} mode">`;
+    h += `<label class="combat-graph__radio ${sel.mode === "single" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="single" ${sel.mode === "single" ? "checked" : ""}>Single</label>`;
+    h += `<label class="combat-graph__radio ${sel.mode === "loop" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="loop" ${sel.mode === "loop" ? "checked" : ""}>Loop</label>`;
+    h += `</div>`;
+    h += `</div>`;
+  }
+  h += `</section>`;
+
+  // Weapons section
+  h += `<section class="combat-graph__filter-section">`;
+  h += `<h3 class="combat-graph__filter-heading">Melee Weapons</h3>`;
+  const weapons = getGraphableWeapons();
+  weapons.forEach((w, idx) => {
+    const sel = GRAPH_STATE.weapons[w.id];
+    const color = getWeaponGraphColor(idx);
+    const hasF = weaponHasMode(w, "F");
+    const hasS = weaponHasMode(w, "S");
+    const loopLocked = sel.mode === "S";
+    const loopEnabled = !loopLocked && !!sel.loop;
+    const variantClass = w.parentId ? " combat-graph__filter-row--variant" : "";
+    h += `<div class="combat-graph__filter-row${variantClass}" data-graph-weapon="${w.id}">`;
+    h += `<label class="combat-graph__filter-toggle">`;
+    h += `<input type="checkbox" data-graph-weapon-toggle="${w.id}" ${sel.enabled ? "checked" : ""}>`;
+    h += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
+    h += `<span class="combat-graph__filter-name">${w.name}</span>`;
+    h += `</label>`;
+    h += `<div class="combat-graph__weapon-controls">`;
+    h += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${w.name} attack type">`;
+    h += `<label class="combat-graph__radio ${sel.mode === "L" ? "is-active" : ""}"><input type="radio" name="graph-weapon-mode-${w.id}" value="L" ${sel.mode === "L" ? "checked" : ""}>L</label>`;
+    h += `<label class="combat-graph__radio ${sel.mode === "F" ? "is-active" : ""} ${hasF ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="F" ${sel.mode === "F" ? "checked" : ""} ${hasF ? "" : "disabled"}>F</label>`;
+    h += `<label class="combat-graph__radio ${sel.mode === "S" ? "is-active" : ""} ${hasS ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="S" ${sel.mode === "S" ? "checked" : ""} ${hasS ? "" : "disabled"}>S</label>`;
+    h += `</div>`;
+    h += `<label class="combat-graph__weapon-loop ${loopLocked ? "is-disabled" : ""}" title="Pseudo-loop repeats Light/Forward for a longer timeline">`;
+    h += `<input type="checkbox" data-graph-weapon-loop="${w.id}" ${loopEnabled ? "checked" : ""} ${loopLocked ? "disabled" : ""}>Loop</label>`;
+    h += `</div>`;
+    h += `</div>`;
+  });
+  h += `</section>`;
+
+  h += `</aside>`;
+  return h;
+}
+
+function rerenderGraphChart() {
+  const root = document.getElementById("combos-subpage-graph");
+  if (!root) return;
+  const chartWrap = root.querySelector(".combat-graph__chart-inner");
+  if (!chartWrap) return;
+  const series = buildGraphSeries(GRAPH_STATE);
+  chartWrap.innerHTML = renderGraphSvg(series, GRAPH_STATE.displayMode) + renderGraphLegend(series);
+  attachGraphLegendListeners(root);
+}
+
+function attachGraphLegendListeners(root) {
+  root.querySelectorAll(".combat-graph__legend-item").forEach(btn => {
+    btn.addEventListener("mouseenter", () => {
+      const id = btn.dataset.seriesId;
+      root.querySelectorAll(".combat-graph__series-path, .combat-graph__series-point").forEach(el => {
+        el.classList.toggle("is-dimmed", el.dataset.seriesId !== id);
+      });
+    });
+    btn.addEventListener("mouseleave", () => {
+      root.querySelectorAll(".combat-graph__series-path, .combat-graph__series-point").forEach(el => {
+        el.classList.remove("is-dimmed");
+      });
+    });
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.seriesId;
+      // id is "clan:<clanId>:<mode>" or "weapon:<weaponId>:<mode>"
+      const parts = id.split(":");
+      if (parts[0] === "clan" && GRAPH_STATE.clans[parts[1]]) {
+        GRAPH_STATE.clans[parts[1]].enabled = false;
+      } else if (parts[0] === "weapon" && GRAPH_STATE.weapons[parts[1]]) {
+        GRAPH_STATE.weapons[parts[1]].enabled = false;
+      }
+      // Update the matching filter checkbox in place.
+      const cb = root.querySelector(`[data-graph-clan-toggle="${parts[1]}"], [data-graph-weapon-toggle="${parts[1]}"]`);
+      if (cb) cb.checked = false;
+      rerenderGraphChart();
+    });
+  });
+}
+
+function attachGraphFilterListeners(root) {
+  // Clan toggles
+  root.querySelectorAll("[data-graph-clan-toggle]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphClanToggle;
+      if (GRAPH_STATE.clans[id]) GRAPH_STATE.clans[id].enabled = cb.checked;
+      rerenderGraphChart();
+    });
+  });
+  // Clan mode radios
+  root.querySelectorAll('input[type="radio"][name^="graph-clan-mode-"]').forEach(r => {
+    r.addEventListener("change", () => {
+      const id = r.name.replace("graph-clan-mode-", "");
+      if (GRAPH_STATE.clans[id] && r.checked) {
+        GRAPH_STATE.clans[id].mode = r.value;
+        // Refresh active class on the labels of this group
+        const group = r.closest(".combat-graph__radio-group");
+        if (group) group.querySelectorAll(".combat-graph__radio").forEach(l => {
+          const inp = l.querySelector("input");
+          l.classList.toggle("is-active", !!(inp && inp.checked));
+        });
+        rerenderGraphChart();
+      }
+    });
+  });
+  // Weapon toggles
+  root.querySelectorAll("[data-graph-weapon-toggle]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphWeaponToggle;
+      if (GRAPH_STATE.weapons[id]) GRAPH_STATE.weapons[id].enabled = cb.checked;
+      rerenderGraphChart();
+    });
+  });
+  // Weapon mode radios
+  root.querySelectorAll('input[type="radio"][name^="graph-weapon-mode-"]').forEach(r => {
+    r.addEventListener("change", () => {
+      const id = r.name.replace("graph-weapon-mode-", "");
+      if (GRAPH_STATE.weapons[id] && r.checked) {
+        GRAPH_STATE.weapons[id].mode = r.value;
+        if (r.value === "S") GRAPH_STATE.weapons[id].loop = false;
+        const group = r.closest(".combat-graph__radio-group");
+        if (group) group.querySelectorAll(".combat-graph__radio").forEach(l => {
+          const inp = l.querySelector("input");
+          if (!inp || inp.disabled) return;
+          l.classList.toggle("is-active", inp.checked);
+        });
+        const row = r.closest(".combat-graph__filter-row");
+        if (row) {
+          const loopToggle = row.querySelector("[data-graph-weapon-loop]");
+          const loopLabel = row.querySelector(".combat-graph__weapon-loop");
+          if (loopToggle) {
+            const disableLoop = r.value === "S";
+            loopToggle.disabled = disableLoop;
+            if (disableLoop) loopToggle.checked = false;
+          }
+          if (loopLabel) loopLabel.classList.toggle("is-disabled", r.value === "S");
+        }
+        rerenderGraphChart();
+      }
+    });
+  });
+  root.querySelectorAll("[data-graph-weapon-loop]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphWeaponLoop;
+      if (GRAPH_STATE.weapons[id]) GRAPH_STATE.weapons[id].loop = cb.checked;
+      rerenderGraphChart();
+    });
+  });
+  // Bulk actions
+  root.querySelectorAll("[data-graph-action]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.graphAction;
+      if (action === "enable-clans") {
+        for (const id of CLAN_GRAPH_ORDER) GRAPH_STATE.clans[id].enabled = true;
+      } else if (action === "disable-all") {
+        for (const id of Object.keys(GRAPH_STATE.clans)) GRAPH_STATE.clans[id].enabled = false;
+        for (const id of Object.keys(GRAPH_STATE.weapons)) GRAPH_STATE.weapons[id].enabled = false;
+      } else if (action === "reset") {
+        for (const id of Object.keys(GRAPH_STATE.clans)) {
+          GRAPH_STATE.clans[id].enabled = false;
+          GRAPH_STATE.clans[id].mode = "single";
+        }
+        for (const id of Object.keys(GRAPH_STATE.weapons)) {
+          GRAPH_STATE.weapons[id].enabled = false;
+          GRAPH_STATE.weapons[id].mode = "L";
+          GRAPH_STATE.weapons[id].loop = false;
+        }
+        if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "loop"; }
+        if (GRAPH_STATE.weapons.bat) GRAPH_STATE.weapons.bat.enabled = true;
+        if (GRAPH_STATE.weapons.knife) GRAPH_STATE.weapons.knife.enabled = true;
+      }
+      // Re-render the whole panel since checkbox + radio state changed broadly.
+      renderCombatGraphPage();
+    });
+  });
+
+  root.querySelectorAll('input[type="radio"][name="graph-display-mode"]').forEach(r => {
+    r.addEventListener("change", () => {
+      if (!r.checked) return;
+      GRAPH_STATE.displayMode = r.value;
+      const group = r.closest(".combat-graph__display-toggle");
+      if (group) group.querySelectorAll(".combat-graph__radio").forEach(l => {
+        const inp = l.querySelector("input");
+        l.classList.toggle("is-active", !!(inp && inp.checked));
+      });
+      rerenderGraphChart();
+    });
+  });
+}
+
+// ── Page entry point ────────────────────────────────────────
+function renderCombatGraphPage() {
+  const root = document.getElementById("combos-subpage-graph");
+  if (!root) return;
+  initGraphState();
+
+  let h = `<div class="combos-header combat-graph__header">`;
+  h += `<h2 class="combos-header__title">Combat Graph</h2>`;
+  h += `<p class="combos-header__sub">Compare clan combos and melee weapon attacks side-by-side as cumulative damage over time. Each curve uses the same timing math as the Clan and Melee tabs.</p>`;
+  h += `<ul class="combos-header__primer">`;
+  h += `<li><strong class="combos-header__primer-label">X-axis:</strong> elapsed time in seconds (each step lands at its windup + combo-delay).</li>`;
+  h += `<li><strong class="combos-header__primer-label">Y-axis:</strong> cumulative damage by default, or DPS when the display toggle is set to DPS.</li>`;
+  h += `<li><strong class="combos-header__primer-label">Steeper line</strong> = higher DPS. Curves that travel further along X without stalling sustain better.</li>`;
+  h += `<li><strong class="combos-header__primer-label">Loop mode</strong> repeats the optimal cycle ${LOOP_GRAPH_CYCLES}× for clans, and melee rows can use pseudo-loop for Light/Forward timelines.</li>`;
+  h += `</ul>`;
+  h += `</div>`;
+
+  h += `<div class="combat-graph-page">`;
+  h += renderGraphFilters();
+  h += `<div class="combat-graph__chart-wrap"><div class="combat-graph__chart-inner"></div></div>`;
+  h += `</div>`;
+
+  root.innerHTML = h;
+
+  // Initial chart render + listeners
+  rerenderGraphChart();
+  attachGraphFilterListeners(root);
+}

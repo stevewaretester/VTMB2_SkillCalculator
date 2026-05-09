@@ -946,7 +946,8 @@ body.no-custom-cursor {
 .page.hidden,
 .subpage.hidden,
 .pickups-subpage.hidden,
-.combos-subpage.hidden {
+.combos-subpage.hidden,
+.skilltree-subpage.hidden {
     display: none;
 }
 
@@ -4224,7 +4225,18 @@ body.is-mobile .tooltip { display: none !important; }
     justify-content: center;
 }
 
+.tab-bar--skilltree-sub {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    justify-content: center;
+}
+
 .tab-bar--combos .tab-bar__tab {
+    font-size: 11px;
+    padding: 5px 20px;
+    letter-spacing: 1px;
+}
+
+.tab-bar--skilltree-sub .tab-bar__tab {
     font-size: 11px;
     padding: 5px 20px;
     letter-spacing: 1px;
@@ -6719,6 +6731,7 @@ kbd.pickup-key {
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .clan-combo-block__logo {
@@ -6748,6 +6761,8 @@ kbd.pickup-key {
     font-size: 11px;
     color: var(--text-dim);
     margin-left: 4px;
+    flex: 1 1 220px;
+    min-width: 0;
 }
 
 /* ── DPS chips in clan heading ───────────────────────────── */
@@ -6755,6 +6770,19 @@ kbd.pickup-key {
     display: flex;
     gap: 5px;
     margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 100%;
+}
+
+.clan-combo-block__heading .detail-panel__tier-rank {
+    flex-shrink: 0;
+}
+
+@media (max-width: 980px) {
+    .clan-combo-block__heading .dps-chip-group {
+        width: 100%;
+    }
 }
 
 .dps-chip {
@@ -7751,6 +7779,43 @@ body.is-mobile-landscape .mobile-detail-hint {
 .mobile-bottom-tab:active img {
     opacity: 1;
     filter: none;
+}
+
+.mobile-bottom-tab--phyre {
+    position: relative;
+}
+
+.mobile-bottom-tab__caret {
+    position: absolute;
+    top: 3px;
+    right: calc(50% - 28px);
+    width: 10px;
+    height: 10px;
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+.mobile-bottom-tab__caret::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid var(--gold-dim);
+    border-bottom: 2px solid var(--gold-dim);
+    transform: translate(-50%, -65%) rotate(-135deg);
+    transition: transform 0.18s ease, border-color 0.15s, opacity 0.15s;
+    opacity: 0.85;
+}
+
+.mobile-bottom-tab--phyre.is-active .mobile-bottom-tab__caret::before {
+    border-color: var(--gold);
+    opacity: 1;
+}
+
+.mobile-bottom-tab--phyre.is-clan-open .mobile-bottom-tab__caret::before {
+    transform: translate(-50%, -35%) rotate(45deg);
 }
 
 /* ── Phase 1+2: Base layout at ≤900px (or landscape phone) ─────── */
@@ -9227,6 +9292,36 @@ body.is-mobile-landscape .mobile-detail-hint {
         height: 18px;
         object-fit: contain;
     }
+
+    .benny-dlc-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .benny-dlc-tile-wrap {
+        width: 100%;
+        align-items: center;
+    }
+
+    .benny-dlc-out-now {
+        display: none;
+    }
+
+    .benny-dlc-tile {
+        width: min(100%, 360px);
+    }
+
+    .benny-dlc-right {
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .benny-dlc-purchase-wrap {
+        margin-top: 0;
+    }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -9709,6 +9804,338 @@ body.is-mobile-landscape .mobile-detail-hint {
     padding-right: 18px;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Combat Graph — clan + melee comparison view
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.combat-graph__header { margin-bottom: 12px; }
+
+.combat-graph-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+    padding: 0 16px 24px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .combat-graph-page { grid-template-columns: 1fr; }
+}
+
+.combat-graph__filters {
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-dim, #4a4a4a);
+    border-radius: 6px;
+    padding: 10px 12px 14px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.combat-graph__filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-dim, #4a4a4a);
+}
+
+.combat-graph__display-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-dim, #4a4a4a);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-left: auto;
+}
+
+.combat-graph__filter-action {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-dim, #4a4a4a);
+    color: var(--text-dim, #b8b8b8);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.combat-graph__filter-action:hover {
+    color: var(--gold, #d4af37);
+    border-color: var(--gold, #d4af37);
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.combat-graph__filter-section { margin-top: 10px; }
+
+.combat-graph__filter-heading {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gold, #d4af37);
+    margin: 0 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.combat-graph__filter-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 2px;
+    border-radius: 3px;
+}
+
+.combat-graph__filter-row:hover { background: rgba(255, 255, 255, 0.03); }
+.combat-graph__filter-row--variant { padding-left: 18px; opacity: 0.92; }
+
+.combat-graph__filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text, #e0e0e0);
+    user-select: none;
+    min-width: 0;
+}
+
+.combat-graph__filter-toggle input[type="checkbox"] {
+    accent-color: var(--gold, #d4af37);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.combat-graph__filter-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.combat-graph__filter-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.combat-graph__radio-group {
+    display: inline-flex;
+    border: 1px solid var(--border-dim, #4a4a4a);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.combat-graph__weapon-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.combat-graph__weapon-loop {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim, #b8b8b8);
+    user-select: none;
+    cursor: pointer;
+}
+
+.combat-graph__weapon-loop input[type="checkbox"] {
+    accent-color: var(--gold, #d4af37);
+    cursor: pointer;
+}
+
+.combat-graph__weapon-loop.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.combat-graph__weapon-loop.is-disabled input[type="checkbox"] {
+    cursor: not-allowed;
+}
+
+.combat-graph__radio {
+    position: relative;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    cursor: pointer;
+    color: var(--text-dim, #b8b8b8);
+    background: transparent;
+    transition: color 0.15s, background 0.15s;
+    border-right: 1px solid var(--border-dim, #4a4a4a);
+}
+
+.combat-graph__radio:last-child { border-right: 0; }
+
+.combat-graph__radio input { position: absolute; opacity: 0; pointer-events: none; }
+
+.combat-graph__radio:hover { color: var(--text, #e0e0e0); }
+
+.combat-graph__radio.is-active {
+    color: var(--gold, #d4af37);
+    background: rgba(212, 175, 55, 0.14);
+}
+
+.combat-graph__radio.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.combat-graph__radio.is-disabled:hover { color: var(--text-dim, #b8b8b8); }
+
+/* Chart side */
+.combat-graph__chart-wrap {
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-dim, #4a4a4a);
+    border-radius: 6px;
+    padding: 10px;
+    min-height: 608px;
+}
+
+.combat-graph__chart-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.combat-graph__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    max-height: 541px;
+}
+
+.combat-graph__grid line {
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 1;
+}
+
+.combat-graph__grid line.combat-graph__grid-x {
+    stroke: rgba(255, 255, 255, 0.05);
+}
+
+.combat-graph__axis-label {
+    fill: var(--text-dim, #b8b8b8);
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+}
+
+.combat-graph__axis-title {
+    fill: var(--text-dim, #b8b8b8);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.combat-graph__series-path {
+    fill: none;
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: opacity 0.15s;
+}
+
+.combat-graph__series-point {
+    stroke: rgba(0, 0, 0, 0.55);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: opacity 0.15s, r 0.15s;
+}
+
+.combat-graph__series-point:hover { r: 6; }
+
+.combat-graph__series-path.is-dimmed,
+.combat-graph__series-point.is-dimmed {
+    opacity: 0.18;
+}
+
+.combat-graph__empty {
+    color: var(--text-dim, #b8b8b8);
+    font-style: italic;
+    text-align: center;
+    padding: 60px 16px;
+}
+
+/* Legend */
+.combat-graph__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.combat-graph__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-dim, #4a4a4a);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    color: var(--text, #e0e0e0);
+    font-size: 11px;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.combat-graph__legend-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+}
+
+.combat-graph__legend-item:hover {
+    border-color: var(--gold, #d4af37);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.combat-graph__legend-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.combat-graph__legend-label {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+}
+
+.combat-graph__legend-stats {
+    display: inline-flex;
+    gap: 8px;
+    color: var(--text-dim, #b8b8b8);
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+}
+
+.combat-graph__legend-stat--dps {
+    color: var(--gold, #d4af37);
+    font-weight: 600;
+}
+
+
 .tier-desc-popover__body {
     margin: 0;
     font-size: 0.8rem;
@@ -9950,6 +10377,7 @@ body.is-force-desktop .mobile-detail-hint { display: none !important; }
 body.is-force-desktop .header { display: flex !important; }
 body.is-force-desktop .tab-bar--primary,
 body.is-force-desktop .tab-bar--secondary,
+body.is-force-desktop .tab-bar--skilltree-sub,
 body.is-force-desktop .tab-bar--fabien,
 body.is-force-desktop .tab-bar--benny,
 body.is-force-desktop .tab-bar--combos,

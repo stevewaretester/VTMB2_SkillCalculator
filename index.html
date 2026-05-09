@@ -45,7 +45,7 @@
         </div>
       </div>
       <button class="mobile-drawer__item" id="mobile-about-btn">About</button>
-      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.15 Changelog</button>
+      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.16 Changelog</button>
       <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener">Spring Update <span class="mobile-drawer__build">22727210</span> &#x2197;</a>
       <button class="mobile-drawer__item" id="mobile-mods-btn">Mods</button>
       <div class="mobile-drawer__divider"></div>
@@ -72,9 +72,10 @@
   </div>
   <!-- Bottom Tab Bar (direct child of <body> so position:fixed always anchors to viewport) -->
   <nav class="mobile-bottom-tabs" aria-label="Characters">
-    <button class="mobile-bottom-tab is-active" data-mobile-tab="phyre">
+    <button class="mobile-bottom-tab mobile-bottom-tab--phyre is-active" data-mobile-tab="phyre" aria-label="Phyre (tap again to open clan selector)">
       <img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" alt="">
       <span>Phyre</span>
+      <span class="mobile-bottom-tab__caret" aria-hidden="true"></span>
     </button>
     <button class="mobile-bottom-tab" data-mobile-tab="fabien">
       <img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" alt="">
@@ -85,6 +86,7 @@
       <span>Benny</span>
     </button>
     <button class="mobile-bottom-tab" data-mobile-tab="ysabelle">
+      <img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" alt="">
       <span>Ysabelle</span>
     </button>
   </nav>
@@ -93,7 +95,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.15</button>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.16</button>
       <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener" title="Game version tested against">Spring Update <span class="header__patch-build">22727210</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <!-- Universal layout toggle — always visible, fixed top-right (lives inside header semantically) -->
@@ -166,6 +168,13 @@
 
     <!-- Sub-page: Skill Tree -->
     <div class="subpage" id="subpage-skilltree">
+
+    <nav class="tab-bar tab-bar--skilltree-sub">
+      <button class="tab-bar__tab active" data-skilltab="abilities">Abilities</button>
+      <button class="tab-bar__tab" data-skilltab="combos">Combos</button>
+    </nav>
+
+    <div class="skilltree-subpage" id="skilltree-subpage-abilities">
 
     <!-- Mobile Stats Strip (only visible at ≤768px) -->
     <div class="mobile-stats-strip" id="mobile-stats-strip" aria-label="Stats">
@@ -266,6 +275,15 @@
         <div class="empty-state">Select an ability to view details</div>
       </aside>
     </main>
+    </div>
+
+    <div class="skilltree-subpage hidden" id="skilltree-subpage-combos">
+      <main class="combos-layout">
+        <div id="skilltree-combos-container">
+          <!-- Populated by JS -->
+        </div>
+      </main>
+    </div>
     </div><!-- /subpage-skilltree -->
 
     <!-- Sub-page: Outfits -->
@@ -299,25 +317,24 @@
     <!-- Sub-page: Combat (formerly Combos) -->
     <div class="subpage hidden" id="subpage-combos">
       <nav class="tab-bar tab-bar--combos">
-        <button class="tab-bar__tab" data-combotab="melee">Tutorial</button>
-        <button class="tab-bar__tab active" data-combotab="ability">Ability</button>
+        <button class="tab-bar__tab active" data-combotab="melee">Tutorial</button>
         <button class="tab-bar__tab" data-combotab="clan">Clan</button>
         <button class="tab-bar__tab" data-combotab="weapons">Melee</button>
+        <button class="tab-bar__tab" data-combotab="graph">Graph</button>
       </nav>
-      <div class="combos-subpage hidden" id="combos-subpage-melee">
+      <div class="combos-subpage" id="combos-subpage-melee">
         <!-- Populated by JS -->
       </div>
-      <div class="combos-subpage" id="combos-subpage-ability">
-        <main class="combos-layout">
-          <div id="combos-table-container">
-            <!-- Populated by JS -->
-          </div>
-        </main>
+      <div class="combos-subpage hidden" id="combos-subpage-ability">
+        <!-- Legacy ability combos view moved under Skill Tree -> Combos -->
       </div>
       <div class="combos-subpage hidden" id="combos-subpage-clan">
         <!-- Populated by JS -->
       </div>
       <div class="combos-subpage hidden" id="combos-subpage-weapons">
+        <!-- Populated by JS -->
+      </div>
+      <div class="combos-subpage hidden" id="combos-subpage-graph">
         <!-- Populated by JS -->
       </div>
     </div><!-- /subpage-combos -->
@@ -747,14 +764,20 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.15</span>
+        <span class="modal-card__version">v1.16</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
-              <span class="changelog__version">v1.15</span>
+              <span class="changelog__version">v1.16</span>
               <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc">Mobile UX polish pass &mdash; the new combat graph and nested Skill Tree flows now behave correctly on phone layouts (fixed Skill Tree back navigation, added a Phyre clan-drawer chevron indicator, and restored Ysabelle&rsquo;s bottom-tab logo). Combat cards and Benny&rsquo;s Loose Cannon drawer were retuned for mobile readability, and hub map filter scrolling now works reliably without map-pan gesture conflicts.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
+              <span class="changelog__version">v1.15</span>
             </summary>
             <p class="changelog__desc">Combat data refresh &mdash; clan melee combo tables now show practical step timing and per-step DPS using MinWU / Threshold cadence, clan cards split <strong>Combo</strong> vs <strong>Loop</strong> DPS, melee weapons now show per-step Light / Forward / Shove / Heavy timing and DPS, and the melee tier list was retuned around the updated combat model.</p>
           </details>
