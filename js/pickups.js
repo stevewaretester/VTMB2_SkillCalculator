@@ -611,14 +611,20 @@ function renderItemsPage() {
   const container = document.getElementById('pickups-items-table');
   if (!container) return;
 
+  const corrosiveShieldActive = typeof state !== 'undefined' && state.modCorrosiveShield;
+
   const itemRows = [];
   for (const e of ELIXIRS) {
+    let effectText = e.effect;
+    if (corrosiveShieldActive && e.id === 'fortitude') {
+      effectText = `${e.effect}<div class="fabien-mod-line">Grants 25 Shield.</div>`;
+    }
     itemRows.push({
       rowKind: 'elixir',
       missionOnly: e.missionOnly,
       key: e.craftKey || '',
       name: e.name,
-      effect: e.effect,
+      effect: effectText,
       magnitude: e.magnitude,
       duration: e.duration,
       costTokens: e.craftTokens,

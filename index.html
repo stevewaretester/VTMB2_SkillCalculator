@@ -45,7 +45,7 @@
         </div>
       </div>
       <button class="mobile-drawer__item" id="mobile-about-btn">About</button>
-      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.16 Changelog</button>
+      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.17 Changelog</button>
       <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener">Spring Update <span class="mobile-drawer__build">22727210</span> &#x2197;</a>
       <button class="mobile-drawer__item" id="mobile-mods-btn">Mods</button>
       <div class="mobile-drawer__divider"></div>
@@ -95,7 +95,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.16</button>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.17</button>
       <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-spring-update" target="_blank" rel="noopener" title="Game version tested against">Spring Update <span class="header__patch-build">22727210</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <!-- Universal layout toggle — always visible, fixed top-right (lives inside header semantically) -->
@@ -674,10 +674,10 @@
           </li>
           <li class="mod-list__item">
             <label class="mod-list__toggle">
-              <input type="checkbox" id="toggle-corrosive-resonance">
-              <span class="mod-list__label">Corrosive Touch grants Resonance</span>
+              <input type="checkbox" id="toggle-corrosive-shield">
+              <span class="mod-list__label"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/170" target="_blank" rel="noopener">Corrosive Shield</a></span>
             </label>
-            <button class="mod-list__goto hidden" id="goto-corrosive-resonance" title="Go to Tremere's Corrosive Touch passive">&#x2B07;</button>
+            <button class="mod-list__goto hidden" id="goto-corrosive-shield" title="Go to Tremere's Corrosive Touch passive">&#x2B07;</button>
           </li>
           <li class="mod-list__item">
             <label class="mod-list__toggle">
@@ -764,14 +764,20 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.16</span>
+        <span class="modal-card__version">v1.17</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
-              <span class="changelog__version">v1.16</span>
+              <span class="changelog__version">v1.17</span>
               <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc"><strong>Corrosive Shield mod support</strong> &mdash; replaced the older &ldquo;Corrosive Touch grants Resonance&rdquo; toggle with the new <a href="https://www.nexusmods.com/vtmbloodlines2/mods/170" target="_blank" rel="noopener">Corrosive Shield</a> mod. Toggling it on annotates Corrosive Touch with &ldquo;Dissolved bodies grant shield and resonance&rdquo;, adds a &ldquo;Grants 25 Shield&rdquo; note to the Fortitude Elixir, and on the Tier List bumps Corrosive Touch to <strong>A tier</strong> with a wobbly light-green shield overlay and a green mod note explaining the upgrade.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
+              <span class="changelog__version">v1.16</span>
             </summary>
             <p class="changelog__desc">Mobile UX polish pass &mdash; the new combat graph and nested Skill Tree flows now behave correctly on phone layouts (fixed Skill Tree back navigation, added a Phyre clan-drawer chevron indicator, and restored Ysabelle&rsquo;s bottom-tab logo). Combat cards and Benny&rsquo;s Loose Cannon drawer were retuned for mobile readability, and hub map filter scrolling now works reliably without map-pan gesture conflicts.</p>
           </details>

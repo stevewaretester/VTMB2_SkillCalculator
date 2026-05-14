@@ -119,7 +119,21 @@ function tierRankLabel(tier) {
 
 function findTierItem(clanId, tier) {
   const clanShort = clanId === 'banuHaqim' ? 'banu' : clanId;
-  return TIERLIST_ITEMS.find(item => item.id === `${clanShort}-${tier}`) || null;
+  const raw = TIERLIST_ITEMS.find(item => item.id === `${clanShort}-${tier}`) || null;
+  return raw ? _applyTierlistModOverrides(raw) : null;
+}
+
+// Apply mod-driven overrides (tier, descr) to a tier list item. Returns a
+// cloned object when overrides apply, otherwise the original reference.
+function _applyTierlistModOverrides(item) {
+  if (!item) return item;
+  if (item.id === 'tremere-passive' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 'a',
+      modNote: 'With the Corrosive Shield mod active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
+    });
+  }
+  return item;
 }
 
 // ── Icon helper ───────────────────────────────────────────────
@@ -246,7 +260,11 @@ function _openTierlistPopover(item, anchorEl, extraLinks) {
   pop.querySelector('.tierlist-popover__icon').alt = item.name;
   pop.querySelector('.tierlist-popover__name').textContent = item.name;
   pop.querySelector('.tierlist-popover__subtitle').textContent = item.subtitle || '';
-  pop.querySelector('.tierlist-popover__body').innerHTML = linkifyAbilityText(item.descr || '(No description yet.)');
+  let bodyHtml = linkifyAbilityText(item.descr || '(No description yet.)');
+  if (item.modNote) {
+    bodyHtml += `<div class="fabien-mod-line">${linkifyAbilityText(item.modNote)}</div>`;
+  }
+  pop.querySelector('.tierlist-popover__body').innerHTML = bodyHtml;
 
   // Affinities (only for clan items)
   const affEl = pop.querySelector('.tierlist-popover__affinities');
@@ -338,8 +356,9 @@ function _closeTierPopover() {
 
 // Called from skill-tree detail panel tier badge
 function openTierBadgePopover(itemId, anchorEl) {
-  const item = TIERLIST_ITEMS.find(i => i.id === itemId);
-  if (!item) return;
+  const raw = TIERLIST_ITEMS.find(i => i.id === itemId);
+  if (!raw) return;
+  const item = _applyTierlistModOverrides(raw);
   const extraLinks = [
     { label: 'View in Tier List \u2192', fn: () => navigateToTierList(item.id) },
   ];
@@ -460,7 +479,9 @@ function renderTierList() {
     const i = FILTER_ORDER.indexOf(f);
     return i === -1 ? 999 : i;
   };
-  const _items = TIERLIST_ITEMS.slice().sort((a, b) => _filterRank(a.filter) - _filterRank(b.filter));
+  const _items = TIERLIST_ITEMS.slice()
+    .map(_applyTierlistModOverrides)
+    .sort((a, b) => _filterRank(a.filter) - _filterRank(b.filter));
 
   _items.forEach(item => {
     if (!item.tier) return;
@@ -471,6 +492,9 @@ function renderTierList() {
     const btn = document.createElement('button');
     btn.className = `tierlist__item tierlist__item--${item.filter}`;
     if (useClanIcon(item.filter)) btn.classList.add('tierlist__item--clan');
+    if (item.id === 'tremere-passive' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+      btn.classList.add('tierlist__item--shielded');
+    }
     btn.dataset.id     = item.id;
     btn.dataset.filter = item.filter;
     btn.dataset.clan   = item.clan || '';

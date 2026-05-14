@@ -9611,6 +9611,45 @@ body.is-mobile-landscape .mobile-detail-hint {
 
 .tierlist__item:hover { transform: scale(1.08); z-index: 1; }
 
+/* Wobbly light-green shield barrier overlay — applied when Corrosive Shield mod is on */
+.tierlist__item--shielded::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 5px;
+    pointer-events: none;
+    border: 2px solid rgba(150, 240, 170, 0.85);
+    box-shadow:
+        0 0 6px 1px rgba(150, 240, 170, 0.55),
+        inset 0 0 8px 1px rgba(150, 240, 170, 0.45);
+    background: radial-gradient(circle at 50% 50%, rgba(150, 240, 170, 0.18), rgba(150, 240, 170, 0) 70%);
+    animation: tierlist-shield-wobble 2.2s ease-in-out infinite;
+    z-index: 2;
+}
+
+@keyframes tierlist-shield-wobble {
+    0%, 100% {
+        transform: scale(1.0) rotate(0deg);
+        opacity: 0.85;
+        border-radius: 5px;
+    }
+    25% {
+        transform: scale(1.04, 0.97) rotate(0.5deg);
+        opacity: 1;
+        border-radius: 8px 4px 7px 5px;
+    }
+    50% {
+        transform: scale(0.98, 1.05) rotate(-0.4deg);
+        opacity: 0.9;
+        border-radius: 4px 7px 5px 8px;
+    }
+    75% {
+        transform: scale(1.03, 0.99) rotate(0.3deg);
+        opacity: 1;
+        border-radius: 7px 5px 8px 4px;
+    }
+}
+
 /* Rainbow animation for affinity items */
 @property --affinity-angle {
     syntax: "<angle>";

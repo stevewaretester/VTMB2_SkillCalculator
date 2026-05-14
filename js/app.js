@@ -98,7 +98,7 @@ const state = {
   completionTalents: false,
   modFabienPhlegmatic: false,
   modHaven: false,
-  modCorrosiveResonance: false,
+  modCorrosiveShield: false,
   modBloodPotencyKill: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
@@ -306,7 +306,7 @@ function makePersistedState() {
     ct: !!state.completionTalents,
     mh: !!state.modHaven,
     mf: !!state.modFabienPhlegmatic,
-    mcr: !!state.modCorrosiveResonance,
+    mcr: !!state.modCorrosiveShield,
     mbp: !!state.modBloodPotencyKill,
     cs: !!state.clanSelectorCollapsed,
     sp: state.selectedPerTier,
@@ -410,7 +410,7 @@ function applyPersistedState(payload) {
   state.completionTalents = !!payload.ct;
   state.modHaven = !!payload.mh;
   state.modFabienPhlegmatic = !!payload.mf;
-  state.modCorrosiveResonance = !!payload.mcr;
+  state.modCorrosiveShield = !!payload.mcr;
   state.modBloodPotencyKill = !!payload.mbp;
   state.clanSelectorCollapsed = !!payload.cs;
   state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
@@ -1206,15 +1206,17 @@ function bindToggles() {
     persistState();
   }
 
-  const corrosiveToggle = document.getElementById("toggle-corrosive-resonance");
-  const corrosiveGoto = document.getElementById("goto-corrosive-resonance");
+  const corrosiveToggle = document.getElementById("toggle-corrosive-shield");
+  const corrosiveGoto = document.getElementById("goto-corrosive-shield");
   if (corrosiveToggle) {
-    corrosiveToggle.checked = state.modCorrosiveResonance;
-    corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveResonance);
+    corrosiveToggle.checked = state.modCorrosiveShield;
+    corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveShield);
     corrosiveToggle.addEventListener("change", (e) => {
-      state.modCorrosiveResonance = e.target.checked;
+      state.modCorrosiveShield = e.target.checked;
       corrosiveGoto.classList.toggle("hidden", !e.target.checked);
       renderDetailPanel();
+      if (typeof renderPickupsPage === "function") renderPickupsPage();
+      if (typeof renderTierList === "function") renderTierList();
       persistState();
     });
     corrosiveGoto.addEventListener("click", () => gotoTremereAbility("passive"));
@@ -2443,8 +2445,8 @@ function renderDetailPanel(targetEl) {
   // Mod overlay notes — handwritten green line, same style as the Fabien
   // Phlegmatic Fast Travel mod note. Only shown when the matching mod is
   // toggled on and the focused ability is the affected one.
-  if (clanId === "tremere" && tier === "passive" && state.modCorrosiveResonance) {
-    html += `<div class="fabien-mod-line">Rewards 10 random resonance per melted corpse.</div>`;
+  if (clanId === "tremere" && tier === "passive" && state.modCorrosiveShield) {
+    html += `<div class="fabien-mod-line">Dissolved bodies grant shield and resonance.</div>`;
   }
   if (clanId === "tremere" && tier === "perk" && state.modBloodPotencyKill) {
     html += `<div class="fabien-mod-line">Kills grant a random blood pip to uncharged abilities.</div>`;
