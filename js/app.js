@@ -94,12 +94,14 @@ function showTooltip(html, e) {
 // ── State ────────────────────────────────────────────────────
 const state = {
   selectedClan: null,
+  clanViewMode: "overview",
   completedClans: new Set(),
   completionTalents: false,
   modFabienPhlegmatic: false,
   modHaven: false,
   modCorrosiveShield: false,
   modBloodPotencyKill: false,
+  modClanMeleeOverride: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
   abilities: {},
@@ -302,12 +304,14 @@ function makePersistedState() {
   return {
     v: STATE_VERSION,
     sc: state.selectedClan,
+    cv: state.clanViewMode === "clanview",
     cc: Array.from(state.completedClans),
     ct: !!state.completionTalents,
     mh: !!state.modHaven,
     mf: !!state.modFabienPhlegmatic,
     mcr: !!state.modCorrosiveShield,
     mbp: !!state.modBloodPotencyKill,
+    mcm: !!state.modClanMeleeOverride,
     cs: !!state.clanSelectorCollapsed,
     sp: state.selectedPerTier,
     a: abilityEntries,
@@ -333,6 +337,7 @@ function getCookie(name) {
 function makeStateParams(payload) {
   const p = new URLSearchParams();
   if (payload.sc) p.set('sc', payload.sc);
+  if (payload.cv) p.set('cv', '1');
   const ccShorts = (payload.cc || []).map(id => CLAN_SHORT[id]).filter(Boolean);
   if (ccShorts.length) p.set('cc', ccShorts.join('.'));
   // Boolean flags — only emit when true (keeps URL clean for defaults)
@@ -341,6 +346,7 @@ function makeStateParams(payload) {
   if (payload.mf) p.set('mf', '1');
   if (payload.mcr) p.set('mcr', '1');
   if (payload.mbp) p.set('mbp', '1');
+  if (payload.mcm) p.set('mcm', '1');
   if (payload.cs) p.set('cs', '1');
   if (payload.lc) p.set('lc', '1');
   if (payload.cx === false) p.set('cx', '0');
@@ -370,12 +376,14 @@ function decodeStateV2(params) {
   return {
     v: 2,
     sc: params.get('sc') || null,
+    cv: params.get('cv') === '1',
     cc: ccRaw.split('.').filter(Boolean).map(s => SHORT_CLAN[s]).filter(id => id && CLAN_ORDER.includes(id)),
     ct: params.get('ct') === '1',
     mh: params.get('mh') === '1',
     mf: params.get('mf') === '1',
     mcr: params.get('mcr') === '1',
     mbp: params.get('mbp') === '1',
+    mcm: params.get('mcm') === '1',
     cs: params.get('cs') === '1',
     lc: params.get('lc') === '1',
     cx: params.get('cx') !== '0',
@@ -404,6 +412,7 @@ function applyPersistedState(payload) {
   if (!payload || typeof payload !== "object") return;
 
   state.selectedClan = CLAN_ORDER.includes(payload.sc) ? payload.sc : null;
+  state.clanViewMode = payload.cv ? "clanview" : "overview";
   state.completedClans = new Set(
     Array.isArray(payload.cc) ? payload.cc.filter(id => CLAN_ORDER.includes(id)) : []
   );
@@ -412,6 +421,7 @@ function applyPersistedState(payload) {
   state.modFabienPhlegmatic = !!payload.mf;
   state.modCorrosiveShield = !!payload.mcr;
   state.modBloodPotencyKill = !!payload.mbp;
+  state.modClanMeleeOverride = !!payload.mcm;
   state.clanSelectorCollapsed = !!payload.cs;
   state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
 
@@ -442,7 +452,7 @@ function loadPersistedState() {
   const params = url.searchParams;
 
   // V2: human-readable params — detected by presence of 'sc' or any clan short code
-  const isV2 = params.has('sc') || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
+  const isV2 = params.has('sc') || params.has('cv') || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
   if (isV2) {
     const payload = decodeStateV2(params);
     applyPersistedState(payload);
@@ -486,6 +496,7 @@ function init() {
   bindToggles();
   bindTabs();
   bindClanSelectorToggle();
+  bindClanViewToggle();
   initCursorToggle();
   bindShareButtons();
   updatePhyreClanCrest();
@@ -988,6 +999,31 @@ function bindClanSelectorToggle() {
   }
 }
 
+function bindClanViewToggle() {
+  const checkbox = document.getElementById("clan-view-checkbox");
+  if (!checkbox) return;
+
+  checkbox.addEventListener("change", () => {
+    const mode = checkbox.checked ? "clanview" : "overview";
+    if (state.clanViewMode === mode) return;
+    state.clanViewMode = mode;
+    applyClanViewMode();
+    renderGrid();
+  });
+
+  applyClanViewMode();
+}
+
+function applyClanViewMode() {
+  const checkbox = document.getElementById("clan-view-checkbox");
+  const lozenge = document.getElementById("clan-view-toggle");
+  const isClanView = state.clanViewMode === "clanview";
+
+  if (checkbox) checkbox.checked = isClanView;
+  if (lozenge) lozenge.classList.toggle("is-active", isClanView);
+  persistState();
+}
+
 function applyClanSelectorCollapsed() {
   const sel = document.getElementById("clan-selector");
   if (sel) sel.classList.toggle("collapsed", state.clanSelectorCollapsed);
@@ -1262,6 +1298,46 @@ function bindToggles() {
     }
   }
 
+  const clanMeleeToggle = document.getElementById("toggle-clan-melee-override");
+  const clanMeleeGoto = document.getElementById("goto-clan-melee-override");
+  if (clanMeleeToggle) {
+    clanMeleeToggle.checked = state.modClanMeleeOverride;
+    if (clanMeleeGoto) clanMeleeGoto.classList.toggle("hidden", !state.modClanMeleeOverride);
+    clanMeleeToggle.addEventListener("change", (e) => {
+      state.modClanMeleeOverride = e.target.checked;
+      if (clanMeleeGoto) clanMeleeGoto.classList.toggle("hidden", !e.target.checked);
+      renderGrid();
+      renderDetailPanel();
+      persistState();
+    });
+    if (clanMeleeGoto) clanMeleeGoto.addEventListener("click", () => {
+      document.getElementById("mods-modal").classList.add("hidden");
+
+      // Primary: Phyre
+      document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+      const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+      if (phyreTab) phyreTab.classList.add("active");
+      document.getElementById("page-phyre").classList.remove("hidden");
+
+      // Secondary: Skilltree
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+      const skillTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="skilltree"]');
+      if (skillTab) skillTab.classList.add("active");
+      document.getElementById("subpage-skilltree").classList.remove("hidden");
+
+      if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
+
+      // Ensure there is an active clan so ability rows are fully meaningful.
+      if (!state.selectedClan) selectClan(CLAN_ORDER[0]);
+
+      renderGrid();
+      renderDetailPanel();
+      persistState();
+    });
+  }
+
   document.getElementById("goto-fabien-phlegmatic").addEventListener("click", () => {
     // Close modal
     document.getElementById("mods-modal").classList.add("hidden");
@@ -1404,6 +1480,7 @@ function renderAffinityBar() {
 // ── Grid Rendering ───────────────────────────────────────────
 function renderGrid() {
   const grid = document.getElementById("skill-grid");
+  const clanOrder = getClanColumnOrder(state.clanViewMode, state.selectedClan);
   grid.innerHTML = "";
 
   // Render affinity bar
@@ -1416,7 +1493,7 @@ function renderGrid() {
 
   // Column headers row
   grid.appendChild(createEl("div", "")); // empty corner
-  for (const clanId of CLAN_ORDER) {
+  for (const clanId of clanOrder) {
     const clan = CLANS[clanId];
     const header = createEl("div", "clan-col-header");
     const logoSrc = state.completedClans.has(clanId) ? clan.logoCompleted : clan.logo;
@@ -1432,7 +1509,14 @@ function renderGrid() {
         purchaseClanAbilities(clanId);
       }
     });
-    // Right-click resets the clan (desktop only). On mobile, the native\n    // contextmenu fires from a long-press \u2014 don't reset, since long-press is\n    // now the \"progress whole clan\" gesture.\n    header.addEventListener(\"contextmenu\", (e) => {\n      e.preventDefault();\n      if (document.body.classList.contains('is-mobile')) return;\n      resetClanAbilities(clanId);\n    });
+    // Right-click resets the clan (desktop only). On mobile, the native
+    // contextmenu fires from a long-press - don't reset, since long-press is
+    // now the "progress whole clan" gesture.
+    header.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      if (document.body.classList.contains("is-mobile")) return;
+      resetClanAbilities(clanId);
+    });
 
     // Long-press (touch) on the header = progress the whole clan as far as
     // it can go (mirrors the desktop single-click behaviour).
@@ -1493,11 +1577,45 @@ function renderGrid() {
     grid.appendChild(label);
 
     // Cells per clan
-    for (const clanId of CLAN_ORDER) {
+    for (const clanId of clanOrder) {
       const cell = createAbilityCell(clanId, tier);
       grid.appendChild(cell);
     }
   }
+
+  // Clan melee row: rendered beneath Clan Passive and always available.
+  // With mod active we show fixed-number buttons; otherwise clan symbols.
+  const rowLabel = createEl("div", `tier-label tier-label--clan-melee${state.modClanMeleeOverride ? " tier-label--clan-melee-active" : ""}`);
+  rowLabel.textContent = "Melee";
+  grid.appendChild(rowLabel);
+
+  clanOrder.forEach((clanId, index) => {
+    const cell = createEl("div", "clan-melee-index-cell");
+    const clan = CLANS[clanId];
+    const useNumberButton = !!state.modClanMeleeOverride;
+    const btn = createEl("button", `clan-col-button ${useNumberButton ? "clan-col-button--number" : "clan-col-button--symbol"}`);
+    btn.type = "button";
+    if (useNumberButton) {
+      btn.textContent = String(index + 1);
+      btn.setAttribute("aria-label", `Open clan melee note ${index + 1}`);
+    } else {
+      btn.innerHTML = `<img class="clan-col-button__logo" src="${clan.logo}" alt="${clan.name}">`;
+      btn.setAttribute("aria-label", `Open ${clan.name} melee note`);
+    }
+
+    if (state.focusedAbility && state.focusedAbility.type === "clanMelee" && state.focusedAbility.clanId === clanId) {
+      btn.classList.add("is-selected");
+    }
+
+    btn.addEventListener("click", () => {
+      if (typeof showClanDescription === "function") {
+        showClanDescription(index);
+      }
+    });
+
+    cell.appendChild(btn);
+    grid.appendChild(cell);
+  });
 
   persistState();
 }
@@ -1736,7 +1854,7 @@ function positionTooltip(e) {
   tip.style.top = y + 'px';
 }
 
-// ── Ability lozenge helpers ──────────────────────────────────
+// ── Ability lozenges helpers ──────────────────────────────────
 function buildAbilityLozengesHtml(ability) {
   let html = '';
   if (ability.duration) {
@@ -1789,9 +1907,13 @@ function buildTooltipContent(clanId, tier, ability, abilityState) {
     const disc = DISCIPLINES[ability.discipline];
     const isAffinityDisc = !isOwnClan && state.selectedClan && CLANS[state.selectedClan].affinities.includes(ability.discipline);
     const isOwnClanAffinity = isOwnClan && state.selectedClan && CLANS[state.selectedClan].affinities.includes(ability.discipline);
+    const badge = isOwnClan
+      ? '<span class="discipline-badge in-clan-badge">In Clan</span>'
+      : isAffinityDisc ? '<span class="discipline-badge affinity-badge">Affinity</span>' : '';
     html += `<div class="tooltip__discipline${isAffinityDisc ? ' is-affinity' : ''}${isOwnClanAffinity ? ' is-own-clan' : ''}" data-discipline="${ability.discipline}">
       <img src="${disc.icon}" alt="${disc.name}">
       <span>${disc.name}</span>
+      ${badge}
     </div>`;
   }
 
@@ -2369,7 +2491,98 @@ function renderCCTDetailPanel(panel) {
   }
 }
 
-function renderDetailPanel(targetEl) {
+function renderClanMeleeOverrideDetailPanel(panel) {
+  const focused = state.focusedAbility || {};
+  const clanId = focused.clanId;
+  if (!clanId || !CLANS[clanId]) {
+    panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+    return;
+  }
+
+  const clan = CLANS[clanId];
+  const slotLabel = Number.isInteger(focused.clanIndex) ? String(focused.clanIndex + 1) : "-";
+  const clanShort = clanId === "banuHaqim" ? "banu" : clanId;
+  const rawMeleeTierItem = typeof TIERLIST_ITEMS !== "undefined"
+    ? TIERLIST_ITEMS.find(i => i.id === `melee-${clanShort}`)
+    : null;
+  const meleeTierItem = (rawMeleeTierItem && typeof _applyTierlistModOverrides === "function")
+    ? _applyTierlistModOverrides(rawMeleeTierItem)
+    : rawMeleeTierItem;
+  const clanMeleeData = (typeof CLAN_COMBOS !== "undefined" && CLAN_COMBOS[clanId]) ? CLAN_COMBOS[clanId] : null;
+
+  let html = "";
+  html += `<div class="detail-panel__name-row">`;
+  html += `<img class="detail-panel__ability-icon" src="${clan.logo}" alt="${clan.name}">`;
+  html += `<div class="detail-panel__name">${clan.name} (Slot ${slotLabel})</div>`;
+  html += `</div>`;
+
+  if (meleeTierItem && meleeTierItem.tier) {
+    html += `<button class="detail-panel__tier-rank tier-rank--${meleeTierItem.tier}" data-tierlist-id="${meleeTierItem.id}">Tier: ${tierRankLabel(meleeTierItem.tier)}</button>`;
+  }
+
+  html += `<div class="detail-panel__desc">${clan.descr}</div>`;
+
+  if (clanMeleeData && clanMeleeData.rows && clanMeleeData.rows.length) {
+    html += `<details class="detail-panel__res-effect detail-panel__combos" id="clan-melee-attacks-details">`;
+    html += `<summary>`;
+    html += `<img src="${typeof COMBO_ICON !== "undefined" ? COMBO_ICON : "assets/N_Textures/General/T_UI_Icon_Cancel.png"}" alt="Melee attacks">`;
+    html += `<span>Melee attacks (${clanMeleeData.rows.length})</span>`;
+    html += `</summary>`;
+    html += `<ul class="detail-panel__combos-list">`;
+    for (const row of clanMeleeData.rows) {
+      html += `<li>`;
+      html += `<span class="detail-panel__combo-name">Step ${row.step}</span>`;
+      html += `<span class="detail-panel__combo-arrow">L ${row.lightDmg} | H ${row.heavyDmg}</span>`;
+      html += `</li>`;
+    }
+    html += `</ul>`;
+    html += `</details>`;
+  }
+
+  if (state.modClanMeleeOverride) {
+    html += `<div class="clan-melee-notes">`;
+    html += `<div class="fabien-mod-line">Number order is fixed left-to-right in Clan View: 1-6.</div>`;
+    html += `</div>`;
+  }
+
+  panel.innerHTML = html;
+
+  const tierBtn = panel.querySelector('.detail-panel__tier-rank');
+  if (tierBtn && typeof openTierBadgePopover === 'function') {
+    tierBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openTierBadgePopover(tierBtn.dataset.tierlistId, tierBtn);
+    });
+  }
+
+  const meleeDetails = panel.querySelector('#clan-melee-attacks-details');
+  if (meleeDetails) {
+    meleeDetails.addEventListener('click', () => {
+      if (state.selectedClan !== clanId) selectClan(clanId);
+
+      // Primary tab: Phyre
+      document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+      const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+      if (phyreTab) phyreTab.classList.add("active");
+      document.getElementById("page-phyre").classList.remove("hidden");
+
+      // Secondary tab: Combat -> Clan
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+
+      const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="combos"]');
+      if (combosTab) combosTab.classList.add("active");
+      document.getElementById("subpage-combos").classList.remove("hidden");
+      if (typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("clan");
+
+      if (typeof updateMobileChrome === "function") updateMobileChrome();
+      persistState();
+    });
+  }
+}
+
+function renderDetailPanel(targetEl = null) {
   const panel = targetEl || document.getElementById("detail-panel");
 
   // If an innate item is focused and no normal ability has taken over, show innate detail
@@ -2391,6 +2604,11 @@ function renderDetailPanel(targetEl) {
 
   if (state.focusedAbility.type === 'cct') {
     renderCCTDetailPanel(panel);
+    return;
+  }
+
+  if (state.focusedAbility.type === 'clanMelee') {
+    renderClanMeleeOverrideDetailPanel(panel);
     return;
   }
 
@@ -2447,6 +2665,9 @@ function renderDetailPanel(targetEl) {
   // toggled on and the focused ability is the affected one.
   if (clanId === "tremere" && tier === "passive" && state.modCorrosiveShield) {
     html += `<div class="fabien-mod-line">Dissolved bodies grant shield and resonance.</div>`;
+  }
+  if (clanId === "tremere" && tier === "relocate" && state.modCorrosiveShield) {
+    html += `<div class="fabien-mod-line">Telefrag restores 25 shield</div>`;
   }
   if (clanId === "tremere" && tier === "perk" && state.modBloodPotencyKill) {
     html += `<div class="fabien-mod-line">Kills grant a random blood pip to uncharged abilities.</div>`;
@@ -2551,13 +2772,13 @@ function renderDetailPanel(targetEl) {
   }
   if (resCleanse) {
     html += `<div class="detail-panel__res-effect detail-panel__res-cleanse">
-      <img src="${RES_CLEANSE_ICON}" alt="Cleanses Resonance">
+      <img src="${RES_CLEANSE_ICON}" alt="Cleanses Resonance" title="Cleanses Resonance">
       <span>Cleanses resonance from target</span>
     </div>`;
   }
   if (FEEDABLE.has(ability.name)) {
     html += `<div class="detail-panel__res-effect detail-panel__feedable">
-      <img src="${FEED_ICON}" alt="Makes Feedable">
+      <img src="${FEED_ICON}" alt="Makes Feedable" title="Makes Feedable">
       <span>Makes Feedable</span>
     </div>`;
   }
@@ -2898,6 +3119,7 @@ function setAllClansCompletedFromBloodHeal() {
 }
 
 function renderCompletionTalentRows(grid) {
+  const clanOrder = getClanColumnOrder(state.clanViewMode, state.selectedClan);
   const allCompleted = CLAN_ORDER.every(id => state.completedClans.has(id));
   const CCT_COMPLETED_CONTAINER = 'assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Selected.png';
   
@@ -2922,7 +3144,7 @@ function renderCompletionTalentRows(grid) {
   bhCell.innerHTML = `
     <div class="comp-talent__icon-wrap">
       <img class="ability-cell__btn-bg" src="assets/N_Textures/AbilityTree/Assets/T_AbilityTree_ButtonBg_Equipped.png" alt="">
-      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt=""><img class="comp-talent__container-bg" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_COMPLETED_Selected.png" alt="">` : ''}
+      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt=""><img class="comp-talent__container-bg" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_COMPLETED_SELECTED.png" alt="">` : ''}
       <img class="comp-talent__icon" src="${BLOOD_HEAL_TALENT.icon}" alt="${bhName}">
     </div>
     ${buildCCTPipsMarkup(BLOOD_HEAL_TALENT.bloodPips, true)}
@@ -2950,7 +3172,7 @@ function renderCompletionTalentRows(grid) {
   rowLabel.addEventListener('mouseleave', () => sharedTooltip.classList.remove('tooltip--visible'));
   grid.appendChild(rowLabel);
 
-  for (const clanId of CLAN_ORDER) {
+  for (const clanId of clanOrder) {
     const talent = COMPLETION_TALENTS[clanId];
     const isCompleted = state.completedClans.has(clanId);
     const cell = createEl('div', 'comp-talent');
@@ -2959,7 +3181,7 @@ function renderCompletionTalentRows(grid) {
     cell.dataset.cctKey = clanId;
     cell.innerHTML = `
       <div class="comp-talent__icon-wrap">
-        ${isCompleted ? `<img class="comp-talent__container-bg comp-talent__container-bg--back" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Background_COMPLETED_Selected.png" alt="">` : ''}
+        ${isCompleted ? `<img class="comp-talent__container-bg comp-talent__container-bg--back" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Background_COMPLETED_SELECTED.png" alt="">` : ''}
         ${isCompleted ? `<img class="comp-talent__container-bg" src="${CLAN_PATTERN_BG[clanId]}" alt="">` : ''}
         <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}"${talent.iconRotate ? ` style="transform:rotate(${talent.iconRotate}deg)"` : ''}>
       </div>
@@ -3542,7 +3764,7 @@ function renderMobileBennyFeatureStrip() {
   const btn = document.createElement('button');
   btn.className = 'mobile-innate-toggle' + (hasActive ? ' is-active' : '');
   btn.title = 'New Features';
-  btn.innerHTML = `<img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="New Features">`;
+  btn.innerHTML = `<img src="assets/N_Textures/General/T_UI_Icon_Benny.png" alt="New Features">`;
 
   btn.addEventListener('click', _openBennyPickerSheet);
 
@@ -3711,7 +3933,7 @@ function updateMobileChrome() {
   // Build subtab pills
   buildMobileSubtabBar(activeTab);
 
-  // Update mobile stats strip costs display
+  // Update mobile stats strip
   _syncMobileStats();
 
   // Update innate strip

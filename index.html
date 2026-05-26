@@ -238,6 +238,11 @@
           </div>
         </div>
         <button class="reset-btn" id="reset-all">Reset All</button>
+        <label class="clan-view-lozenge" id="clan-view-toggle" for="clan-view-checkbox" title="Toggle canonical clan column order">
+          <input class="clan-view-lozenge__checkbox" id="clan-view-checkbox" type="checkbox" aria-label="Enable clan view column order">
+          <span class="clan-view-lozenge__box" aria-hidden="true"></span>
+          <span class="clan-view-lozenge__text">Clan View</span>
+        </label>
 
         <hr class="sidebar-divider">
         <div id="phyre-innate-items"></div>
@@ -693,6 +698,13 @@
             </label>
             <button class="mod-list__goto hidden" id="goto-fabien-phlegmatic" title="Go to Fabien's Fast Forward ability">&#x2B07;</button>
           </li>
+          <li class="mod-list__item">
+            <label class="mod-list__toggle">
+              <input type="checkbox" id="toggle-clan-melee-override">
+              <span class="mod-list__label"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/160" target="_blank" rel="noopener">Obvious Clan Melee Override</a></span>
+            </label>
+            <button class="mod-list__goto hidden" id="goto-clan-melee-override" title="Go to Skill Tree/Abilities with Melee Selection">&#x2B07;</button>
+          </li>
         </ul>
       </section>
 
@@ -701,7 +713,7 @@
         <ul class="mod-list mod-list--links">
           <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/158" target="_blank" rel="noopener">Obvious HUD Toggle</a></li>
           <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/159" target="_blank" rel="noopener">Obvious Clan Completion Sync</a></li>
-          <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/160" target="_blank" rel="noopener">Obvious Melee Picker</a></li>
+          <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/160" target="_blank" rel="noopener">Obvious Clan Melee Override</a></li>
         </ul>
       </section>
     </div>
@@ -905,5 +917,6 @@
   <script src="js/extras.js"></script>
   <script src="js/map.js"></script>
   <script src="js/tierlist.js"></script>
+  <script src="js/showClanDescription.js"></script>
 </body>
 </html>

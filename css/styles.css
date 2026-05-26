@@ -1445,6 +1445,71 @@ kbd.innate-key-ref {
     color: var(--gold);
 }
 
+.clan-view-lozenge {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 7px 10px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border-dim);
+    background: rgba(5, 7, 10, 0.92);
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    cursor: url('../assets/N_Textures/General/T_UI_MouseCursor_sm.png'), auto;
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.clan-view-lozenge:hover {
+    border-color: var(--gold-dim);
+    color: var(--text);
+}
+
+.clan-view-lozenge.is-active {
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: inset 0 0 8px rgba(201, 168, 76, 0.12);
+}
+
+.clan-view-lozenge__checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.clan-view-lozenge__box {
+    width: 14px;
+    height: 14px;
+    border: 1px solid rgba(215, 215, 232, 0.55);
+    background: rgba(0, 0, 0, 0.35);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.clan-view-lozenge__checkbox:checked + .clan-view-lozenge__box {
+    border-color: var(--gold);
+    background: rgba(201, 168, 76, 0.16);
+}
+
+.clan-view-lozenge__checkbox:checked + .clan-view-lozenge__box::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: var(--gold);
+}
+
+.clan-view-lozenge__text {
+    line-height: 1;
+}
+
 /* Keep the clan accordion trigger available after collapse in all layouts. */
 #clan-selector-toggle {
     display: block !important;
@@ -3897,6 +3962,102 @@ body.is-mobile .tooltip { display: none !important; }
     pointer-events: none;
 }
 
+/* Clan-melee helper row */
+.tier-label--clan-melee {
+    color: #999;
+    font-size: 11px;
+    letter-spacing: 1.3px;
+}
+
+.tier-label--clan-melee.tier-label--clan-melee-active {
+    color: #89e067;
+}
+
+.clan-melee-index-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 0 6px;
+}
+
+.clan-col-button {
+    background: linear-gradient(180deg, #5dde6f 0%, #2fa845 100%);
+    color: #093611;
+    font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
+    border: 1px solid rgba(9, 54, 17, 0.45);
+    border-radius: 999px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    cursor: pointer;
+    font-size: 17px;
+    line-height: 1;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.clan-col-button.is-selected {
+    box-shadow: 0 0 0 1px rgba(255, 220, 120, 0.75), 0 0 12px rgba(255, 220, 120, 0.28);
+}
+
+.clan-col-button--symbol {
+    background: linear-gradient(180deg, #40444d 0%, #252932 100%);
+    border-color: rgba(140, 148, 164, 0.5);
+    width: 30px;
+    min-width: 30px;
+    padding: 0;
+}
+
+.clan-col-button__logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.clan-col-button:hover {
+    background: linear-gradient(180deg, #75ea83 0%, #3cbd54 100%);
+    transform: translateY(-1px) rotate(-1deg);
+}
+
+.clan-col-button--symbol:hover {
+    background: linear-gradient(180deg, #515864 0%, #313744 100%);
+}
+
+.clan-col-button:active {
+    transform: translateY(0);
+}
+
+.clan-melee-notes {
+    margin-top: 10px;
+}
+
+.clan-melee-lozenge-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.clan-melee-lozenge {
+    background: linear-gradient(180deg, #2e3138 0%, #1f2228 100%);
+    color: var(--gold);
+    border: 1px solid rgba(160, 122, 42, 0.45);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.clan-melee-lozenge:hover {
+    border-color: rgba(223, 185, 91, 0.75);
+    box-shadow: 0 0 0 1px rgba(223, 185, 91, 0.2) inset;
+    transform: translateY(-1px);
+}
+
 /* ── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar {
     width: 6px;
@@ -4128,6 +4289,11 @@ body.is-mobile .tooltip { display: none !important; }
     font-family: var(--font-mod-body);
     color: #5abf6a;
     font-style: italic;
+}
+
+.fabien-mod-line a {
+    color: inherit;
+    text-decoration-color: currentColor;
 }
 
 /* ── Fabien Cell ──────────────────────────────────────────── */

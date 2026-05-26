@@ -612,12 +612,18 @@ function renderItemsPage() {
   if (!container) return;
 
   const corrosiveShieldActive = typeof state !== 'undefined' && state.modCorrosiveShield;
+  const corrosiveShieldElixirNotes = {
+    blood: 'Also activates Clan Passive',
+    mending: 'Also cleanses Boiling Blood',
+    potence: 'Also summons a blood <a href="file:///E:/REpo/VTMB2_SkillCalculator/index.html?sc=tremere&mcr=1&at=phyre.combat.melee#mw-sword">sword</a>',
+    fortitude: 'Grants 25 Shield.',
+  };
 
   const itemRows = [];
   for (const e of ELIXIRS) {
     let effectText = e.effect;
-    if (corrosiveShieldActive && e.id === 'fortitude') {
-      effectText = `${e.effect}<div class="fabien-mod-line">Grants 25 Shield.</div>`;
+    if (corrosiveShieldActive && corrosiveShieldElixirNotes[e.id]) {
+      effectText = `${e.effect}<div class="fabien-mod-line">${corrosiveShieldElixirNotes[e.id]}</div>`;
     }
     itemRows.push({
       rowKind: 'elixir',

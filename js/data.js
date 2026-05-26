@@ -106,6 +106,21 @@ const CLANS = {
 };
 
 const CLAN_ORDER = ["brujah", "tremere", "banuHaqim", "ventrue", "lasombra", "toreador"];
+const CANON_CLAN_ORDER = ["toreador", "brujah", "tremere", "banuHaqim", "ventrue", "lasombra"];
+
+function getClanColumnOrder(mode, selectedClan) {
+  if (mode !== "clanview") return CLAN_ORDER;
+
+  const order = [...CANON_CLAN_ORDER];
+  if (!selectedClan || selectedClan === "banuHaqim") return order;
+
+  const selectedIdx = order.indexOf(selectedClan);
+  const banuIdx = order.indexOf("banuHaqim");
+  if (selectedIdx === -1 || banuIdx === -1) return order;
+
+  [order[selectedIdx], order[banuIdx]] = [order[banuIdx], order[selectedIdx]];
+  return order;
+}
 
 // ── Completion Talents (Clan Completion Talents mod) ─────────
 const COMPLETION_FRAME = 'assets/CompletionTalents/frame_completed.png';

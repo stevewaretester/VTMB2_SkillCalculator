@@ -133,6 +133,12 @@ function _applyTierlistModOverrides(item) {
       modNote: 'With the Corrosive Shield mod active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
     });
   }
+  if (item.id === 'tremere-relocate' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 'a',
+      modNote: 'the ability to gain a lump of shield adds "defence" to the "utility" and "offence" that it presently has, making it attractive to all clans and a consistent swap when you have the blood pips',
+    });
+  }
   return item;
 }
 
@@ -492,7 +498,7 @@ function renderTierList() {
     const btn = document.createElement('button');
     btn.className = `tierlist__item tierlist__item--${item.filter}`;
     if (useClanIcon(item.filter)) btn.classList.add('tierlist__item--clan');
-    if (item.id === 'tremere-passive' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    if ((item.id === 'tremere-passive' || item.id === 'tremere-relocate') && typeof state !== 'undefined' && state.modCorrosiveShield) {
       btn.classList.add('tierlist__item--shielded');
     }
     btn.dataset.id     = item.id;
