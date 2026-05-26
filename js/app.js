@@ -1244,18 +1244,41 @@ function bindToggles() {
 
   const corrosiveToggle = document.getElementById("toggle-corrosive-shield");
   const corrosiveGoto = document.getElementById("goto-corrosive-shield");
+  const corrosiveGotoItems = document.getElementById("goto-corrosive-shield-items");
   if (corrosiveToggle) {
     corrosiveToggle.checked = state.modCorrosiveShield;
-    corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveShield);
+    if (corrosiveGoto) corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveShield);
+    if (corrosiveGotoItems) corrosiveGotoItems.classList.toggle("hidden", !state.modCorrosiveShield);
     corrosiveToggle.addEventListener("change", (e) => {
       state.modCorrosiveShield = e.target.checked;
-      corrosiveGoto.classList.toggle("hidden", !e.target.checked);
+      if (corrosiveGoto) corrosiveGoto.classList.toggle("hidden", !e.target.checked);
+      if (corrosiveGotoItems) corrosiveGotoItems.classList.toggle("hidden", !e.target.checked);
       renderDetailPanel();
       if (typeof renderPickupsPage === "function") renderPickupsPage();
       if (typeof renderTierList === "function") renderTierList();
       persistState();
     });
-    corrosiveGoto.addEventListener("click", () => gotoTremereAbility("passive"));
+    if (corrosiveGoto) corrosiveGoto.addEventListener("click", () => gotoTremereAbility("passive"));
+    if (corrosiveGotoItems) corrosiveGotoItems.addEventListener("click", () => {
+      document.getElementById("mods-modal").classList.add("hidden");
+
+      document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+      const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+      if (phyreTab) phyreTab.classList.add("active");
+      document.getElementById("page-phyre").classList.remove("hidden");
+
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+      const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
+      if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
+      document.getElementById("subpage-pickups").classList.remove("hidden");
+
+      if (typeof renderPickupsPage === "function") renderPickupsPage();
+      if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("items");
+      persistPosition();
+      if (typeof updateMobileChrome === "function") updateMobileChrome();
+    });
   }
 
   const bpKillToggle = document.getElementById("toggle-blood-potency-kill");

@@ -130,7 +130,7 @@ function _applyTierlistModOverrides(item) {
   if (item.id === 'tremere-passive' && typeof state !== 'undefined' && state.modCorrosiveShield) {
     return Object.assign({}, item, {
       tier: 'a',
-      modNote: 'With the Corrosive Shield mod active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
+      modNote: 'With Corrosive Shield and Improved Alchemy active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
     });
   }
   if (item.id === 'tremere-relocate' && typeof state !== 'undefined' && state.modCorrosiveShield) {

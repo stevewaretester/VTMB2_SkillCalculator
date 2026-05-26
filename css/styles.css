@@ -390,6 +390,8 @@ body {
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    flex: 1;
+    min-width: 0;
 }
 
 .mod-list__toggle input[type="checkbox"] {
@@ -408,6 +410,7 @@ body {
     font-size: 12px;
     color: var(--text-dim);
     line-height: 1.4;
+    min-width: 0;
 }
 
 .mod-list__label em {
@@ -10382,7 +10385,7 @@ body.is-mobile-landscape .mobile-detail-hint {
 .tier-rank--d      { background: #9f9fef; color: #111; }
 .tier-rank--f      { background: #8a7f8f; color: var(--text-bright); }
 
-
+@media (max-width: 900px), (max-height: 500px) {
     .benny-mobile-feature-btn:active {
         background: rgba(255,255,255,0.08);
         color: var(--text-bright);
