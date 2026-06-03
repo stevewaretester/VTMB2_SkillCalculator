@@ -36,7 +36,7 @@ An interactive skill tree and build planner for **Vampire: The Masquerade – Bl
 - Dedicated tab for Fabien's unique ability column
 - All five abilities displayed with descriptions and detail panel
 
-### Benny / Ysabelle
+### Benny / Ysabella
 
 - Placeholder pages (content coming when DLC drops)
 

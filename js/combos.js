@@ -40,6 +40,27 @@ function comboPassesFilter(unlockState) {
   return unlockState === COMBOS_FILTER.selected;
 }
 
+function escapeComboHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildComboExplanationHtml(combo) {
+  const explanation = combo.explanation || "";
+  const explanationHtml = typeof linkifyAbilityText === "function"
+    ? linkifyAbilityText(explanation)
+    : escapeComboHtml(explanation).replace(/\n/g, "<br>");
+
+  if (!combo.outputElixir) return explanationHtml;
+
+  const elixirId = escapeComboHtml(combo.outputElixir.id);
+  const elixirName = escapeComboHtml(combo.outputElixir.name);
+  return `<div class="combo-output-line">Produces a <button class="combo-pickup-link" type="button" data-pickup-elixir="${elixirId}">${elixirName}</button></div>${explanationHtml}`;
+}
+
 // ── Ability icon HTML ─────────────────────────────────────────
 function buildComboAbilityIcon(abilityName) {
   const loc = ABILITY_LOCATION[abilityName];
@@ -171,17 +192,19 @@ function renderCombosPage() {
     // ── Mobile: card view ─────────────────────────────────────
     html += `<div class="combo-card-list">`;
     for (const combo of COMBOS) {
+      if (typeof comboIsVisible === "function" && !comboIsVisible(combo)) continue;
       const unlockState = getComboUnlockState(combo);
       if (!comboPassesFilter(unlockState)) continue;
       const abilitiesHtml = combo.abilities.map(buildComboAbilityIcon).join("");
-      const explanationHtml = typeof linkifyAbilityText === 'function' ? linkifyAbilityText(combo.explanation) : combo.explanation.replace(/\n/g, '<br>');
+      const explanationHtml = buildComboExplanationHtml(combo);
       let refHtml = '';
       if (combo.referenceUrl) {
         refHtml = `<div class="combo-card__ref">Ref: <a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a></div>`;
       } else if (combo.reference) {
         refHtml = `<div class="combo-card__ref">Ref: <em>${combo.reference}</em></div>`;
       }
-      html += `<article class="combo-card combo-card--${unlockState}" id="combo-row-${combo.id}">
+      const modClass = combo.requiresMod ? " combo-card--mod" : "";
+      html += `<article class="combo-card combo-card--${unlockState}${modClass}" id="combo-row-${combo.id}">
         <div class="combo-card__header">
           <div>
             <div class="combo-card__name">${combo.name}</div>
@@ -212,16 +235,20 @@ function renderCombosPage() {
       <tbody>`;
 
     for (const combo of COMBOS) {
+      if (typeof comboIsVisible === "function" && !comboIsVisible(combo)) continue;
       const unlockState = getComboUnlockState(combo);
       if (!comboPassesFilter(unlockState)) continue;
       const rowClass = `combos-table__row combos-table__row--${unlockState}`;
 
-      let nameCell = `<details class="combo-name">
+      const modClass = combo.requiresMod ? " combo-name--mod" : "";
+      let nameCell = `<details class="combo-name${modClass}">
         <summary class="combo-name__summary">
           <span class="combo-name__text">${combo.name}</span>
-          ${combo.subtitle ? `<span class="combo-name__subtitle">${combo.subtitle}</span>` : ""}
           ${combo.patched ? `<span class="combo-name__patched">PATCHED</span>` : ""}
         </summary>`;
+      if (combo.subtitle) {
+        nameCell += `<div class="combo-name__subtitle">${combo.subtitle}</div>`;
+      }
       if (combo.reference || combo.referenceUrl) {
         nameCell += `<div class="combo-name__ref">`;
         if (combo.referenceUrl) {
@@ -234,7 +261,7 @@ function renderCombosPage() {
       nameCell += `</details>`;
 
       const abilitiesHtml  = combo.abilities.map(buildComboAbilityIcon).join("");
-      const explanationHtml = typeof linkifyAbilityText === 'function' ? linkifyAbilityText(combo.explanation) : combo.explanation.replace(/\n/g, "<br>");
+      const explanationHtml = buildComboExplanationHtml(combo);
 
       html += `
         <tr class="${rowClass}" id="combo-row-${combo.id}">
@@ -281,6 +308,16 @@ function renderCombosPage() {
     });
   });
 
+  container.querySelectorAll(".combo-pickup-link[data-pickup-elixir]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      navigateToPickupElixir(btn.dataset.pickupElixir);
+    });
+  });
+
+  if (typeof bindInlineDetailLinks === "function") {
+    bindInlineDetailLinks(container);
+  }
+
   container.querySelectorAll("[data-combo-filter]").forEach(btn => {
     btn.addEventListener("click", () => {
       const requested = btn.dataset.comboFilter;
@@ -288,6 +325,38 @@ function renderCombosPage() {
       renderCombosPage();
     });
   });
+}
+
+function navigateToPickupElixir(elixirId) {
+  if (!elixirId) return;
+
+  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab) phyreTab.classList.add("active");
+  const phyrePage = document.getElementById("page-phyre");
+  if (phyrePage) phyrePage.classList.remove("hidden");
+
+  document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+  const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
+  if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
+  const pickupsPage = document.getElementById("subpage-pickups");
+  if (pickupsPage) pickupsPage.classList.remove("hidden");
+
+  if (typeof renderPickupsPage === "function") renderPickupsPage();
+  if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("items");
+
+  setTimeout(() => {
+    const target = document.getElementById(`pickup-elixir-${elixirId}`);
+    if (!target) return;
+    target.classList.add("pickup-row--highlight");
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => target.classList.remove("pickup-row--highlight"), 2200);
+  }, 60);
+
+  if (typeof persistPosition === "function") persistPosition();
+  if (typeof updateMobileChrome === "function") updateMobileChrome();
 }
 
 // ── Navigate to combos tab and highlight a row ───────────────

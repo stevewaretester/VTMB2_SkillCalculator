@@ -100,7 +100,6 @@ const state = {
   modFabienPhlegmatic: false,
   modHaven: false,
   modCorrosiveShield: false,
-  modBloodPotencyKill: false,
   modClanMeleeOverride: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
@@ -183,6 +182,9 @@ function getCurrentPos() {
   } else if (page === "fabien") {
     const fabSub = document.querySelector(".tab-bar--fabien .tab-bar__tab.active");
     if (fabSub) pos = `fabien.${fabSub.dataset.fabtab}`;
+  } else if (page === "ysabelle") {
+    const ysaSub = document.querySelector(".tab-bar--ysabelle .tab-bar__tab.active");
+    if (ysaSub && ysaSub.dataset.ysabellatab) pos = `ysabelle.${ysaSub.dataset.ysabellatab}`;
   }
   return pos;
 }
@@ -261,6 +263,18 @@ function applyPersistedPosition(pos) {
     }
   } else if (page === "benny" && typeof refreshBennyPage === "function") {
     refreshBennyPage();
+  } else if (page === "ysabelle") {
+    if (sub) {
+      const ysabellaTab = document.querySelector(`.tab-bar--ysabelle .tab-bar__tab[data-ysabellatab="${sub}"]`);
+      if (ysabellaTab) {
+        document.querySelectorAll(".tab-bar--ysabelle .tab-bar__tab[data-ysabellatab]").forEach(t => t.classList.remove("active"));
+        ysabellaTab.classList.add("active");
+        document.querySelectorAll(".ysabelle-subpage").forEach(p => p.classList.add("hidden"));
+        const ysabellaEl = document.getElementById(`ysabelle-subpage-${sub}`);
+        if (ysabellaEl) ysabellaEl.classList.remove("hidden");
+      }
+    }
+    if (typeof refreshYsabellaPage === "function") refreshYsabellaPage();
   }
 }
 
@@ -310,12 +324,12 @@ function makePersistedState() {
     mh: !!state.modHaven,
     mf: !!state.modFabienPhlegmatic,
     mcr: !!state.modCorrosiveShield,
-    mbp: !!state.modBloodPotencyKill,
     mcm: !!state.modClanMeleeOverride,
     cs: !!state.clanSelectorCollapsed,
     sp: state.selectedPerTier,
     a: abilityEntries,
     lc: !!bennyState.looseCannon,
+    yf: typeof ysabellaState !== "undefined" ? !!ysabellaState.flowerAndFlame : false,
     cx: state.customCursor !== false,
   };
 }
@@ -345,10 +359,10 @@ function makeStateParams(payload) {
   if (payload.mh) p.set('mh', '1');
   if (payload.mf) p.set('mf', '1');
   if (payload.mcr) p.set('mcr', '1');
-  if (payload.mbp) p.set('mbp', '1');
   if (payload.mcm) p.set('mcm', '1');
   if (payload.cs) p.set('cs', '1');
   if (payload.lc) p.set('lc', '1');
+  if (payload.yf) p.set('yf', '1');
   if (payload.cx === false) p.set('cx', '0');
   // Per-clan ability string: 6 digits in TIER_ORDER, 0=locked 1=awakened 2=unlocked
   for (const clanId of CLAN_ORDER) {
@@ -382,10 +396,10 @@ function decodeStateV2(params) {
     mh: params.get('mh') === '1',
     mf: params.get('mf') === '1',
     mcr: params.get('mcr') === '1',
-    mbp: params.get('mbp') === '1',
     mcm: params.get('mcm') === '1',
     cs: params.get('cs') === '1',
     lc: params.get('lc') === '1',
+    yf: params.get('yf') === '1',
     cx: params.get('cx') !== '0',
     sp: {},
     a,
@@ -420,7 +434,6 @@ function applyPersistedState(payload) {
   state.modHaven = !!payload.mh;
   state.modFabienPhlegmatic = !!payload.mf;
   state.modCorrosiveShield = !!payload.mcr;
-  state.modBloodPotencyKill = !!payload.mbp;
   state.modClanMeleeOverride = !!payload.mcm;
   state.clanSelectorCollapsed = !!payload.cs;
   state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
@@ -442,6 +455,9 @@ function applyPersistedState(payload) {
   if (typeof bennyState !== "undefined") {
     bennyState.looseCannon = !!payload.lc;
   }
+  if (typeof ysabellaState !== "undefined") {
+    ysabellaState.flowerAndFlame = !!payload.yf;
+  }
   if (typeof payload.cx !== "undefined") {
     state.customCursor = payload.cx !== false;
   }
@@ -452,7 +468,7 @@ function loadPersistedState() {
   const params = url.searchParams;
 
   // V2: human-readable params — detected by presence of 'sc' or any clan short code
-  const isV2 = params.has('sc') || params.has('cv') || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
+  const isV2 = params.has('sc') || params.has('cv') || params.has('lc') || params.has('yf') || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
   if (isV2) {
     const payload = decodeStateV2(params);
     applyPersistedState(payload);
@@ -659,7 +675,7 @@ function navigateToClanCombosFor(clanId) {
 
 // ── Tab Navigation ───────────────────────────────────────────
 function bindTabs() {
-  // Cross-page Map links (Fabien / Benny / Ysabelle "Map" tabs all jump to
+  // Cross-page Map links (Fabien / Benny / Ysabella "Map" tabs all jump to
   // Phyre → Map). Routed via shared class so this stays a single delegated
   // wiring rather than three near-identical handlers.
   document.querySelectorAll(".tab-bar__tab--map-cross").forEach(btn => {
@@ -672,7 +688,7 @@ function bindTabs() {
     });
   });
 
-  // Primary tabs (Phyre, Fabien, Benny, Ysabelle)
+  // Primary tabs (Phyre, Fabien, Benny, Ysabella)
   const primaryTabs = document.querySelectorAll(".tab-bar--primary .tab-bar__tab");
   primaryTabs.forEach(tab => {
     tab.addEventListener("click", () => {
@@ -697,6 +713,9 @@ function bindTabs() {
       }
       if (tab.dataset.tab === "benny" && typeof refreshBennyPage === "function") {
         refreshBennyPage();
+      }
+      if (tab.dataset.tab === "ysabelle" && typeof refreshYsabellaPage === "function") {
+        refreshYsabellaPage();
       }
       persistPosition();
     });
@@ -763,6 +782,21 @@ function bindTabs() {
       if (tab.dataset.bennytab === "unarmed" && typeof renderBennyUnarmedPage === "function") {
         renderBennyUnarmedPage();
       }
+      persistPosition();
+    });
+  });
+
+  // Ysabella sub-tabs
+  const ysabellaTabs = document.querySelectorAll(".tab-bar--ysabelle .tab-bar__tab[data-ysabellatab]");
+  ysabellaTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      _clearMobileContext();
+      ysabellaTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".ysabelle-subpage").forEach(p => p.classList.add("hidden"));
+      const target = document.getElementById(`ysabelle-subpage-${tab.dataset.ysabellatab}`);
+      if (target) target.classList.remove("hidden");
+      if (typeof refreshYsabellaPage === "function") refreshYsabellaPage();
       persistPosition();
     });
   });
@@ -1239,60 +1273,54 @@ function bindToggles() {
     state.focusedAbility = { type: "ability", clanId: "tremere", tier };
     renderGrid();
     renderDetailPanel();
+    persistPosition();
     persistState();
+    if (typeof updateMobileChrome === "function") updateMobileChrome();
+  }
+
+  function gotoPickupsItems() {
+    document.getElementById("mods-modal").classList.add("hidden");
+
+    document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+    const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+    if (phyreTab) phyreTab.classList.add("active");
+    document.getElementById("page-phyre").classList.remove("hidden");
+
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+    const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
+    if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
+    document.getElementById("subpage-pickups").classList.remove("hidden");
+
+    if (typeof renderPickupsPage === "function") renderPickupsPage();
+    if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("items");
+    persistPosition();
+    if (typeof updateMobileChrome === "function") updateMobileChrome();
   }
 
   const corrosiveToggle = document.getElementById("toggle-corrosive-shield");
+  const corrosiveEffects = document.getElementById("corrosive-shield-effects");
   const corrosiveGoto = document.getElementById("goto-corrosive-shield");
+  const corrosiveGotoRecall = document.getElementById("goto-corrosive-shield-recall");
   const corrosiveGotoItems = document.getElementById("goto-corrosive-shield-items");
+  const corrosiveGotoBloodCurse = document.getElementById("goto-corrosive-shield-blood-curse");
   if (corrosiveToggle) {
     corrosiveToggle.checked = state.modCorrosiveShield;
-    if (corrosiveGoto) corrosiveGoto.classList.toggle("hidden", !state.modCorrosiveShield);
-    if (corrosiveGotoItems) corrosiveGotoItems.classList.toggle("hidden", !state.modCorrosiveShield);
+    if (corrosiveEffects) corrosiveEffects.classList.toggle("hidden", !state.modCorrosiveShield);
     corrosiveToggle.addEventListener("change", (e) => {
       state.modCorrosiveShield = e.target.checked;
-      if (corrosiveGoto) corrosiveGoto.classList.toggle("hidden", !e.target.checked);
-      if (corrosiveGotoItems) corrosiveGotoItems.classList.toggle("hidden", !e.target.checked);
+      if (corrosiveEffects) corrosiveEffects.classList.toggle("hidden", !e.target.checked);
       renderDetailPanel();
       if (typeof renderPickupsPage === "function") renderPickupsPage();
       if (typeof renderTierList === "function") renderTierList();
+      if (typeof refreshCombosIfVisible === "function") refreshCombosIfVisible();
       persistState();
     });
     if (corrosiveGoto) corrosiveGoto.addEventListener("click", () => gotoTremereAbility("passive"));
-    if (corrosiveGotoItems) corrosiveGotoItems.addEventListener("click", () => {
-      document.getElementById("mods-modal").classList.add("hidden");
-
-      document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
-      const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
-      if (phyreTab) phyreTab.classList.add("active");
-      document.getElementById("page-phyre").classList.remove("hidden");
-
-      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
-      const pickupsSecondaryTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
-      if (pickupsSecondaryTab) pickupsSecondaryTab.classList.add("active");
-      document.getElementById("subpage-pickups").classList.remove("hidden");
-
-      if (typeof renderPickupsPage === "function") renderPickupsPage();
-      if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("items");
-      persistPosition();
-      if (typeof updateMobileChrome === "function") updateMobileChrome();
-    });
-  }
-
-  const bpKillToggle = document.getElementById("toggle-blood-potency-kill");
-  const bpKillGoto = document.getElementById("goto-blood-potency-kill");
-  if (bpKillToggle) {
-    bpKillToggle.checked = state.modBloodPotencyKill;
-    bpKillGoto.classList.toggle("hidden", !state.modBloodPotencyKill);
-    bpKillToggle.addEventListener("change", (e) => {
-      state.modBloodPotencyKill = e.target.checked;
-      bpKillGoto.classList.toggle("hidden", !e.target.checked);
-      renderDetailPanel();
-      persistState();
-    });
-    bpKillGoto.addEventListener("click", () => gotoTremereAbility("perk"));
+    if (corrosiveGotoRecall) corrosiveGotoRecall.addEventListener("click", () => gotoTremereAbility("relocate"));
+    if (corrosiveGotoItems) corrosiveGotoItems.addEventListener("click", gotoPickupsItems);
+    if (corrosiveGotoBloodCurse) corrosiveGotoBloodCurse.addEventListener("click", () => gotoTremereAbility("strike"));
   }
 
   const havenToggle = document.getElementById("toggle-haven");
@@ -1878,6 +1906,41 @@ function positionTooltip(e) {
 }
 
 // ── Ability lozenges helpers ──────────────────────────────────
+function linkifyDetailText(text) {
+  if (typeof linkifyAbilityText === "function") return linkifyAbilityText(text);
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "<br>");
+}
+
+function bindInlineDetailLinks(root) {
+  if (!root) return;
+
+  root.querySelectorAll(".ability-inline-link[data-clan][data-tier]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (typeof navigateToAbility === "function") navigateToAbility(btn.dataset.clan, btn.dataset.tier);
+    });
+  });
+
+  root.querySelectorAll("[data-special-detail]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (typeof navigateToSpecialDetail === "function") navigateToSpecialDetail(btn.dataset.specialDetail);
+    });
+  });
+
+  root.querySelectorAll(".detail-panel__related-lozenge[data-link-clan][data-link-tier]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (typeof navigateToAbility === "function") navigateToAbility(btn.dataset.linkClan, btn.dataset.linkTier);
+    });
+  });
+}
+
 function buildAbilityLozengesHtml(ability) {
   let html = '';
   if (ability.duration) {
@@ -1890,14 +1953,14 @@ function buildAbilityLozengesHtml(ability) {
     html += `<details class="detail-panel__tags">`;
     html += `<summary class="detail-panel__tags-summary"><span class="masq-summary__arrow">▶</span><img class="detail-panel__tags-icon" src="${UI.tagsIcon}" alt="Tags">Tags</summary>`;
     html += `<ul class="detail-panel__tags-list">`;
-    for (const t of ability.tags) html += `<li>${t}</li>`;
+    for (const t of ability.tags) html += `<li>${linkifyDetailText(t)}</li>`;
     html += `</ul></details>`;
   }
   if (ability.notes && ability.notes.length) {
     html += `<details class="detail-panel__notes">`;
     html += `<summary class="detail-panel__notes-summary"><span class="masq-summary__arrow">▶</span><img class="detail-panel__notes-icon" src="${UI.notesIcon}" alt="Notes">Notes</summary>`;
     html += `<ul class="detail-panel__notes-list">`;
-    for (const n of ability.notes) html += `<li>${n}</li>`;
+    for (const n of ability.notes) html += `<li>${linkifyDetailText(n)}</li>`;
     html += `</ul></details>`;
   }
   return html;
@@ -2345,6 +2408,10 @@ function applyFocusedSelection() {
     return;
   }
 
+  if (state.focusedAbility.type === 'special') {
+    return;
+  }
+
   const key = `${state.focusedAbility.clanId}:${state.focusedAbility.tier}`;
   const el = document.querySelector(`.ability-cell[data-key="${key}"]`);
   if (el) el.classList.add('selected-ability');
@@ -2605,6 +2672,46 @@ function renderClanMeleeOverrideDetailPanel(panel) {
   }
 }
 
+function renderSpecialDetailPanel(panel) {
+  const focused = state.focusedAbility || {};
+  const detail = (typeof SPECIAL_DETAILS !== "undefined" && SPECIAL_DETAILS[focused.detailId]) || null;
+  if (!detail) {
+    panel.innerHTML = '<div class="empty-state">Select an ability to view details</div>';
+    return;
+  }
+
+  const related = detail.relatedAbility || null;
+  let html = "";
+  html += `<div class="detail-panel__tier">${detail.category || "Detail"}</div>`;
+  html += `<div class="detail-panel__name-row">`;
+  if (detail.icon) {
+    html += `<img class="detail-panel__ability-icon" src="${detail.icon}" alt="${detail.name}">`;
+  }
+  html += `<div class="detail-panel__name">${detail.name}</div>`;
+  html += `</div>`;
+
+  if (detail.tier) {
+    html += `<span class="detail-panel__tier-rank tier-rank--${detail.tier}">Tier: ${tierRankLabel(detail.tier)}</span>`;
+  }
+
+  if (detail.description) {
+    html += `<div class="detail-panel__desc">${linkifyDetailText(detail.description)}</div>`;
+  }
+
+  if (related && related.clan && related.tier) {
+    const ability = ABILITIES[related.clan] && ABILITIES[related.clan][related.tier];
+    const icon = ability && ability.icon ? ability.icon : detail.icon;
+    const label = related.label || (ability && ability.name) || "Related Ability";
+    html += `<button class="detail-panel__related-lozenge" type="button" data-link-clan="${related.clan}" data-link-tier="${related.tier}">
+      ${icon ? `<img src="${icon}" alt="">` : ""}
+      <span>${label}</span>
+    </button>`;
+  }
+
+  panel.innerHTML = html;
+  bindInlineDetailLinks(panel);
+}
+
 function renderDetailPanel(targetEl = null) {
   const panel = targetEl || document.getElementById("detail-panel");
 
@@ -2632,6 +2739,11 @@ function renderDetailPanel(targetEl = null) {
 
   if (state.focusedAbility.type === 'clanMelee') {
     renderClanMeleeOverrideDetailPanel(panel);
+    return;
+  }
+
+  if (state.focusedAbility.type === 'special') {
+    renderSpecialDetailPanel(panel);
     return;
   }
 
@@ -2680,7 +2792,7 @@ function renderDetailPanel(targetEl = null) {
 
   // Description
   if (ability.description) {
-    html += `<div class="detail-panel__desc">${ability.description}</div>`;
+    html += `<div class="detail-panel__desc">${linkifyDetailText(ability.description)}</div>`;
   }
 
   // Mod overlay notes — handwritten green line, same style as the Fabien
@@ -2692,10 +2804,16 @@ function renderDetailPanel(targetEl = null) {
   if (clanId === "tremere" && tier === "relocate" && state.modCorrosiveShield) {
     html += `<div class="fabien-mod-line">Telefrag restores 25 shield</div>`;
   }
-  if (clanId === "tremere" && tier === "perk" && state.modBloodPotencyKill) {
-    html += `<div class="fabien-mod-line">Kills grant a random blood pip to uncharged abilities.</div>`;
+  if (clanId === "tremere" && tier === "strike" && state.modCorrosiveShield) {
+    html += `<div class="fabien-mod-line">Feed on cursed target to spawn elixir dependent on their resonance:
+      <ul>
+        <li>Mending by default</li>
+        <li>Blood from Sanguine</li>
+        <li>Potence from Choleric</li>
+        <li>Fortitude from Melancholic</li>
+      </ul>
+    </div>`;
   }
-
   // Discipline — highlight if affinity match
   if (ability.discipline) {
     const disc = DISCIPLINES[ability.discipline];
@@ -2708,6 +2826,14 @@ function renderDetailPanel(targetEl = null) {
       <span>${disc.name}</span>
       ${badge}
     </div>`;
+  }
+
+  if (clanId === "tremere" && tier === "affect" && typeof SPECIAL_DETAILS !== "undefined" && SPECIAL_DETAILS.boilingBlood) {
+    const detail = SPECIAL_DETAILS.boilingBlood;
+    html += `<button class="detail-panel__effect-link" type="button" data-special-detail="${detail.id}">
+      <img src="${detail.icon}" alt="">
+      <span>BOILING BLOOD</span>
+    </button>`;
   }
 
   // Trainer badge (out-of-clan non-passive non-perk abilities)
@@ -2907,23 +3033,26 @@ function renderDetailPanel(targetEl = null) {
   // Combos (below outfit)
   const comboIds = (typeof ABILITY_TO_COMBOS !== "undefined" && ABILITY_TO_COMBOS[ability.name]) || [];
   if (comboIds.length > 0) {
-    const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id));
-    html += `<details class="detail-panel__res-effect detail-panel__combos">
-      <summary>
-        <img src="${COMBO_ICON}" alt="Combos">
-        <span>Combos (${matchedCombos.length})</span>
-      </summary>
-      <ul class="detail-panel__combos-list">`;
-    for (const c of matchedCombos) {
-      html += `<li>
-        <button class="detail-panel__combo-link" data-combo-id="${c.id}">
-          <span class="detail-panel__combo-name">${c.name}</span>
-          <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
-          <span class="detail-panel__combo-arrow">→</span>
-        </button>
-      </li>`;
+    const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id) && (typeof comboIsVisible !== "function" || comboIsVisible(c)));
+    if (matchedCombos.length > 0) {
+      html += `<details class="detail-panel__res-effect detail-panel__combos">
+        <summary>
+          <img src="${COMBO_ICON}" alt="Combos">
+          <span>Combos (${matchedCombos.length})</span>
+        </summary>
+        <ul class="detail-panel__combos-list">`;
+      for (const c of matchedCombos) {
+        const modClass = c.requiresMod ? " detail-panel__combo-link--mod" : "";
+        html += `<li>
+          <button class="detail-panel__combo-link${modClass}" data-combo-id="${c.id}">
+            <span class="detail-panel__combo-name">${c.name}</span>
+            <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
+            <span class="detail-panel__combo-arrow">→</span>
+          </button>
+        </li>`;
+      }
+      html += `</ul></details>`;
     }
-    html += `</ul></details>`;
   }
 
   panel.innerHTML = html;
@@ -3025,6 +3154,8 @@ function renderDetailPanel(targetEl = null) {
       if (typeof navigateToCombos === "function") navigateToCombos(btn.dataset.comboId);
     });
   });
+
+  bindInlineDetailLinks(panel);
 }
 
 function openImageLightbox(src, alt) {
@@ -3167,7 +3298,7 @@ function renderCompletionTalentRows(grid) {
   bhCell.innerHTML = `
     <div class="comp-talent__icon-wrap">
       <img class="ability-cell__btn-bg" src="assets/N_Textures/AbilityTree/Assets/T_AbilityTree_ButtonBg_Equipped.png" alt="">
-      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt=""><img class="comp-talent__container-bg" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_COMPLETED_SELECTED.png" alt="">` : ''}
+      ${allCompleted ? `<img class="comp-talent__container-bg" src="${CCT_COMPLETED_CONTAINER}" alt=""><img class="comp-talent__container-bg" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_COMPLETED_Selected.png" alt="">` : ''}
       <img class="comp-talent__icon" src="${BLOOD_HEAL_TALENT.icon}" alt="${bhName}">
     </div>
     ${buildCCTPipsMarkup(BLOOD_HEAL_TALENT.bloodPips, true)}
@@ -3204,7 +3335,7 @@ function renderCompletionTalentRows(grid) {
     cell.dataset.cctKey = clanId;
     cell.innerHTML = `
       <div class="comp-talent__icon-wrap">
-        ${isCompleted ? `<img class="comp-talent__container-bg comp-talent__container-bg--back" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Background_COMPLETED_SELECTED.png" alt="">` : ''}
+        ${isCompleted ? `<img class="comp-talent__container-bg comp-talent__container-bg--back" src="assets/N_Textures/ClanSelection/T_UI_ClanIconContainer_Background_COMPLETED_Selected.png" alt="">` : ''}
         ${isCompleted ? `<img class="comp-talent__container-bg" src="${CLAN_PATTERN_BG[clanId]}" alt="">` : ''}
         <img class="comp-talent__icon" src="${talent.icon}" alt="${talent.name}"${talent.iconRotate ? ` style="transform:rotate(${talent.iconRotate}deg)"` : ''}>
       </div>
@@ -3261,10 +3392,56 @@ function navigateToAbility(clanId, tier) {
   if (skilltreeTab) skilltreeTab.classList.add("active");
   document.getElementById("subpage-skilltree").classList.remove("hidden");
   if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
-  state.focusedAbility = { clanId, tier };
+  state.focusedAbility = { type: "ability", clanId, tier };
   renderGrid();
   updateCosts();
-  renderDetailPanel();
+
+  if (document.body.classList.contains("is-mobile")) {
+    const sheetBody = document.getElementById("mobile-sheet-body");
+    if (sheetBody) renderDetailPanel(sheetBody);
+    const actionsHtml = buildMobileAbilityActions(clanId, tier);
+    const ability = ABILITIES[clanId] && ABILITIES[clanId][tier];
+    openMobileSheet(undefined, actionsHtml, ability ? ability.name : "");
+  } else {
+    renderDetailPanel();
+  }
+
+  if (typeof updateMobileChrome === "function") updateMobileChrome();
+}
+
+function navigateToSpecialDetail(detailId) {
+  if (!detailId || typeof SPECIAL_DETAILS === "undefined" || !SPECIAL_DETAILS[detailId]) return;
+  const detail = SPECIAL_DETAILS[detailId];
+
+  document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab) phyreTab.classList.add("active");
+  const phyrePage = document.getElementById("page-phyre");
+  if (phyrePage) phyrePage.classList.remove("hidden");
+
+  document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+  const skilltreeTab = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab='skilltree']");
+  if (skilltreeTab) skilltreeTab.classList.add("active");
+  const skilltreePage = document.getElementById("subpage-skilltree");
+  if (skilltreePage) skilltreePage.classList.remove("hidden");
+  if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
+
+  state.focusedAbility = { type: "special", detailId };
+  if (phyreInnateState) phyreInnateState.focused = null;
+  renderGrid();
+  updateCosts();
+
+  if (document.body.classList.contains("is-mobile")) {
+    const sheetBody = document.getElementById("mobile-sheet-body");
+    if (sheetBody) renderDetailPanel(sheetBody);
+    openMobileSheet(undefined, "", detail.name);
+  } else {
+    renderDetailPanel();
+  }
+
+  if (typeof persistPosition === "function") persistPosition();
   if (typeof updateMobileChrome === "function") updateMobileChrome();
 }
 
@@ -3828,6 +4005,59 @@ function _openBennyPickerSheet() {
   }
 }
 
+function renderMobileYsabellaFeatureStrip() {
+  const strip = document.getElementById('mobile-ysabella-feature-strip');
+  if (!strip) return;
+  const activePrimary = document.querySelector('.tab-bar--primary .tab-bar__tab.active');
+  if (!activePrimary || activePrimary.dataset.tab !== 'ysabelle') { strip.innerHTML = ''; return; }
+
+  const hasActive = typeof ysabellaState !== 'undefined' && ysabellaState.sidebarFocused !== null;
+  strip.innerHTML = '';
+  const btn = document.createElement('button');
+  btn.className = 'mobile-innate-toggle' + (hasActive ? ' is-active' : '');
+  btn.title = 'New Features';
+  btn.innerHTML = `<img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" alt="New Features">`;
+
+  btn.addEventListener('click', _openYsabellaPickerSheet);
+
+  strip.appendChild(btn);
+}
+
+function _openYsabellaPickerSheet() {
+  if (typeof YSABELLA_SIDEBAR_ITEMS === 'undefined' || typeof ysabellaState === 'undefined') return;
+  let html = '<div class="mobile-innate-picker">';
+  YSABELLA_SIDEBAR_ITEMS.forEach(item => {
+    const isSelected = ysabellaState.sidebarFocused === item.id;
+    html += `<button class="mobile-innate-picker__item${isSelected ? ' is-active' : ''}" data-ysabella-item="${item.id}">`;
+    html += `<img src="${item.icon || 'assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png'}" alt="">`;
+    html += `<span>${item.title}</span></button>`;
+  });
+  html += '</div>';
+  openMobileSheet(html, '', 'New Features');
+
+  const sheetBody = document.getElementById('mobile-sheet-body');
+  if (sheetBody) {
+    sheetBody.querySelectorAll('.mobile-innate-picker__item').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.ysabellaItem;
+        const isSame = ysabellaState.sidebarFocused === id;
+        ysabellaState.sidebarFocused = isSame ? null : id;
+        ysabellaState.focused = null;
+        renderYsabellaSidebarItems();
+        renderMobileYsabellaFeatureStrip();
+        if (ysabellaState.sidebarFocused) {
+          renderYsabellaDetail(sheetBody);
+          const item = YSABELLA_SIDEBAR_ITEMS.find(i => i.id === ysabellaState.sidebarFocused);
+          setMobileSheetTitle(item ? item.title : '');
+          setMobileSheetBack(_openYsabellaPickerSheet);
+        } else {
+          closeMobileSheet();
+        }
+      });
+    });
+  }
+}
+
 function renderMobileFabienFeatureStrip() {
   const strip = document.getElementById('mobile-fabien-feature-strip');
   if (!strip) return;
@@ -3894,6 +4124,8 @@ function buildMobileSubtabBar(activeTab) {
     origTabs = document.querySelectorAll('.tab-bar--fabien .tab-bar__tab');
   } else if (activeTab === 'benny') {
     origTabs = document.querySelectorAll('.tab-bar--benny .tab-bar__tab');
+  } else if (activeTab === 'ysabelle') {
+    origTabs = document.querySelectorAll('.tab-bar--ysabelle .tab-bar__tab');
   }
   if (!origTabs || origTabs.length === 0) return;
 
@@ -3962,6 +4194,7 @@ function updateMobileChrome() {
   // Update innate strip
   renderMobileInnateStrip();
   renderMobileBennyFeatureStrip();
+  renderMobileYsabellaFeatureStrip();
   renderMobileFabienFeatureStrip();
 
   // Show/hide stats strip based on active subpage
@@ -4047,8 +4280,10 @@ function initMobileShell() {
       try { if (typeof renderGrid        === 'function') renderGrid();        } catch(_) {}
       try { if (typeof renderClanSelector=== 'function') renderClanSelector();} catch(_) {}
       try { if (typeof renderAffinityBar === 'function') renderAffinityBar(); } catch(_) {}
+      try { if (typeof refreshYsabellaPage === 'function') refreshYsabellaPage(); } catch(_) {}
       try { if (typeof renderMobileInnateStrip        === 'function') renderMobileInnateStrip();        } catch(_) {}
       try { if (typeof renderMobileBennyFeatureStrip  === 'function') renderMobileBennyFeatureStrip();  } catch(_) {}
+      try { if (typeof renderMobileYsabellaFeatureStrip === 'function') renderMobileYsabellaFeatureStrip(); } catch(_) {}
       try { if (typeof renderMobileFabienFeatureStrip === 'function') renderMobileFabienFeatureStrip(); } catch(_) {}
     }
   }
@@ -4135,7 +4370,7 @@ function initMobileShell() {
   document.querySelectorAll('.tab-bar--primary .tab-bar__tab').forEach(tab => {
     tab.addEventListener('click', () => requestAnimationFrame(updateMobileChrome));
   });
-  document.querySelectorAll('.tab-bar--secondary .tab-bar__tab, .tab-bar--fabien .tab-bar__tab, .tab-bar--benny .tab-bar__tab, .tab-bar--combos .tab-bar__tab, .tab-bar--pickups .tab-bar__tab').forEach(tab => {
+  document.querySelectorAll('.tab-bar--secondary .tab-bar__tab, .tab-bar--fabien .tab-bar__tab, .tab-bar--benny .tab-bar__tab, .tab-bar--ysabelle .tab-bar__tab, .tab-bar--combos .tab-bar__tab, .tab-bar--pickups .tab-bar__tab').forEach(tab => {
     tab.addEventListener('click', () => requestAnimationFrame(updateMobileChrome));
   });
 

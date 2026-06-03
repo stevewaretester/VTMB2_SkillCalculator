@@ -5,7 +5,7 @@
 // {
 //   id:       unique string key
 //   name:     display name
-//   filter:   one of: clan | affinity | outfits | melee | passive | strike | relocate | affect | mastery | perk | completion
+//   filter:   one of: clan | affinity | outfits | melee | elixir | passive | strike | relocate | affect | mastery | perk | completion
 //   clan:     clan key (brujah|tremere|banuHaqim|ventrue|lasombra|toreador) or null for cross-clan
 //   affinity: discipline key for affinity rows (potence|celerity|presence|bloodSorcery|dominate|obfuscate|oblivion)
 //   icon:     path to icon image — for clan/outfits/melee this will be the clan logo; others use ability icon
@@ -50,7 +50,7 @@ const TIERLIST_ITEMS = [
   // ── Masteries ─────────────────────────────────────────────
   { id: "brujah-mastery",   name: "Earthshock",        filter: "mastery",  clan: "brujah",    icon: `${ICONS}/T_UI_Earthshock.png`,               tier: "c", subtitle: "Brujah · Mastery",      descr: "Big AOE that can eliminate multiple targets and damage some others, but that doesn't actually have much utility in the game because it's enormously expensive at 5 pips, and you just killed everyone you wanted to feed from. Also not great against bosses." },
   { id: "tremere-mastery",  name: "Blood Salvo",       filter: "mastery",  clan: "tremere",   icon: `${ICONS}/T_UI_BloodSalvo.png`,               tier: "s", subtitle: "Tremere · Mastery",     descr: "This is essentially four Strikes masquerading as a Mastery, but that's fine, because it's very forgiving as you can dismiss the blades to recover blood and still feed while they're out. It's great for killing one target to get access to their weapon, bursting down a heavy to make them feedable, and it's strong on bosses too." },
-  { id: "banu-mastery",     name: "Unseen Aura",       filter: "mastery",  clan: "banuHaqim", icon: `${ICONS}/T_UI_UnseenAura.png`,               tier: "b", subtitle: "Banu Haqim · Mastery",  descr: "A very long-duration buff that can help keep you safe while enabling multiple feeds and assassinations. The main problem is that feeding while it's active doesn't regenerate the pips, which lowers its potency." },
+  { id: "banu-mastery",     name: "Unseen Aura",       filter: "mastery",  clan: "banuHaqim", icon: `${ICONS}/T_UI_UnseenAura.png`,               tier: "s", subtitle: "Banu Haqim · Mastery",  descr: "A very long-duration buff that can help keep you safe while enabling multiple feeds and assassinations. The main problem is that feeding while it's active doesn't regenerate the pips, which lowers its potency. However since Spring we can end it early, expanding its flexibility and letting it be used for cheaper shorter activities." },
   { id: "ventrue-mastery",  name: "Mass Manipulation", filter: "mastery",  clan: "ventrue",   icon: `${ICONS}/T_UI_MassManipulation.png`,         tier: "a", subtitle: "Ventrue · Mastery",     descr: "Ranked highly purely because of versatility. By itself it doesn't achieve much, but when comboed with any Ventrue ability or the various Affects you get a lot of power, from setting groups against each other to triggering mass disarms or immediately terminating an entire group." },
   { id: "lasombra-mastery", name: "Enter Oblivion",    filter: "mastery",  clan: "lasombra",  icon: `${ICONS}/T_UI_EnterOblivion.png`,            tier: "a", subtitle: "Lasombra · Mastery",    descr: "Allows you to isolate individuals or groups, also counts as an Affect for Melancholic resonance so you can feed to recover that, which lets you easily recover blood pips in the open world so long as you can find an individual. Also works a bit like Unseen Aura for stealth purposes, and obviously forms one of the strongest combos with Arms of Ahriman." },
   { id: "toreador-mastery", name: "Blurred Momentum",  filter: "mastery",  clan: "toreador",  icon: `${ICONS}/T_UI_Icon_BlurredMovement.png`,     tier: "b", subtitle: "Toreador · Mastery",    descr: "A solid defensive option that maybe doesn't last quite long enough. This can be fun to keep as an emergency button or when going in for risky feeds, though you can't recover its blood pips when feeding on targets." },
@@ -79,6 +79,12 @@ const TIERLIST_ITEMS = [
   { id: "affinity-oblivion",      name: "Oblivion Affinity",      filter: "affinity", affinity: "oblivion",      clan: null, icon: null, tier: "a", subtitle: "Affinity", descr: "A fantastic exclusive affinity that even within its three abilities gives control, mobility and elimination potential." },
   { id: "affinity-potence",       name: "Potence Affinity",       filter: "affinity", affinity: "potence",       clan: null, icon: null, tier: "c", subtitle: "Affinity", descr: "One ability and while it's ok, it's often outclassed in its own slot - it's a shame Potence doesn't have more to offer." },
   { id: "affinity-obfuscate",     name: "Obfuscate Affinity",     filter: "affinity", affinity: "obfuscate",     clan: null, icon: null, tier: "c", subtitle: "Affinity", descr: "An exclusive affinity with just two abilities, and one is arguably the worst in the game. Unseen Aura, however, is very forgiving and opens up a lot of potential." },
+
+  // ── Elixirs ────────────────────────────────────────────────
+  { id: "elixir-mending",   name: "Mending Elixir",   filter: "elixir", clan: null, icon: "assets/ElixirIcons/elixir_mending.svg",   tier: "a", elixir: "mending",   subtitle: "Elixir", descr: "50 HP is the equivalent of two feeds, or one feed with the Ventrue perk. These can stop you dying if you chug them at 0 HP during the feed animation, making them an ideal panic button. Plentiful too." },
+  { id: "elixir-blood",     name: "Blood Elixir",     filter: "elixir", clan: null, icon: "assets/ElixirIcons/elixir_blood.svg",     tier: "s", elixir: "blood",     subtitle: "Elixir", descr: "3 blood pips is enough to cover all abilities bar masteries, and there are some combos that can ONLY be pulled off with a blood potion. Your abilities are what make you an elder, so having more access to them without feeding is ideal." },
+  { id: "elixir-potence",   name: "Potence Elixir",   filter: "elixir", clan: null, icon: "assets/ElixirIcons/elixir_potence.svg",   tier: "b", elixir: "potence",   subtitle: "Elixir", descr: "Short lived, though longer than Brujah's passive, this lets you really lay the hurt on one particular enemy as it can functionally stunlock them. Save it for bosses and annoying heavies." },
+  { id: "elixir-fortitude", name: "Fortitude Elixir", filter: "elixir", clan: null, icon: "assets/ElixirIcons/elixir_fortitude.svg", tier: "c", elixir: "fortitude", subtitle: "Elixir", descr: "Slightly longer lasting than Ventrue's passive, but I always find myself not knowing when you activate this one." },
 
   // ── Outfits (uses signature outfit icon) ──────────────────
   { id: "outfits-brujah",   name: "Brujah Outfits",    filter: "outfits", clan: "brujah",    icon: `${SILO}/T_UI_Thumb_Phyre_Brujah_04.png`,      tier: null, subtitle: "The Brawler · Outfits",  descr: "3 strong outfits and one grunge means they can cover every scenario, but they'll need to swap outfits. All Choleric targets are scared of strong after all." },
@@ -130,13 +136,43 @@ function _applyTierlistModOverrides(item) {
   if (item.id === 'tremere-passive' && typeof state !== 'undefined' && state.modCorrosiveShield) {
     return Object.assign({}, item, {
       tier: 'a',
-      modNote: 'With Corrosive Shield and Improved Alchemy active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
+      modNote: 'With Corrosive Shield and Alchemic Sorcery active: Gaining shield is very useful to stockpile going into fights, and gives you some small infight-sustain.',
     });
   }
   if (item.id === 'tremere-relocate' && typeof state !== 'undefined' && state.modCorrosiveShield) {
     return Object.assign({}, item, {
       tier: 'a',
       modNote: 'the ability to gain a lump of shield adds "defence" to the "utility" and "offence" that it presently has, making it attractive to all clans and a consistent swap when you have the blood pips',
+    });
+  }
+  if (item.id === 'tremere-strike' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 's',
+      modNote: 'With the ability to produce elixirs Blood Curse now has a unique utility that lets you give up some opportunity now for some stored power you can take advantage of later.',
+    });
+  }
+  if (item.id === 'elixir-mending' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 'a',
+      modNote: 'With Corrosive Shield and Alchemic Sorcery active: Does what it always did but can also end Boiling Blood early, giving it some small bonus.',
+    });
+  }
+  if (item.id === 'elixir-blood' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 's-plus',
+      modNote: 'With Corrosive Shield and Alchemic Sorcery active: Having another method of activating your passive beyond feeding and killing with Spark of Rage gives a lot of flexibility. It is more useful for Ventrue, Lasombra, and Banu Haqim, but even Tremere can get some use thanks to the shield generation.',
+    });
+  }
+  if (item.id === 'elixir-fortitude' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 's',
+      modNote: 'With Corrosive Shield and Alchemic Sorcery active: The shield turns into an ideal panic button when you are taking a lot of hits, as your own health bar is basically untouchable for the duration of the buff.',
+    });
+  }
+  if (item.id === 'elixir-potence' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 's',
+      modNote: 'With Corrosive Shield and Alchemic Sorcery active: Getting a solid, reliable, range-extending weapon is a true boon for Potence and transforms it from "hurt one enemy hard" to "turn the tide of battle".',
     });
   }
   return item;
@@ -176,20 +212,53 @@ function linkifyAbilityText(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-  // Build sorted name list (longest first to avoid partial matches)
-  const names = typeof ABILITY_LOCATION !== 'undefined'
-    ? Object.keys(ABILITY_LOCATION).sort((a, b) => b.length - a.length)
-    : [];
-  if (!names.length) return escaped.replace(/\n/g, '<br>');
+  const abilityNames = [];
 
-  const pattern = names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const re = new RegExp(`\\b(${pattern})\\b`, 'g');
+  if (typeof ABILITY_LOCATION !== 'undefined') {
+    Object.keys(ABILITY_LOCATION).forEach(name => {
+      abilityNames.push(name);
+    });
+  }
 
-  const linked = escaped.replace(re, (match) => {
-    const loc = ABILITY_LOCATION[match];
-    if (!loc) return match;
-    return `<button class="ability-inline-link" data-clan="${loc.clan}" data-tier="${loc.tier}">${match}</button>`;
-  });
+  let linked = escaped;
+
+  if (abilityNames.length) {
+    const abilityPattern = abilityNames
+      .sort((a, b) => b.length - a.length)
+      .map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    const abilityRe = new RegExp(`\\b(${abilityPattern})\\b`, 'g');
+    linked = linked.replace(abilityRe, (match) => {
+      const loc = ABILITY_LOCATION[match];
+      if (!loc) return match;
+      return `<button class="ability-inline-link" type="button" data-clan="${loc.clan}" data-tier="${loc.tier}">${match}</button>`;
+    });
+  }
+
+  const detailLookup = {};
+  const detailNames = [];
+  if (typeof SPECIAL_DETAILS !== 'undefined') {
+    Object.values(SPECIAL_DETAILS).forEach(detail => {
+      const aliases = [detail.name].concat(detail.aliases || []);
+      aliases.forEach(alias => {
+        detailLookup[alias.toLowerCase()] = detail.id;
+        detailNames.push(alias);
+      });
+    });
+  }
+
+  if (detailNames.length) {
+    const detailPattern = detailNames
+      .sort((a, b) => b.length - a.length)
+      .map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    const detailRe = new RegExp(`\\b(${detailPattern})\\b`, 'gi');
+    linked = linked.replace(detailRe, (match) => {
+      const specialId = detailLookup[match.toLowerCase()];
+      if (!specialId) return match;
+      return `<button class="ability-inline-link special-detail-inline-link" type="button" data-special-detail="${specialId}">${match}</button>`;
+    });
+  }
 
   return linked.replace(/\n/g, '<br>');
 }
@@ -222,9 +291,13 @@ function _ensureTierPopover() {
   _tierlistPopover.querySelector('.tierlist-popover__close')
     .addEventListener('click', _closeTierPopover);
   _tierlistPopover.addEventListener('click', (e) => {
-    const btn = e.target.closest('.ability-inline-link');
+    const btn = e.target.closest('.ability-inline-link, .special-detail-inline-link');
     if (!btn) return;
     _closeTierPopover();
+    if (btn.dataset.specialDetail && typeof navigateToSpecialDetail === 'function') {
+      navigateToSpecialDetail(btn.dataset.specialDetail);
+      return;
+    }
     if (typeof navigateToAbility === 'function') navigateToAbility(btn.dataset.clan, btn.dataset.tier);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') _closeTierPopover(); });
@@ -299,7 +372,7 @@ function _openTierlistPopover(item, anchorEl, extraLinks) {
 
   // Accent colour derived from filter
   const ACCENT_COLOURS = {
-    clan: '#c9a84c', affinity: '#5fa8a0', outfits: '#1a9a8a', melee: '#c04030',
+    clan: '#c9a84c', affinity: '#5fa8a0', outfits: '#1a9a8a', melee: '#c04030', elixir: '#2f9fb8',
     passive: '#4a7aaa', strike: '#d08030', relocate: '#40a8cc',
     affect: '#7040b0', mastery: '#8a2040', perk: '#4a8a40',
     completion: '#b06080',
@@ -329,6 +402,17 @@ function _openTierlistPopover(item, anchorEl, extraLinks) {
     btn.addEventListener('click', () => {
       _closeTierPopover();
       if (typeof navigateToClanCombosFor === 'function') navigateToClanCombosFor(item.clan);
+    });
+    linksEl.appendChild(btn);
+  }
+
+  if (item.filter === 'elixir' && item.elixir) {
+    const btn = document.createElement('button');
+    btn.className = 'tierlist-popover__link';
+    btn.textContent = 'View in Pickups \u2192';
+    btn.addEventListener('click', () => {
+      _closeTierPopover();
+      if (typeof navigateToPickupElixir === 'function') navigateToPickupElixir(item.elixir);
     });
     linksEl.appendChild(btn);
   }
@@ -480,7 +564,7 @@ function renderTierList() {
   const useClanIcon = (f) => f === 'clan' || f === 'melee';
 
   // Order within a tier row: clan first, then everything else
-  const FILTER_ORDER = ['clan', 'affinity', 'melee', 'passive', 'strike', 'relocate', 'affect', 'mastery', 'perk', 'completion', 'outfits'];
+  const FILTER_ORDER = ['clan', 'affinity', 'melee', 'elixir', 'passive', 'strike', 'relocate', 'affect', 'mastery', 'perk', 'completion', 'outfits'];
   const _filterRank = (f) => {
     const i = FILTER_ORDER.indexOf(f);
     return i === -1 ? 999 : i;

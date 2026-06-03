@@ -66,6 +66,8 @@ function openOutfitMobileSheet() {
   if (focused) {
     if (focused.clanId === 'benny' && typeof BENNY_OUTFIT !== 'undefined') {
       sheetTitle = BENNY_OUTFIT.name || '';
+    } else if (focused.clanId === 'ysabella' && typeof YSABELLA_OUTFIT !== 'undefined') {
+      sheetTitle = YSABELLA_OUTFIT.name || '';
     } else if (OUTFITS[focused.clanId] && OUTFITS[focused.clanId][focused.index]) {
       sheetTitle = OUTFITS[focused.clanId][focused.index].name || '';
     }
@@ -229,8 +231,51 @@ function renderOutfitGrid() {
   });
   grid.appendChild(bennyCell);
 
-  // Empty cells for the remaining 3 tier columns
-  for (let i = 1; i < tierLabels.length; i++) {
+  // ── Ysabella (The Flower and the Flame DLC), same DLC row ──
+  const isYsabellaFocused = outfitState.focusedOutfit &&
+    outfitState.focusedOutfit.clanId === "ysabella" &&
+    outfitState.focusedOutfit.index === 0;
+  const isYsabellaUnlocked = typeof ysabellaState !== "undefined" && ysabellaState.flowerAndFlame;
+  const ysabellaCell = document.createElement("div");
+  ysabellaCell.className = "outfit-cell" +
+    (isYsabellaUnlocked ? " unlocked" : " locked") +
+    (isYsabellaFocused ? " focused" : "");
+  if (isYsabellaUnlocked) {
+    ysabellaCell.innerHTML = `
+    <img class="outfit-cell__lock" src="${UI.blockedPadlock}" alt="Unlocked placeholder">
+    <img class="outfit-cell__badge" src="${UI.ysabellaLogo}" alt="The Flower and the Flame DLC">
+    <div class="outfit-cell__name">${YSABELLA_OUTFIT.name}</div>
+    <div class="outfit-cell__type outfit-type--${YSABELLA_OUTFIT.type}">${OUTFIT_TYPES[YSABELLA_OUTFIT.type].label}</div>`;
+  } else {
+    ysabellaCell.innerHTML = `
+    <img class="outfit-cell__lock" src="${UI.blockedPadlock}" alt="Locked">
+    <img class="outfit-cell__badge" src="${UI.ysabellaLogo}" alt="The Flower and the Flame DLC">
+    <div class="outfit-cell__name">${YSABELLA_OUTFIT.name}</div>`;
+  }
+  ysabellaCell.style.cursor = "pointer";
+  ysabellaCell.addEventListener("click", () => {
+    const alreadyFocused = outfitState.focusedOutfit &&
+      outfitState.focusedOutfit.clanId === "ysabella" &&
+      outfitState.focusedOutfit.index === 0;
+    outfitState.focusedOutfit = alreadyFocused ? null : { clanId: "ysabella", index: 0 };
+    renderOutfitGrid();
+    renderOutfitDetail();
+    renderReactionsTable();
+    if (document.body.classList.contains('is-mobile') && outfitState.focusedOutfit) {
+      openOutfitMobileSheet();
+    }
+  });
+  ysabellaCell.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    outfitState.focusedOutfit = null;
+    renderOutfitGrid();
+    renderOutfitDetail();
+    renderReactionsTable();
+  });
+  grid.appendChild(ysabellaCell);
+
+  // Empty cells for the remaining 2 tier columns
+  for (let i = 2; i < tierLabels.length; i++) {
     grid.appendChild(document.createElement("div"));
   }
 }
@@ -315,6 +360,48 @@ function renderOutfitDetail(targetEl) {
             }
           }
         }, 50);
+      }
+    });
+    return;
+  }
+
+  // ── Ysabella DLC detail ──
+  if (clanId === "ysabella") {
+    const outfit = YSABELLA_OUTFIT;
+    const typeData = OUTFIT_TYPES[outfit.type];
+    const isUnlocked = typeof ysabellaState !== "undefined" && ysabellaState.flowerAndFlame;
+    let html = "";
+
+    html += `<div class="outfit-detail__thumb-wrap">`;
+    if (isUnlocked && outfit.fullImg) {
+      html += `<img class="outfit-detail__thumb" src="${outfit.fullImg}" alt="${outfit.name}" style="cursor:pointer;">`;
+    } else {
+      html += `<div class="outfit-detail__thumb-locked"><img src="${UI.blockedPadlock}" alt="Locked"></div>`;
+    }
+    html += `</div>`;
+
+    if (!isMobileSheet) html += `<div class="outfit-detail__name">${outfit.name}</div>`;
+    if (outfit.desc) html += `<div class="outfit-detail__desc">${outfit.desc}</div>`;
+    html += `<div class="outfit-detail__type outfit-type--${outfit.type}">${typeData.label}</div>`;
+    html += `<div class="outfit-detail__clan">
+      <img src="${UI.ysabellaLogo}" alt="The Flower and the Flame DLC">
+      <span>Ysabella - The Flower and the Flame DLC</span>
+    </div>`;
+    if (isUnlocked) {
+      html += `<div class="outfit-detail__req"><span style="color:var(--green-affinity)">✓ Unlocked</span></div>`;
+    } else {
+      html += `<div class="outfit-detail__req"><button class="outfit-detail__skilltree-btn" id="ysabella-dlc-unlock-link">Enable The Flower and the Flame DLC to unlock →</button></div>`;
+    }
+    panel.innerHTML = html;
+    if (isUnlocked && outfit.fullImg) {
+      panel.querySelector(".outfit-detail__thumb").addEventListener("click", () => openImageLightbox(outfit.fullImg, outfit.name));
+    }
+    panel.querySelector("#ysabella-dlc-unlock-link")?.addEventListener("click", () => {
+      if (typeof navigateToYsabellaDLC === "function") {
+        navigateToYsabellaDLC();
+        if (typeof closeMobileSheet === 'function' && document.body.classList.contains('is-mobile')) {
+          closeMobileSheet();
+        }
       }
     });
     return;
@@ -613,7 +700,7 @@ function renderReactionsTable() {
   } else {
     // ── Focused outfit view ──
     const { clanId, index } = outfitState.focusedOutfit;
-    const outfit = clanId === "benny" ? BENNY_OUTFIT : OUTFITS[clanId][index];
+    const outfit = clanId === "benny" ? BENNY_OUTFIT : clanId === "ysabella" ? YSABELLA_OUTFIT : OUTFITS[clanId][index];
     const typeData = OUTFIT_TYPES[outfit.type];
     html += buildApproachTable(outfit.type, typeData);
     html += buildAffectBlock();

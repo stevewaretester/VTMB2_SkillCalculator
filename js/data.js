@@ -247,12 +247,26 @@ const FEEDABLE = new Set([
   "Shadow Step", "Terminal Decree", "Arms of Ahriman", "Entrancing Kiss",
 ]);
 const FEED_ICON = `${TEX}/T_UI_BossFeedPlaceholder.png`;
-const CANCELLABLE = new Set(["Blood Salvo", "Enter Oblivion", "Possession", "Recall", "Blink"]);
+const CANCELLABLE = new Set([
+  "Blood Salvo",
+  "Enter Oblivion",
+  "Possession",
+  "Recall",
+  "Blink",
+  "Mass Manipulation",
+  "Unseen Aura",
+  "Blurred Momentum",
+  "Lightning Strike",
+]);
 const CANCEL_ICON = "assets/N_Textures/General/T_UI_HUD_LightingStrike_Target.png";
 const CANCEL_NOTES = {
-  "Blood Salvo":    "Cancelling restores 1 blood pip per remaining blade.",
-  "Enter Oblivion": "Cancelling will kill any enemies held by Arms of Ahriman.",
-  "Recall":         "Cancelling will return the sigil to be placed somewhere else.",
+  "Blood Salvo":       "Cancelling restores 1 blood pip per remaining blade.",
+  "Enter Oblivion":    "Cancelling will kill any enemies held by Arms of Ahriman.",
+  "Recall":            "Cancelling will return the sigil to be placed somewhere else.",
+  "Mass Manipulation": "Can be cancelled if you don't combo another ability with it, restoring up to 3 blood pips.",
+  "Unseen Aura":       "Can be cancelled early, restoring decreasing amounts of blood pips the longer it was active.",
+  "Blurred Momentum":  "Can be cancelled early, restoring decreasing amounts of blood pips the longer it was active.",
+  "Lightning Strike":  "Can be cancelled by dodging out of it.",
 };
 
 // ── Masquerade Impact ────────────────────────────────────────
@@ -897,6 +911,7 @@ const UI = {
 
   // DLC
   bennyLogo:             `${CLAN_LOGOS}/T_UI_BennyLogo.png`,
+  ysabellaLogo:          `${CLAN_LOGOS}/T_UI_YsabellaLogo.png`,
 
   // Branding
   vtmLogo:               `${TEX}/UI_TITLE_VtM_01.png`,
@@ -970,6 +985,16 @@ const BENNY_OUTFIT = {
   thumb: `${SILO}/T_UI_Thumb_Phyre_Benny.png`,
   fullImg: `assets/screenshot/BennyOutfit.png`,
   desc: "A force of nature wearing the city like a second skin. A simmering volcano on the edge of eruption.",
+};
+
+// ── Ysabella DLC Outfit ──────────────────────────────────────
+const YSABELLA_OUTFIT = {
+  name: "The Icon",
+  tier: "strike",
+  type: "attractive",
+  thumb: `assets/T_UI_Ysabella_TheIcon.png`,
+  fullImg: `assets/T_UI_Ysabella_TheIcon.png`,
+  desc: "A glorious bloom coiled in steel flames, less an outfit than a declaration: this room belongs to me now, and so do all of you.",
 };
 
 // ── Outfit Type Reactions ────────────────────────────────────
@@ -1066,6 +1091,20 @@ const ABILITY_LOCATION = (() => {
   return map;
 })();
 
+// ── Special Detail Targets ──────────────────────────────────
+const SPECIAL_DETAILS = {
+  boilingBlood: {
+    id: "boilingBlood",
+    name: "Boiling Blood",
+    aliases: ["Boiling Blood", "BoilingBlood"],
+    category: "Buff",
+    icon: "assets/T_UI_HUD_EnemyStatus_iconEnemyLevel_High.png",
+    tier: "s-plus",
+    description: "Take damage over time, but recover blood pips.",
+    relatedAbility: { label: "Cauldron of Blood", clan: "tremere", tier: "affect" },
+  },
+};
+
 // ── Combos ───────────────────────────────────────────────────
 const COMBO_ICON = "assets/N_Textures/General/T_UI_FistOfCaine_Hover.png";
 
@@ -1117,6 +1156,17 @@ const COMBOS = [
     abilities: ["Taunt", "Lightning Strike"],
     explanation: "Highest single target damage you can do quickly — Taunt increases the damage the target takes and Lightning Strike hits them hard. Good for bosses.",
     rank: "S", patched: false,
+  },
+  {
+    id: "red-rum",
+    name: "Red Rum",
+    reference: "read it backwards",
+    referenceUrl: null,
+    abilities: ["Blood Curse", "Beckon"],
+    outputElixir: { id: "blood", name: "Blood Elixir" },
+    explanation: "Blood elixirs are widely useful as they will help restore your powers, and unlike the others, Beckon makes targets feedable all by itself.",
+    rank: "S", patched: false,
+    requiresMod: "modCorrosiveShield",
   },
   {
     id: "unerring-aim",
@@ -1202,6 +1252,17 @@ const COMBOS = [
     rank: "A", patched: false,
   },
   {
+    id: "draught-of-might",
+    name: "Draught of Might",
+    reference: "A V5 Potence ability",
+    referenceUrl: null,
+    abilities: ["Blood Curse", "Taunt"],
+    outputElixir: { id: "potence", name: "Potence Elixir" },
+    explanation: "Costly blood-wise, but Potence is a useful elixir to have when bursting down heavy enemies or groups.",
+    rank: "A", patched: false,
+    requiresMod: "modCorrosiveShield",
+  },
+  {
     id: "mass-berserk",
     name: "Mass Berserk",
     subtitle: "Ventrue Signature Combo",
@@ -1210,6 +1271,17 @@ const COMBOS = [
     abilities: ["Mass Manipulation", "Possession"],
     explanation: "Sends all enemies into an attacking frenzy, taking a lot of pressure off yourself as they'll be focused on each other. Works on every enemy in the game, but obviously fails against single targets.",
     rank: "B+", patched: false,
+  },
+  {
+    id: "draught-of-endurance",
+    name: "Draught of Endurance",
+    reference: "A V5 Fortitude ability",
+    referenceUrl: null,
+    abilities: ["Blood Curse", "Glimpse of Oblivion"],
+    outputElixir: { id: "fortitude", name: "Fortitude Elixir" },
+    explanation: "Fortitude is more of a nice to have as it's hard to anticipate how much damage you're going to take, but this combo lets you easily acquire it.",
+    rank: "B+", patched: false,
+    requiresMod: "modCorrosiveShield",
   },
   {
     id: "blood-bank",
@@ -1330,6 +1402,14 @@ const COMBOS = [
     rank: "F", patched: false,
   },
 ];
+
+function comboIsVisible(combo) {
+  if (!combo || !combo.requiresMod) return true;
+  if (combo.requiresMod === "modCorrosiveShield") {
+    return typeof state !== "undefined" && !!state.modCorrosiveShield;
+  }
+  return false;
+}
 
 // ── Ability → Combo reverse index ────────────────────────────
 const ABILITY_TO_COMBOS = (() => {

@@ -4,7 +4,6 @@
 // ── Weapon Data ─────────────────────────────────────────────
 const WEAPONS = [
   // Shadow Mirror order first (when mod is enabled): blunt, sharp, heavy, then guns.
-  { id: 'pipe',            name: 'Pipe',               type: 'Melee',  ammo: 0,  thrownDmg: 10,  projDmg: 15.0,     shadowKey: 'Num 1', shadowCost: '10 Melancholic'  },
   { id: 'baseballbat',     name: 'Baseball Bat',       type: 'Melee',  ammo: 0,  thrownDmg: 10,  projDmg: 15.0,     shadowKey: 'Num 1', shadowCost: '10 Melancholic'  },
   { id: 'knife',           name: 'Knife',              type: 'Melee',  ammo: 0,  thrownDmg: 15,  projDmg: 15.0,     shadowKey: 'Num 2', shadowCost: '20 Melancholic'  },
   { id: 'machete',         name: 'Machete',            type: 'Melee',  ammo: 0,  thrownDmg: 15,  projDmg: 15.0,     shadowKey: 'Num 2', shadowCost: '20 Melancholic'  },
@@ -614,7 +613,7 @@ function renderItemsPage() {
   const corrosiveShieldActive = typeof state !== 'undefined' && state.modCorrosiveShield;
   const corrosiveShieldElixirNotes = {
     blood: 'Also activates Clan Passive',
-    mending: 'Also cleanses Boiling Blood',
+    mending: 'Also cleanses <button class="ability-inline-link special-detail-inline-link" type="button" data-special-detail="boilingBlood">Boiling Blood</button>',
     potence: 'Also summons a blood <a href="file:///E:/REpo/VTMB2_SkillCalculator/index.html?sc=tremere&mcr=1&at=phyre.combat.melee#mw-sword">sword</a>',
     fortitude: 'Grants 25 Shield.',
   };
@@ -698,7 +697,7 @@ function renderItemsPage() {
               <img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">
              </div>`
           : '';
-        html += `<div class="pickup-card${row.missionOnly ? ' pickup-card--mission' : ''}">
+        html += `<div class="pickup-card${row.missionOnly ? ' pickup-card--mission' : ''}" id="pickup-elixir-${e.id}">
           <div class="pickup-card__header">
             ${iconHtml}
             <div class="pickup-card__name">${row.name}
@@ -749,7 +748,7 @@ function renderItemsPage() {
     for (const row of sortedItemRows) {
       if (row.rowKind === 'elixir') {
         const e = row.source;
-        html += `<tr class="${row.missionOnly ? 'elixir-card--mission' : ''}">
+        html += `<tr class="${row.missionOnly ? 'elixir-card--mission' : ''}" id="pickup-elixir-${e.id}">
         ${havenActive ? `<td>${row.key ? `<kbd class="pickup-key">${row.key}</kbd>` : '—'}</td>` : ''}
         <td class="col-img">
           <div class="pickup-img-slot pickup-img-slot--elixir"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
@@ -796,4 +795,8 @@ function renderItemsPage() {
       renderItemsPage();
     });
   });
+
+  if (typeof bindInlineDetailLinks === "function") {
+    bindInlineDetailLinks(container);
+  }
 }

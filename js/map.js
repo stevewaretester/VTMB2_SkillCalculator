@@ -111,7 +111,7 @@
     { id: "phyre",    label: "Phyre",    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" },
     { id: "fabien",   label: "Fabien",   icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" },
     { id: "benny",    label: "Benny",    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" },
-    { id: "ysabelle", label: "Ysabelle", icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" },
+    { id: "ysabelle", label: "Ysabella", icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" },
     { id: "shared",   label: "Shared / Unknown", icon: null },
   ];
 
@@ -251,7 +251,7 @@
       else if (/Fabien/i.test(blob))            story = "fabien";
       else if (/StrickBW|StrickNR/i.test(blob)) story = "fabien";
       else if (/Benny/i.test(blob))             story = "benny";
-      else if (/Ysabelle/i.test(blob))          story = "ysabelle";
+      else if (/Ysabell[ae]/i.test(blob))       story = "ysabelle";
     }
 
     // Progress (placeholder — left as 'unknown' until quest map is known)

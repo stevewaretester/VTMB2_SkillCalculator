@@ -188,7 +188,7 @@ Syntax examples:
 | Phyre pickups       | `phyre.pickups`                          |
 | Fabien (any subtab) | `fabien.skills` / `fabien.builds` / etc. |
 | Benny               | `benny`                                  |
-| Ysabelle            | `ysabelle`                               |
+| Ysabella            | `ysabelle`                               |
 
 `persistPosition()` reads the currently `.active` primary tab + secondary/fabien subtab from the DOM and writes the combined value.
 
