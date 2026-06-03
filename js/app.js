@@ -3964,7 +3964,7 @@ function renderMobileBennyFeatureStrip() {
   const btn = document.createElement('button');
   btn.className = 'mobile-innate-toggle' + (hasActive ? ' is-active' : '');
   btn.title = 'New Features';
-  btn.innerHTML = `<img src="assets/N_Textures/General/T_UI_Icon_Benny.png" alt="New Features">`;
+  btn.innerHTML = `<img src="assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" alt="New Features">`;
 
   btn.addEventListener('click', _openBennyPickerSheet);
 
