@@ -142,10 +142,25 @@ const STATE_PARAM = "state";
 const STATE_COOKIE = "vtmb2_state";
 const STATE_VERSION = 2;
 const POS_PARAM = "at";
+const APP_GRAPH_URL_KEYS = ["graph", "gdm", "gcl", "gme", "grg"];
 
 // Clan short codes for V2 human-readable URLs (e.g. ?sc=brujah&br=222222&tr=110000)
 const CLAN_SHORT = { brujah: 'br', tremere: 'tr', banuHaqim: 'bh', ventrue: 've', lasombra: 'la', toreador: 'to' };
 const SHORT_CLAN = Object.fromEntries(Object.entries(CLAN_SHORT).map(([k, v]) => [v, k]));
+
+function copyExistingGraphUrlParams(targetParams) {
+  const current = new URL(window.location.href).searchParams;
+  APP_GRAPH_URL_KEYS.forEach(key => {
+    if (current.has(key)) targetParams.set(key, current.get(key));
+  });
+}
+
+function appendGraphUrlParams(targetParams) {
+  if (typeof writeGraphUrlParams === "function" && writeGraphUrlParams(targetParams, { mutateHistory: false })) {
+    return;
+  }
+  copyExistingGraphUrlParams(targetParams);
+}
 
 // ── URL helpers ──────────────────────────────────────────────
 // Always writes ?at=...&state=... in that canonical order.
@@ -154,6 +169,7 @@ function rewriteUrl(atVal, stateVal) {
   url.search = "";
   if (atVal != null)    url.searchParams.set(POS_PARAM, atVal);
   if (stateVal != null) url.searchParams.set(STATE_PARAM, stateVal);
+  appendGraphUrlParams(url.searchParams);
   history.replaceState(null, "", url.toString());
 }
 
@@ -204,7 +220,8 @@ function applyPersistedPosition(pos) {
   const page = parts[0];
   const sub = parts[1];
   const subsub = parts[2];
-  const normalizedSub = sub === "combat" ? "combos" : sub;
+  const legacyCombatEnemies = sub === "combat" && subsub === "enemies";
+  const normalizedSub = legacyCombatEnemies ? "enemies" : (sub === "combat" ? "combos" : sub);
 
   // Activate primary tab
   const primaryTab = document.querySelector(`.tab-bar--primary .tab-bar__tab[data-tab="${page}"]`);
@@ -248,9 +265,13 @@ function applyPersistedPosition(pos) {
       if (normalizedSub === "map" && typeof renderMapPage === "function") {
         renderMapPage();
       }
+      if (normalizedSub === "enemies" && typeof renderEnemiesPage === "function") {
+        renderEnemiesPage();
+      }
       if (normalizedSub === "tierlist" && typeof initTierList === "function") {
         initTierList();
       }
+      if (legacyCombatEnemies) persistPosition();
     }
   } else if (page === "fabien" && sub) {
     const fabTab = document.querySelector(`.tab-bar--fabien .tab-bar__tab[data-fabtab="${sub}"]`);
@@ -420,6 +441,7 @@ function persistState() {
   url.search = '';
   if (atVal) url.searchParams.set(POS_PARAM, atVal);
   stateParams.forEach((v, k) => url.searchParams.set(k, v));
+  appendGraphUrlParams(url.searchParams);
   history.replaceState(null, '', url.toString());
 
   // Cookie keeps V1 base64 for broad compat (cookie doesn't need to be readable).
@@ -606,6 +628,7 @@ function buildShareUrl(includeState) {
     const stateParams = makeStateParams(makePersistedState());
     stateParams.forEach((v, k) => url.searchParams.set(k, v));
   }
+  appendGraphUrlParams(url.searchParams);
   return url.toString();
 }
 
@@ -715,6 +738,7 @@ function bindTabs() {
           if (activeSecondary.dataset.subtab === "combos" && typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("melee");
           if (activeSecondary.dataset.subtab === "skilltree" && typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
+          if (activeSecondary.dataset.subtab === "enemies" && typeof renderEnemiesPage === "function") renderEnemiesPage();
           if (activeSecondary.dataset.subtab === "map" && typeof renderMapPage === "function") renderMapPage();
           if (activeSecondary.dataset.subtab === "tierlist" && typeof initTierList === "function") initTierList();
         }
@@ -756,6 +780,9 @@ function bindTabs() {
       }
       if (tab.dataset.subtab === "map" && typeof renderMapPage === "function") {
         renderMapPage();
+      }
+      if (tab.dataset.subtab === "enemies" && typeof renderEnemiesPage === "function") {
+        renderEnemiesPage();
       }
       if (tab.dataset.subtab === "tierlist" && typeof initTierList === "function") {
         initTierList();

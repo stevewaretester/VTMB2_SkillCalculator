@@ -30,7 +30,7 @@ const YSABELLA_SIDEBAR_ITEMS = [
     tier: "Combat",
     image: YSABELLA_RANGED_WEAPONS_PREVIEW,
     desc: "Ysabella can pick up and equip all weapons, from sniper rifles to swords. If you pick up two of the same gun, then she will dual-wield them, allowing you to play out your gothic-action fantasies (anyone else thinking of Selene or Trinity?).",
-    link: { label: "Weapon pickups ->", action: "weapons" }
+    link: { label: "Ranged weapons ->", action: "ranged-weapons" }
   },
   {
     id: "rose-rapier",
@@ -823,6 +823,20 @@ function navigateYsabellaDetailLink(action) {
     const pickupsTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
     if (pickupsTab) pickupsTab.click();
     if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("weapons");
+    return;
+  }
+
+  if (action === "ranged-weapons") {
+    const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+    if (phyreTab && !phyreTab.classList.contains("active")) phyreTab.click();
+    const combatTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="combos"]');
+    if (combatTab) combatTab.click();
+    if (typeof setActiveCombosSubtab === "function") setActiveCombosSubtab("ranged");
+    if (typeof persistPosition === "function") persistPosition();
+    setTimeout(() => {
+      const target = document.getElementById("combos-subpage-ranged");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   }
 }
 

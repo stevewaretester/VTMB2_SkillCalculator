@@ -2269,6 +2269,7 @@ function renderMeleeWeaponsPage() {
       h += `</ul>`;
     }
 
+    h += renderEnemySourcePanel(w.id, w.name);
     h += `<p class="crossclan-note--sub" style="margin-top:6px"><code class="crossclan-code">${w.attackset}</code></p>`;
     h += `</div>`; // clan-combo-block
   }
@@ -2627,6 +2628,938 @@ const RANGED_WEAPONS = [
   },
 ];
 
+function enemyText(enemy) {
+  return `${enemy.a || ""} ${enemy.n || ""} ${enemy.etd || ""}`.toLowerCase();
+}
+
+function enemyAliasText(enemy) {
+  return String(enemy.a || "").toLowerCase();
+}
+
+function enemyMatches(enemy, pattern) {
+  return pattern.test(enemyText(enemy));
+}
+
+function enemyAliasMatches(enemy, pattern) {
+  return pattern.test(enemyAliasText(enemy));
+}
+
+const ENEMY_ORIGIN_FILTERS = [
+  {
+    id: "base",
+    label: "Base Game",
+    shortLabel: "Base",
+    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png",
+  },
+  {
+    id: "benny",
+    label: "Loose Cannon",
+    shortLabel: "LC",
+    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png",
+  },
+  {
+    id: "ysabella",
+    label: "Flower and Flame",
+    shortLabel: "FF",
+    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png",
+  },
+];
+
+let ENEMY_ORIGIN_FILTERS_ACTIVE = new Set(ENEMY_ORIGIN_FILTERS.map(filter => filter.id));
+
+function getEnemyOrigin(enemy) {
+  if (enemyAliasMatches(enemy, /\b(bossysabellabeast|ysabellabeast|bossysabelladiva|ysabelladiva|bossysabellapredator|ysabellapredator)\b/)) {
+    return "ysabella";
+  }
+  if (enemyAliasMatches(enemy, /\b(bosschamp|champion|damsel|shadow|thinfort)\b/)) {
+    return "benny";
+  }
+  return "base";
+}
+
+function getEnemyOriginMeta(originId) {
+  return ENEMY_ORIGIN_FILTERS.find(filter => filter.id === originId) || ENEMY_ORIGIN_FILTERS[0];
+}
+
+const ENEMY_TEAM_META = {
+  sabbat: {
+    label: "Sabbat",
+    hostileTo: ["Player", "Pedestrians", "Cops", "Anarch", "IAO", "Berserk"],
+    note: "ETD Team value. Used by Sabbat enemies, most bosses, Husk, Shovelhead, and Shadow Demon.",
+  },
+  iao: {
+    label: "IAO",
+    hostileTo: ["Player", "Anarch", "Sabbat", "Berserk"],
+    note: "ETD Team value. Used by Inquisition enemies and the exported Police / Police_Inside rows.",
+  },
+  cops: {
+    label: "Cops",
+    hostileTo: ["Anarch", "Sabbat", "Berserk"],
+    note: "ETD Team value used by Mass_Police.",
+  },
+  pedestrians: {
+    label: "Pedestrians",
+    hostileTo: [],
+    note: "ETD Team value used by human/pedestrian rows such as Human_Frank and Mass_Pedestrian.",
+  },
+  neutral: {
+    label: "Neutral",
+    hostileTo: ["Player"],
+    note: "ETD Team value used by Damsel in this export.",
+  },
+  player: {
+    label: "Player",
+    hostileTo: ["Anarch", "Sabbat", "IAO", "Berserk"],
+    note: "ETD Team value used by TestDummy; likely a QA/testing setup rather than normal encounter behavior.",
+  },
+  unassigned: {
+    label: "No explicit team",
+    hostileTo: [],
+    note: "No explicit Team field was found on these ETDs in the 23416145 export.",
+  },
+};
+
+const ENEMY_SPECIES_META = {
+  ghoul: { label: "Ghoul", note: "Derived from Species.Ghoul startup tags and ghoul ETD groupings." },
+  vampire: { label: "Vampire", note: "Derived from Species.Vampire startup tags and vampire/boss ETD groupings." },
+  human: { label: "Human", note: "Derived from human, police, and pedestrian ETD groupings." },
+  "human-iao": { label: "Human.IAO", note: "Derived from Inquisition startup tags including Species.Human.IAO." },
+  unbirthed: { label: "Unbirthed", note: "Derived from Shovelhead startup tags including Species.Unbirthed." },
+  husk: { label: "Husk", note: "Derived from the Husk ETD/stat row." },
+  demon: { label: "Demon", note: "Derived from the ShadowDemon ETD and DA_Demon_stats row." },
+  mannequin: { label: "Mannequin", note: "Derived from mannequin species/character startup tags." },
+  dummy: { label: "Test Dummy", note: "Derived from the TestDummy QA/testing ETD." },
+  unknown: { label: "Unlisted", note: "No species-style startup tag grouping was called out in the note." },
+};
+
+function getEnemyTeam(enemy) {
+  if (enemyAliasMatches(enemy, /\b(dummy|testdummy)\b/)) return "player";
+  if (enemyAliasMatches(enemy, /\bdamsel\b/)) return "neutral";
+  if (enemyAliasMatches(enemy, /\b(masscop|masspolice)\b/)) return "cops";
+  if (enemyAliasMatches(enemy, /\b(pedestrian|massped|masspedestrian|frank)\b/)) return "pedestrians";
+  if (enemyAliasMatches(enemy, /\b(inq|inqshotgun|inqbaton|inqsniper|inqsniperbase|inqxbow|cop|copin)\b/)) return "iao";
+  if (isBossEnemy(enemy) || enemyAliasMatches(enemy, /\b(sabbat|sabbatpis|sabbatclub|sabbatar|sabbatsniper|sabbatmaj|sabbatmajd|sabbatvamp|sabbatvampf|sabbatvamplate|sabbatvampflate|husk|shovelhead|shovel|shadow)\b/)) {
+    return "sabbat";
+  }
+  return "unassigned";
+}
+
+function getEnemyTeamMeta(teamId) {
+  return ENEMY_TEAM_META[teamId] || ENEMY_TEAM_META.unassigned;
+}
+
+function getEnemySpecies(enemy) {
+  if (enemyAliasMatches(enemy, /\bmannequin\b/)) return "mannequin";
+  if (enemyAliasMatches(enemy, /\b(dummy|testdummy)\b/)) return "dummy";
+  if (enemyAliasMatches(enemy, /\bshovelhead|shovel\b/)) return "unbirthed";
+  if (enemyAliasMatches(enemy, /\bshadow\b/)) return "demon";
+  if (enemyAliasMatches(enemy, /\bhusk\b/)) return "husk";
+  if (enemyAliasMatches(enemy, /\b(inq|inqshotgun|inqbaton|inqsniper|inqsniperbase|inqxbow)\b/)) return "human-iao";
+  if (enemyAliasMatches(enemy, /\b(cop|copin|masscop|masspolice|pedestrian|massped|masspedestrian|frank)\b/)) return "human";
+  if (isBossEnemy(enemy) || enemyAliasMatches(enemy, /\b(damsel|thinvamp|thinvampf|thinvamplate|thinvampflate|sabbatvamp|sabbatvampf|sabbatvamplate|sabbatvampflate|bossysabelladiva|ysabelladiva|bossysabellapredator|ysabellapredator)\b/)) {
+    return "vampire";
+  }
+  if ((enemy.n || "").includes("Ghoul") || enemyAliasMatches(enemy, /\b(ghoul|ghoulknife|ghoulmac|ghoulpis|ghoulrev|ghoulsmg|ghoulsho|ghoulun|ghoulbaton|ghoulsniper|ghoulrifle|ghoulinqshotgun|majorgs|majorgd|majorgslate|majorgdlate|thinfort|sabbat|sabbatpis|sabbatclub|sabbatar|sabbatsniper|sabbatmaj|sabbatmajd)\b/)) {
+    return "ghoul";
+  }
+  return "unknown";
+}
+
+function getEnemySpeciesMeta(speciesId) {
+  return ENEMY_SPECIES_META[speciesId] || ENEMY_SPECIES_META.unknown;
+}
+
+const ENEMY_GENERIC_KNIFE_BACKUP_WIDS = new Set([
+  "WID_Rifle",
+  "WID_Rifle_ThinbloodEarly",
+  "WID_Crossbow",
+  "WID_ElectricBaton",
+  "WID_ElectricBaton_Single",
+  "WID_SMG",
+  "WID_Shotgun",
+  "WID_Shotgun_ThinbloodEarly",
+  "WID_SniperRifle",
+]);
+
+function getEnemyDisarmInfo(enemy) {
+  if (enemyAliasMatches(enemy, /\b(majorgd|majorgdlate|sabbatmajd)\b/)) {
+    return "Fallback swap: High Cal Revolver.";
+  }
+  if (enemyAliasMatches(enemy, /\b(inqsniper|inqsniperbase|inqxbow)\b/)) {
+    return "Close-range fallback: Pistol.";
+  }
+  if (enemyAliasMatches(enemy, /\bsabbatsniper\b/)) {
+    return "Close-range fallback: High Cal Revolver.";
+  }
+  if (enemyAliasMatches(enemy, /\b(inqbaton|sabbat|sabbatclub|thinvamp|thinvamplate)\b/)) {
+    return "Fallback swap: Pistol.";
+  }
+  if (enemyAliasMatches(enemy, /\b(sabbatmaj|sabbatvamp|sabbatvamplate|bossysabelladiva|bossysabellapredator)\b/)) {
+    return "Fallback swap: SMG.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulun\b/)) {
+    return "Disarmed swap: Knife.";
+  }
+  if (ENEMY_GENERIC_KNIFE_BACKUP_WIDS.has(enemy.wid || "")) {
+    return "Possible disarm backup: Knife.";
+  }
+  return "";
+}
+
+function makeEnemyBackupWeaponSource(name, wid, note) {
+  return { name, wid, terms: [name, wid], note };
+}
+
+function getEnemyBackupWeaponSources(enemy) {
+  const sources = [];
+  if (enemyAliasMatches(enemy, /\b(majorgd|majorgdlate|sabbatmajd)\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "High Cal Revolver",
+      "WID_HighCaliburPistol",
+      "Backup after disarm: Distractor_SwapToPistol; ideal 200 units, max 300, cooldown 3s."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\b(inqsniper|inqsniperbase|inqxbow)\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "Pistol",
+      "WID_Handgun",
+      "Close-range backup: swaps to pistol below 600 units; cooldown 0.5s."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\bsabbatsniper\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "High Cal Revolver",
+      "WID_HighCaliburPistol",
+      "Close-range backup: Sabbat sniper swaps to High Cal Revolver, then can return to sniper."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\b(inqbaton|sabbat|sabbatclub)\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "Pistol",
+      "WID_Handgun",
+      "Melee backup: swaps to pistol, then can return to the starting weapon."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\b(thinvamp|thinvamplate)\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "Pistol",
+      "WID_Handgun",
+      "Melee backup: Thinblood ambusher can swap to pistol."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\b(sabbatmaj|sabbatvamp|sabbatvamplate|bossysabelladiva|bossysabellapredator)\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "SMG",
+      "WID_SMG",
+      "Melee backup: swaps to SMG, then can return to the starting weapon."
+    ));
+  }
+  if (enemyAliasMatches(enemy, /\bghoulun\b/)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "Knife",
+      "WID_Knife",
+      "Generic disarm backup: Unarmed_SwapToKnife; cooldown 1s."
+    ));
+  }
+  if (!sources.length && ENEMY_GENERIC_KNIFE_BACKUP_WIDS.has(enemy.wid)) {
+    sources.push(makeEnemyBackupWeaponSource(
+      "Knife",
+      "WID_Knife",
+      "Possible generic backup: held weapon exposes HasKnife owner tag; requires HasBackupWeapon task."
+    ));
+  }
+  return sources;
+}
+
+function getEnemyDetectionInfo(enemy) {
+  if (enemyAliasMatches(enemy, /\b(bossysabelladiva|bossysabellapredator)\b/)) {
+    return "Default: mid sight W1800; far W3000/H1000/F2800; hearing 5000. Sabbat vampire tags include scary/long-legs.";
+  }
+  if (isBossEnemy(enemy)) {
+    return "Boss: near W500/H800; mid W3600/H1600/F1200; far W6000/H3200/F6000; hearing 500000; auto last-seen 10000.";
+  }
+  if (enemyAliasMatches(enemy, /\b(inqsniper|inqsniperbase)\b/)) {
+    return "Inquisition sniper: near W600/H550; mid W1400/H1200/F800; far W500/H500/F7000; hearing 7500; heightened far F10000.";
+  }
+  if (enemyAliasMatches(enemy, /\b(inq|inqshotgun|inqbaton|inqxbow)\b/)) {
+    return "Inquisition: mid sight W1800; far W3000/H1000/F4000; hearing 7500.";
+  }
+  if (enemyAliasMatches(enemy, /\b(ghoulsniper|sabbatsniper)\b/)) {
+    return "Sniper focus: default base sight, with heightened sniper far pane F10000 and hearing 7500.";
+  }
+  if (enemyAliasMatches(enemy, /\bshovel(head)?\b/)) {
+    return "Blind/non-combat: vision radius 500, angle 180; proximity 600; hearing 5000. Combat sight radius 2500.";
+  }
+  if (enemyAliasMatches(enemy, /\bshadow\b/)) {
+    return "Default base; combat uses Shovelhead combat sight radius 2500, angle 180, with damage-immune/blocked-targeting tags.";
+  }
+  if (enemyAliasMatches(enemy, /\bdamsel\b/)) {
+    return "Damsel: default coffin sight and hearing 5000, plus proximity sense range 5000.";
+  }
+  if (enemyAliasMatches(enemy, /\bmannequin\b/)) {
+    return "Mannequin: all-around coffin sight W3000/H3000/F-1500/0/1500; hearing 5000.";
+  }
+  return "Default: mid sight W1800; far W3000/H1000/F2800; hearing 5000. Combat hearing drops to 700.";
+}
+
+function getEnemySpecialInfo(enemy) {
+  if (enemyAliasMatches(enemy, /\b(bossysabella|ysabella|bossysabellabeast|ysabellabeast)\b/)) {
+    return "Defensive dash, Ysabella light/medium/heavy attacks, and heavy interrupt.";
+  }
+  if (enemyAliasMatches(enemy, /\b(bossysabelladiva|ysabelladiva)\b/)) {
+    return "Kick/dash/dodge combo, vampire defensive dash, ambusher block, varied attack, SMG swap, Theft of Vitae.";
+  }
+  if (enemyAliasMatches(enemy, /\b(bossysabellapredator|ysabellapredator)\b/)) {
+    return "Benny-style defensive dash, charge, earth shock, block, light/medium/heavy attacks, and SMG swap.";
+  }
+  if (enemyAliasMatches(enemy, /\b(bossbenny|benny)\b/)) {
+    return "Defensive dash, three charge phases, earth shock, light/medium/heavy attacks, block/counter, boulder throw.";
+  }
+  if (enemyAliasMatches(enemy, /\b(bosschamp|champion)\b/)) {
+    return "Vampire defensive dash, kick/dash/dodge combo, ChampionAttacks, evasive ranged attack, reload.";
+  }
+  if (enemyAliasMatches(enemy, /\b(bosssafia|safia)\b/)) {
+    return "Theft of Vitae, Blood Curse, Blood Salvo, and light melee.";
+  }
+  if (enemyAliasMatches(enemy, /\b(majorgd|majorgdlate|sabbatmajd)\b/)) {
+    return enemyAliasMatches(enemy, /\b(majorgdlate|sabbatmajd)\b/)
+      ? "Theft of Vitae, Recall, ranged attack/reload, heavy interrupt; disarmed fallback can Earth Shock/Charge before pistol swap."
+      : "Theft of Vitae, ranged attack/reload, heavy interrupt; disarmed fallback can Earth Shock/Charge before pistol swap.";
+  }
+  if (enemyAliasMatches(enemy, /\b(majorgs|majorgslate|sabbatmaj)\b/)) {
+    return enemyAliasMatches(enemy, /\bsabbatmaj\b/)
+      ? "Sabbat Earth Shock, charge, warhammer melee attacks, and SMG swap."
+      : "Charge; late-game variant adds Earth Shock.";
+  }
+  if (enemyAliasMatches(enemy, /\b(thinvamp|thinvamplate|sabbatvamp|sabbatvamplate)\b/)) {
+    const late = enemyAliasMatches(enemy, /\b(thinvamplate|sabbatvamplate)\b/) ? " Late-game adds Cloak of Shadows." : "";
+    const swap = enemyAliasMatches(enemy, /\bsabbat/) ? " Sabbat variant swaps to SMG." : " Thinblood variant swaps to pistol.";
+    return `Kick/dash/dodge combo, vampire defensive dash, ambusher block, varied attack.${late}${swap}`;
+  }
+  if (enemyAliasMatches(enemy, /\b(thinvampf|thinvampflate|sabbatvampf|sabbatvampflate)\b/)) {
+    const late = enemyAliasMatches(enemy, /\b(thinvampflate|sabbatvampflate)\b/) ? " Late-game adds Blurred Momentum." : "";
+    return `Position Swap, vampire defensive dash, kick/dash/dodge combo, evasive rifle attack, reload.${late}`;
+  }
+  if (enemyAliasMatches(enemy, /\bthinfort\b/)) {
+    return "Drink Elixir, unarmed light/heavy attacks, heavy interrupt, backoff, boulder throw.";
+  }
+  if (enemyAliasMatches(enemy, /\b(ghoul|ghoulknife|ghoulmac|ghoulbaton)\b/)) {
+    return "Armed light/medium/heavy attacks, heavy interrupt, weak defensive dash, backoff/block, throws, taunt.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulun\b/)) {
+    return "Unarmed light attack, heavy interrupt, weak dash/block, grenade/phosphor/stone throws, taunt, knife swap.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulpis\b/)) {
+    return "Pistol ranged attack/reload, close melee/backoff, defensive dash, grenade/phosphor throws.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulrev\b/)) {
+    return "Revolver ranged attack/reload, close melee/backoff, defensive dash.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulsmg\b/)) {
+    return "Rifle ranged attack/reload, close melee/backoff, grenade/phosphor throws.";
+  }
+  if (enemyAliasMatches(enemy, /\bghoulsniper\b/)) {
+    return "Sniper ranged attack/reload and defensive dash.";
+  }
+  if (enemyAliasMatches(enemy, /\b(ghoulsho|ghoulrifle|ghoulinqshotgun)\b/)) {
+    return "Ranged attack/reload with close melee/backoff where present.";
+  }
+  if (enemyAliasMatches(enemy, /\b(sabbat|sabbatclub)\b/)) {
+    return "Sabbat melee attacks and Melee_SwapToPistol.";
+  }
+  if (enemyAliasMatches(enemy, /\bsabbatpis\b/)) {
+    return "High-cal ranged attack, defensive dash, block, kick/backoff, melee, reload, return-to-initial.";
+  }
+  if (enemyAliasMatches(enemy, /\bsabbatar\b/)) {
+    return "Automatic rifle ranged attack/reload and grenade throws.";
+  }
+  if (enemyAliasMatches(enemy, /\bsabbatsniper\b/)) {
+    return "Sniper attack plus Sabbat_SwapToPistol into High Cal Revolver.";
+  }
+  if (enemyAliasMatches(enemy, /\binq\b/)) {
+    return "IAO rifle aimed/burst attacks, phosphor grenade, defensive dash, close kick/backoff/melee.";
+  }
+  if (enemyAliasMatches(enemy, /\binqshotgun\b/)) {
+    return "IAO shotgun attack, defensive dash, close kick/backoff/melee.";
+  }
+  if (enemyAliasMatches(enemy, /\binqbaton\b/)) {
+    return "Baton melee, block/counter, and Melee_SwapToPistol.";
+  }
+  if (enemyAliasMatches(enemy, /\b(inqsniper|inqsniperbase|inqxbow)\b/)) {
+    return "Sniper/crossbow ranged attack and Inquisition_SwapToPistol.";
+  }
+  if (enemyAliasMatches(enemy, /\bshovel(head)?\b/)) {
+    return "Leap, light attack, frantic evade, taunt.";
+  }
+  if (enemyAliasMatches(enemy, /\b(husk|shadow)\b/)) {
+    return "Husk-style medium/light/heavy attacks; Shadow Demon reuses the same attack set.";
+  }
+  if (enemyAliasMatches(enemy, /\bmannequin\b/)) {
+    return "Unarmed heavy, heavy interrupt, slow/fast mannequin attacks, throw mannequin.";
+  }
+  if (enemyAliasMatches(enemy, /\b(cop|copin|masscop|masspolice)\b/)) {
+    return "Police pistol fire, backoff, and reload.";
+  }
+  if (enemyAliasMatches(enemy, /\b(pedestrian|massped|masspedestrian|frank)\b/)) {
+    return "Simple human light/stone/interrupt tasks.";
+  }
+  if (enemyAliasMatches(enemy, /\bdamsel\b/)) {
+    return "Damsel has an unarmed light attack.";
+  }
+  if (enemyAliasMatches(enemy, /\b(dummy|testdummy)\b/)) {
+    return "Test dummy light/heavy routines.";
+  }
+  return "";
+}
+
+function getEnemyAdditionalInfo(enemy) {
+  return {
+    disarm: getEnemyDisarmInfo(enemy),
+    detection: getEnemyDetectionInfo(enemy),
+    specials: getEnemySpecialInfo(enemy),
+  };
+}
+
+const ENEMY_POCKET_REWARD_TIER_LABELS = {
+  0: "Small",
+  1: "Medium",
+  2: "Large",
+};
+
+const ENEMY_POCKET_REWARD_TIERS_BY_ETD = new Map();
+
+function registerEnemyPocketRewardTier(tier, etds) {
+  etds.forEach((etd) => {
+    const tiers = ENEMY_POCKET_REWARD_TIERS_BY_ETD.get(etd) || new Set();
+    tiers.add(tier);
+    ENEMY_POCKET_REWARD_TIERS_BY_ETD.set(etd, tiers);
+  });
+}
+
+registerEnemyPocketRewardTier(0, [
+  "Thinblood_MinorGhoul_Unarmed",
+  "Thinblood_MinorGhoul_BaseballBat",
+  "Thinblood_MinorGhoul_Knife",
+  "Thinblood_MinorGhoul_Revolver",
+  "Thinblood_MinorGhoul_Machete",
+  "Thinblood_MinorGhoul_Shotgun",
+  "Thinblood_MajorGhoul_Striker",
+]);
+
+registerEnemyPocketRewardTier(1, [
+  "Thinblood_MinorGhoul_BaseballBat",
+  "Thinblood_MinorGhoul_Knife",
+  "Thinblood_MinorGhoul_Machete",
+  "Thinblood_MinorGhoul_Revolver",
+  "Thinblood_MinorGhoul_Shotgun",
+  "Thinblood_MinorGhoul_SMG",
+  "Thinblood_MinorGhoul_Pistol",
+  "Thinblood_MajorGhoul_Distractor",
+  "Thinblood_MajorGhoul_Striker",
+  "Thinblood_WeakVampire_Ambusher",
+  "Thinblood_WeakVampire_Flusher",
+  "Sabbat_MinorGhoul_AutomaticRifle",
+  "Sabbat_MinorGhoul_HighCaliburPistol",
+  "Sabbat_MinorGhoul_SpikedClub",
+  "Sabbat_MinorGhoul_Sword",
+  "Sabbat_MajorGhoulDistractor_Shotgun",
+  "Sabbat_MajorGhoulStriker_Warhammer",
+  "Sabbat_WeakVampire_Ambusher",
+  "Sabbat_WeakVampire_Flusher",
+]);
+
+registerEnemyPocketRewardTier(2, [
+  "Thinblood_MinorGhoul_BaseballBat",
+  "Thinblood_MinorGhoul_Inquisition_AssaultRifle",
+  "Thinblood_MinorGhoul_Machete",
+  "Thinblood_MinorGhoul_Revolver",
+  "Thinblood_MinorGhoul_Shotgun",
+  "Thinblood_MajorGhoul_Distractor_LateGame",
+  "Thinblood_MajorGhoul_Striker_LateGame",
+  "Thinblood_WeakVampire_Ambusher",
+  "Thinblood_WeakVampire_Flusher",
+  "Thinblood_MinorGhoul_Knife",
+  "Thinblood_MinorGhoul_Pistol",
+  "Thinblood_MinorGhoul_SMG",
+]);
+
+function getEnemyPocketRewardText(enemy) {
+  const tiers = Array.from(ENEMY_POCKET_REWARD_TIERS_BY_ETD.get(enemy.etd) || []).sort((a, b) => a - b);
+  if (!tiers.length) return "";
+  return `Pocket reward: ${tiers.map(tier => ENEMY_POCKET_REWARD_TIER_LABELS[tier]).join("/")} tier`;
+}
+
+const ENEMY_LOADOUTS = [
+  { a:"mannequin", n:"Mannequin", etd:"Mannequin", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Mannequin_Stats", d:"no weapon drop", hp:"-", st:"15", ap:"-", m:"-/-/-|3.75/7.5/-" },
+  { a:"dummy / testdummy", n:"Test Dummy", etd:"TestDummy", w:"Unarmed", wid:"WID_Unarmed", s:"DA_TestDummy", d:"no weapon drop", hp:"75", st:"100000", ap:"-", m:"7.5/14/7.5|3.75/7.5/3.75", note:"Not encounterable in the base game, likely a QA leftover for testing abilities - always feedable, never engages in combat." },
+  { a:"ghoul", n:"Thinblood Minor Ghoul (Bat)", etd:"Thinblood_MinorGhoul_BaseballBat", w:"Baseball Bat", wid:"WID_BaseballBat", s:"DA_Thinblood_MinorGhoul_Stats", d:"world spawner; little TK throw, 10 damage inherited", hp:"75", st:"65", ap:"-", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"ghoulknife", n:"Thinblood Minor Ghoul (Knife)", etd:"Thinblood_MinorGhoul_Knife", w:"Knife", wid:"WID_Knife", s:"DA_Thinblood_MinorGhoul_Knife_Stats", d:"world spawner; medium TK throw, 15 damage", hp:"75", st:"65", ap:"-", m:"5/10/7.5|3.75/7.5/3.75" },
+  { a:"ghoulmac", n:"Thinblood Minor Ghoul (Machete)", etd:"Thinblood_MinorGhoul_Machete", w:"Machete", wid:"WID_Machete", s:"DA_Thinblood_MinorGhoul_Stats", d:"world spawner; medium TK throw, 15 damage", hp:"75", st:"65", ap:"-", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"ghoulpis", n:"Thinblood Minor Ghoul (Pistol)", etd:"Thinblood_MinorGhoul_Pistol", w:"Pistol", wid:"WID_Handgun", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulrev", n:"Thinblood Minor Ghoul (Revolver)", etd:"Thinblood_MinorGhoul_Revolver", w:"Revolver", wid:"WID_Revolver", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulsmg", n:"Thinblood Minor Ghoul (SMG)", etd:"Thinblood_MinorGhoul_SMG", w:"Dollar Store M4", wid:"WID_Rifle_ThinbloodEarly", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulsho", n:"Thinblood Minor Ghoul (Shotgun)", etd:"Thinblood_MinorGhoul_Shotgun", w:"Shotgun", wid:"WID_Shotgun_ThinbloodEarly", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulun", n:"Thinblood Minor Ghoul (Unarmed)", etd:"Thinblood_MinorGhoul_Unarmed", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Thinblood_MinorGhoul_Stats", d:"no weapon drop", hp:"75", st:"65", ap:"-", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"ghoulbaton", n:"Thinblood Minor Ghoul (Baton)", etd:"Thinblood_MinorGhoul_ElectricBaton", w:"Electric Baton (single)", wid:"WID_ElectricBaton_Single", s:"DA_Thinblood_MinorGhoul_Stats", d:"enemy-held; little TK throw, 10 damage inherited", hp:"75", st:"65", ap:"-", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"ghoulsniper", n:"Thinblood Ghoul Sniper", etd:"Thinblood_MinorGhoul_Inquisition_Sniper", w:"Sniper Rifle", wid:"WID_SniperRifle", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulrifle", n:"Thinblood Ghoul (Assault Rifle)", etd:"Thinblood_MinorGhoul_Inquisition_AssaultRifle", w:"IAO Rifle", wid:"WID_Rifle", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"ghoulinqshotgun", n:"Thinblood Ghoul (Inquisition Shotgun)", etd:"Thinblood_MinorGhoul_Inquisition_Shotgun", w:"IAO Shotgun", wid:"WID_Shotgun", s:"DA_Thinblood_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"65", ap:"-", r:"5.5/-/3.5/5/1" },
+  { a:"majorgs", n:"Thinblood Major Ghoul Striker", etd:"Thinblood_MajorGhoul_Striker", w:"Striker Hammer", wid:"WID_Striker_Hammer", s:"DA_Thinblood_MajorGhoul_Stats", d:"hammer/sledge spawner; heavy TK throw, 50 damage", hp:"120", st:"150", ap:"1.5", m:"7.5/14/7.5|5/12/3.75" },
+  { a:"majorgd", n:"Thinblood Major Ghoul Distractor", etd:"Thinblood_MajorGhoul_Distractor", w:"Mega Shotty", wid:"WID_Shotgun_Pump", s:"DA_Thinblood_MajorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"120", st:"150", ap:"1.5" },
+  { a:"majorgslate", n:"Thinblood Major Ghoul Striker (Late Game)", etd:"Thinblood_MajorGhoul_Striker_LateGame", w:"Striker Hammer", wid:"WID_Striker_Hammer", s:"DA_Thinblood_MajorGhoul_LateGame_Stats", d:"hammer/sledge spawner; heavy TK throw, 50 damage", hp:"120", st:"150", ap:"1.5", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"majorgdlate", n:"Thinblood Major Ghoul Distractor (Late Game)", etd:"Thinblood_MajorGhoul_Distractor_LateGame", w:"Mega Shotty", wid:"WID_Shotgun_Pump", s:"DA_Thinblood_MajorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"120", st:"150", ap:"1.5" },
+  { a:"thinvamp", n:"Thinblood Vampire (Ambusher)", etd:"Thinblood_WeakVampire_Ambusher", w:"Claws", wid:"WID_Claws", s:"DA_Thinblood_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"2.5", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"thinvampf", n:"Thinblood Vampire (Flusher)", etd:"Thinblood_WeakVampire_Flusher", w:"Stubby SMG", wid:"WID_Rifle_Dual", s:"DA_Thinblood_Vampire_Ranged_Stats", d:"harvested dual rifle; little TK throw, 10 damage", hp:"240", st:"140", ap:"-" },
+  { a:"thinvamplate", n:"Thinblood Vampire Ambusher (Late Game)", etd:"Thinblood_WeakVampire_Ambusher_LateGame", w:"Claws", wid:"WID_Claws", s:"DA_Thinblood_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"2.5", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"thinvampflate", n:"Thinblood Vampire Flusher (Late Game)", etd:"Thinblood_WeakVampire_Flusher_LateGame", w:"Stubby SMG", wid:"WID_Rifle_Dual", s:"DA_Thinblood_Vampire_Ranged_Stats", d:"harvested dual rifle; little TK throw, 10 damage", hp:"240", st:"140", ap:"-" },
+  { a:"thinfort", n:"Thinblood Fortidude", etd:"Thinblood_Fortidude", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Thinblood_Fortidude_Stats", d:"no weapon drop", hp:"120", st:"300", ap:"1.5", m:"7.5/14/7.5|5/12/3.75", note:"Can drink a Fortitude Elixir, enormously increasing his damage resistance temporarily.", drops:"5 Fortitude Elixirs" },
+  { a:"sabbat", n:"Sabbat Minor Ghoul (Sword)", etd:"Sabbat_MinorGhoul_Sword", w:"Sword", wid:"WID_Sword", s:"DA_Sabbat_MinorGhoul_Sword_Stats", d:"world spawner; medium TK throw, 15 damage", hp:"95", st:"65", ap:"1.1", m:"10/18/7.5|-/-/3.75" },
+  { a:"sabbatpis", n:"Sabbat Minor Ghoul (Pistol)", etd:"Sabbat_MinorGhoul_HighCaliburPistol", w:"High Cal Revolver", wid:"WID_HighCaliburPistol", s:"DA_Sabbat_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"95", st:"65", ap:"1.1", r:"-/-/-/10/-" },
+  { a:"sabbatclub", n:"Sabbat Minor Ghoul (Club)", etd:"Sabbat_MinorGhoul_SpikedClub", w:"Spiked Club", wid:"WID_SpikedClub", s:"DA_Sabbat_MinorGhoul_Stats", d:"world spawner; medium TK throw, 15 damage", hp:"95", st:"65", ap:"1.1", m:"7.5/14/7.5|-/-/3.75" },
+  { a:"sabbatar", n:"Sabbat Minor Ghoul (Auto Rifle)", etd:"Sabbat_MinorGhoul_AutomaticRifle", w:"SMG", wid:"WID_SMG", s:"DA_Sabbat_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"95", st:"65", ap:"1.1", r:"-/-/-/10/-" },
+  { a:"sabbatsniper", n:"Sabbat Minor Ghoul Sniper", etd:"Sabbat_MinorGhoul_SniperRifle", w:"Sniper Rifle", wid:"WID_SniperRifle", s:"DA_Sabbat_MinorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"95", st:"65", ap:"1.1", r:"-/-/-/10/-" },
+  { a:"sabbatmaj", n:"Sabbat Major Ghoul Striker", etd:"Sabbat_MajorGhoulStriker_Warhammer", w:"Warhammer", wid:"WID_Warhammer", s:"DA_Sabbat_MajorGhoul_Stats", d:"world spawner; obliterate TK throw, 65 damage", hp:"160", st:"150", ap:"1.5", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"sabbatmajd", n:"Sabbat Major Ghoul Distractor", etd:"Sabbat_MajorGhoulDistractor_Shotgun", w:"Mega Shotty", wid:"WID_Shotgun_Pump", s:"DA_Sabbat_MajorGhoul_Stats", d:"ranged little TK throw, 10 damage", hp:"160", st:"150", ap:"1.5" },
+  { a:"sabbatvamp", n:"Sabbat Vampire (Ambusher)", etd:"Sabbat_WeakVampire_Ambusher", w:"Claws", wid:"WID_Claws", s:"DA_Sabbat_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"1.8", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"sabbatvampf", n:"Sabbat Vampire (Flusher)", etd:"Sabbat_WeakVampire_Flusher", w:"Stubby SMG", wid:"WID_Rifle_Dual", s:"DA_Sabbat_Vampire_Ranged_Stats", d:"harvested dual rifle; little TK throw, 10 damage", hp:"270", st:"140", ap:"-" },
+  { a:"sabbatvamplate", n:"Sabbat Vampire Ambusher (Late Game)", etd:"Sabbat_WeakVampire_Ambusher_LateGame", w:"Claws", wid:"WID_Claws", s:"DA_Sabbat_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"1.8", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"sabbatvampflate", n:"Sabbat Vampire Flusher (Late Game)", etd:"Sabbat_WeakVampire_Flusher_LateGame", w:"Stubby SMG", wid:"WID_Rifle_Dual", s:"DA_Sabbat_Vampire_Ranged_Stats", d:"harvested dual rifle; little TK throw, 10 damage", hp:"270", st:"140", ap:"-" },
+  { a:"inq", n:"Inquisitor (Assault Rifle)", etd:"Inquisitor_TacticalAssaultRifle", w:"IAO Rifle", wid:"WID_Rifle", s:"DA_Inquisitor_Ranged_Stats", d:"ranged little TK throw, 10 damage", hp:"150", st:"40", ap:"1.5", r:"-/2/-/-/1.4" },
+  { a:"inqshotgun", n:"Inquisitor (Shotgun)", etd:"Inquisitor_CombatShotgun", w:"IAO Shotgun", wid:"WID_Shotgun", s:"DA_Inquisitor_Melee_Stats", d:"ranged little TK throw, 10 damage", hp:"95", st:"60", ap:"1.25" },
+  { a:"inqbaton", n:"Inquisitor (Electric Baton)", etd:"Inquisitor_ElectricBaton", w:"Electric Baton", wid:"WID_ElectricBaton", s:"DA_Inquisitor_Melee_Stats", d:"enemy-harvest only; little TK throw, 10 damage inherited", hp:"95", st:"60", ap:"1.25", m:"7.5/14/7.5|3.75/7.5/3.75" },
+  { a:"inqsniper / inqsniperbase", n:"Inquisitor Sniper", etd:"Inquisitor_Sniper", w:"Sniper Rifle", wid:"WID_SniperRifle", s:"DA_Inquisitor_Sniper_Stats", d:"ranged little TK throw, 10 damage", hp:"150", st:"40", ap:"1.5", r:"-/1/-/-/2" },
+  { a:"inqxbow", n:"Inquisitor Crossbow Sniper", etd:"Inquisitor_SniperCrossbowRifle", w:"Crossbow", wid:"WID_Crossbow", s:"DA_Inquisitor_Ranged_Stats", d:"pickup spawner only; exploding bolt special", hp:"150", st:"40", ap:"1.5", r:"-/2/-/-/1.4" },
+  { a:"husk", n:"Husk", etd:"Husk", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Husk_Stats", d:"no weapon drop", hp:"-", st:"5", ap:"-", m:"-/-/-|1/2/2" },
+  { a:"shovelhead / shovel", n:"Shovelhead", etd:"Shovelhead", w:"Claws", wid:"WID_Claws", s:"DA_Shovelhead_Stats", d:"no weapon drop", hp:"50", st:"70", ap:"1.5", m:"-/-/-|3.75/7.5/7.5" },
+  { a:"shadow", n:"Shadow Demon", etd:"ShadowDemon", w:"Claws", wid:"WID_Claws", s:"DA_Demon_stats", d:"no weapon drop", hp:"50", st:"65", ap:"1.5", m:"-/-/-|2/2/2", note:"Invulnerable enemies that spawn for Benny during the fight against Mr Night." },
+  { a:"damsel", n:"Damsel (Enemy)", etd:"Damsel", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Damsel_Stats", d:"no weapon drop", hp:"75", st:"180", ap:"20", m:"7.5/14/7.5|3.75/7.5/3.75", note:"Does not appear fightable in the game; likely the version Benny follows in his DLC." },
+  { a:"cop", n:"Police", etd:"Police", w:"Pistol", wid:"WID_Handgun", s:"DA_Police_Stats", d:"ranged little TK throw, 10 damage", hp:"-", st:"20", ap:"-", r:"5.5/-/3.5/-/1" },
+  { a:"copin", n:"Police (Indoor)", etd:"Police_Inside", w:"Pistol", wid:"WID_Handgun", s:"DA_Police_Stats", d:"ranged little TK throw, 10 damage", hp:"-", st:"20", ap:"-", r:"5.5/-/3.5/-/1" },
+  { a:"pedestrian", n:"Pedestrian", etd:"Pedestrian", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Human_Stats", d:"no weapon drop", hp:"-", st:"20", ap:"-", m:"-/-/-|2/2/-" },
+  { a:"massped / masspedestrian", n:"Mass Pedestrian", etd:"Mass_Pedestrian", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Human_Stats", d:"no weapon drop", hp:"-", st:"20", ap:"-", m:"-/-/-|2/2/-" },
+  { a:"masscop / masspolice", n:"Mass Police", etd:"Mass_Police", w:"Pistol", wid:"WID_Handgun", s:"DA_Police_Stats", d:"ranged little TK throw, 10 damage", hp:"-", st:"20", ap:"-", r:"5.5/-/3.5/-/1" },
+  { a:"frank", n:"Human Frank", etd:"Human_Frank", w:"Unarmed", wid:"WID_Unarmed", s:"DA_Human_Stats", d:"no weapon drop", hp:"-", st:"20", ap:"-", m:"-/-/-|2/2/-", note:"Defeated by a single one of Phyre's punches in the tutorial." },
+  { a:"bossbenny / benny", n:"Benny", etd:"Boss_Benny", w:"Benny Unarmed", wid:"WID_BennyUnarmed", s:"DA_Benny_Stats", d:"no weapon drop", hp:"75", st:"180", ap:"-", m:"-/-/-|7/15/4" },
+  { a:"bosschamp / champion", n:"Mr Night", etd:"Boss_Champion", w:"Dual High Cal Revolver", wid:"WID_HighCaliburPistol_Dual", s:"DA_Champion_Stats", d:"ranged little TK throw, 10 damage", hp:"75", st:"250", ap:"-" },
+  { a:"bosssafia / safia", n:"Safia", etd:"Boss_Safia", w:"Claws", wid:"WID_Claws", s:"DA_Safia_Stats", d:"no weapon drop", hp:"150", st:"250", ap:"-", m:"-/14/7.5|-/15/3.75" },
+  { a:"bossysabella / ysabella", n:"Ysabella", etd:"Boss_Ysabella", w:"Ysabella Rapier/Sword", wid:"WID_SwordYsabella", s:"DA_Ysbella_Stats", d:"enemy-held rapier; medium TK throw, 15 damage", hp:"75", st:"175", ap:"-", m:"6/10/6|-/-/3" },
+  { a:"bossysabellabeast / ysabellabeast", n:"Ysabella Beast", etd:"Boss_Ysabella_Beast", w:"Ysabella Rapier/Sword", wid:"WID_SwordYsabella", s:"DA_Ysbella_Stats", d:"enemy-held rapier; medium TK throw, 15 damage", hp:"75", st:"175", ap:"-", m:"6/10/6|-/-/3" },
+  { a:"bossysabelladiva / ysabelladiva", n:"Ysabella Diva", etd:"Boss_Ysabella_Diva", w:"Claws", wid:"WID_Claws", s:"DA_Sabbat_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"1.8", m:"7.5/14/7.5|3.75/7.5/3.75", note:"Likely not fightable, just a model used to represent these characters in the dream-sequences." },
+  { a:"bossysabellapredator / ysabellapredator", n:"Ysabella Predator", etd:"Boss_Ysabella_Predator", w:"Benny Unarmed", wid:"WID_BennyUnarmed", s:"DA_Sabbat_Vampire_Melee_Stats", d:"no weapon drop", hp:"270", st:"150", ap:"1.8", m:"7.5/14/7.5|3.75/7.5/3.75", note:"Likely not fightable, just a model used to represent these characters in the dream-sequences." },
+].map((enemy, sourceIndex) => {
+  const [armedDamage = "", unarmedDamage = ""] = (enemy.m || "").split("|");
+  const [crossbow = "", assaultRifle = "", handgun = "", revolver = "", shotgun = ""] = (enemy.r || "").split("/");
+  return {
+    ...enemy,
+    sourceIndex,
+    origin: getEnemyOrigin(enemy),
+    team: getEnemyTeam(enemy),
+    species: getEnemySpecies(enemy),
+    ...getEnemyAdditionalInfo(enemy),
+    pocketReward: getEnemyPocketRewardText(enemy),
+    armedDamage,
+    unarmedDamage,
+    rangedTags: enemy.r ? { crossbow, assaultRifle, handgun, revolver, shotgun } : null,
+  };
+});
+
+const ENEMY_WEAPON_SOURCE_TERMS = {
+  bat: ["Baseball Bat", "WID_BaseballBat"],
+  spikebat: ["Spike Club", "Spiked Club", "WID_SpikedClub"],
+  baton_loaded: ["Electric Baton", "Electric Baton (single)", "WID_ElectricBaton", "WID_ElectricBaton_Single"],
+  knife: ["Knife", "WID_Knife"],
+  machete: ["Machete", "WID_Machete"],
+  sword: ["Sword", "WID_Sword"],
+  sledgehammer: ["Striker Hammer", "WID_Striker_Hammer"],
+  warhammer: ["Warhammer", "WID_Warhammer"],
+  crossbow: ["Crossbow", "WID_Crossbow"],
+  "iao-rifle": ["IAO Rifle", "WID_Rifle"],
+  "sniper-rifle": ["Sniper Rifle", "WID_SniperRifle"],
+  "iao-shotgun": ["IAO Shotgun", "WID_Shotgun"],
+  "dollar-store-m4": ["Dollar Store M4", "WID_Rifle_ThinbloodEarly"],
+  "stubby-smg": ["Stubby SMG", "WID_Rifle_Dual"],
+  smg: ["SMG", "WID_SMG"],
+  shotgun: ["Shotgun", "WID_Shotgun_ThinbloodEarly"],
+  revolver: ["Revolver", "WID_Revolver"],
+  "mega-shotty": ["Mega Shotty", "WID_Shotgun_Pump"],
+  pistol: ["Pistol", "WID_Handgun"],
+  "high-cal-revolver": ["High Cal Revolver", "Dual High Cal Revolver", "WID_HighCaliburPistol", "WID_HighCaliburPistol_Dual"],
+};
+
+const RANGED_WEAPON_WID_BY_ID = {
+  crossbow: "WID_Crossbow",
+  "iao-rifle": "WID_Rifle",
+  "sniper-rifle": "WID_SniperRifle",
+  "iao-shotgun": "WID_Shotgun",
+  "dollar-store-m4": "WID_Rifle_ThinbloodEarly",
+  "stubby-smg": "WID_Rifle_Dual",
+  smg: "WID_SMG",
+  shotgun: "WID_Shotgun_ThinbloodEarly",
+  revolver: "WID_Revolver",
+  "mega-shotty": "WID_Shotgun_Pump",
+  pistol: "WID_Handgun",
+  "high-cal-revolver": "WID_HighCaliburPistol",
+};
+
+function formatEnemyWeaponNumber(value) {
+  if (value === null || value === undefined || value === "" || value === "-") return "-";
+  if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, "");
+  return String(value);
+}
+
+function formatEnemyRangedUse(weapon) {
+  const enemy = weapon.enemy || {};
+  const projectileDamage = enemy.damagePerProjectile === "special"
+    ? "special explosive payload"
+    : `${formatEnemyWeaponNumber(enemy.damagePerProjectile)} projectile dmg`;
+  return `Enemy fire: burst ${formatEnemyWeaponNumber(enemy.shotsPerBurst)}, shot rate ${formatEnemyWeaponNumber(enemy.shotFireRate)}s, ${projectileDamage}.`;
+}
+
+function formatEnemyRangedDamage(weapon) {
+  const parts = [
+    `Player dmg ${formatEnemyWeaponNumber(weapon.projectileDamage)}`,
+    `${formatEnemyWeaponNumber(weapon.projectilesPerShot)} projectile(s)`,
+  ];
+  if (weapon.damageTag) parts.push(`tag ${weapon.damageTag.replace("Data.Damage.Ranged.", "")}`);
+  if (weapon.explosionDamage) parts.push(`explosion ${formatEnemyWeaponNumber(weapon.explosionDamage)}`);
+  return parts.join("; ");
+}
+
+const ENEMY_MELEE_WEAPON_REFERENCE = [
+  { name: "Baseball Bat", wid: "WID_BaseballBat", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Typical Thinblood minor: 7.5/14/7.5. Throw 10, audio 1600.", notes: "World spawner; bat-class." },
+  { name: "Electric Baton", wid: "WID_ElectricBaton", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Inquisitor melee sample: 7.5/14/7.5. Throw 10, audio 1600.", notes: "Enemy-harvest path; no normal world spawner found." },
+  { name: "Electric Baton (single)", wid: "WID_ElectricBaton_Single", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Thinblood minor sample: 7.5/14/7.5. Throw 10, audio 1600.", notes: "Enemy-held single baton variant." },
+  { name: "Knife", wid: "WID_Knife", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Thinblood knife sample: 5/10/7.5. Throw 15, audio 1600.", notes: "World spawner; generic backup-knife path points here." },
+  { name: "Machete", wid: "WID_Machete", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Thinblood minor sample: 7.5/14/7.5. Throw 15, audio 1600.", notes: "World spawner." },
+  { name: "Spiked Club", wid: "WID_SpikedClub", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Sabbat minor sample: 7.5/14/7.5. Throw 15, audio 1600.", notes: "World spawner." },
+  { name: "Striker Hammer", wid: "WID_Striker_Hammer", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Thinblood major sample: 7.5/14/7.5. Throw 50, audio 1600.", notes: "Hammer/sledge world spawner." },
+  { name: "Sword", wid: "WID_Sword", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Sabbat sword sample: 10/18/7.5. Throw 15, audio 1600.", notes: "World spawner." },
+  { name: "Ysabella Rapier/Sword", wid: "WID_SwordYsabella", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Ysabella boss sample: 6/10/6. Throw 15, audio 1600.", notes: "Enemy-held rapier." },
+  { name: "Warhammer", wid: "WID_Warhammer", type: "Melee", enemyUse: "Enemy damage comes from Armed L/H/C stat tags.", damage: "Sabbat major sample: 7.5/14/7.5. Throw 65, audio 1600.", notes: "World spawner; obliterate throwable tier." },
+  { name: "Unarmed", wid: "WID_Unarmed", type: "Natural", enemyUse: "Enemy damage comes from Unarmed L/H/C stat tags.", damage: "Most human/minor rows use 3.75/7.5/3.75; values vary by stats asset.", notes: "No weapon drop." },
+  { name: "Claws", wid: "WID_Claws", type: "Natural", enemyUse: "Enemy damage comes from Unarmed L/H/C stat tags.", damage: "Vampire and monster values vary by stats asset.", notes: "No weapon drop." },
+  { name: "Benny Unarmed", wid: "WID_BennyUnarmed", type: "Natural", enemyUse: "Enemy damage comes from Unarmed L/H/C stat tags.", damage: "Benny sample: 7/15/4.", notes: "Boss-style natural weapon." },
+];
+
+const ENEMY_WEAPON_REFERENCE = [
+  ...RANGED_WEAPONS.map((weapon) => ({
+    name: weapon.name,
+    wid: RANGED_WEAPON_WID_BY_ID[weapon.id],
+    type: "Ranged",
+    enemyUse: formatEnemyRangedUse(weapon),
+    damage: formatEnemyRangedDamage(weapon),
+    notes: `Ammo ${formatEnemyWeaponNumber(weapon.ammoBeforeReload)}; max ${formatEnemyWeaponNumber(weapon.maxAmmo)}.`,
+  })),
+  {
+    name: "Dual High Cal Revolver",
+    wid: "WID_HighCaliburPistol_Dual",
+    type: "Ranged",
+    enemyUse: "Enemy fire: burst 4, shot rate 0.35s, 3.75 projectile dmg.",
+    damage: "Player dmg 15; 1 projectile; tag Revolver.",
+    notes: "Champion loadout; max ammo 12.",
+  },
+  ...ENEMY_MELEE_WEAPON_REFERENCE,
+];
+
+const ENEMY_WEAPON_REFERENCE_BY_WID = new Map(ENEMY_WEAPON_REFERENCE.map((weapon) => [weapon.wid, weapon]));
+
+const ENEMY_DROP_TARGETS_BY_WID = {
+  WID_BaseballBat: { tab: "weapons", urlCrumb: "melee", anchor: "mw-bat", label: "Baseball Bat", page: "Melee" },
+  WID_ElectricBaton: { tab: "weapons", urlCrumb: "melee", anchor: "mw-baton_loaded", label: "Electric Baton", page: "Melee" },
+  WID_ElectricBaton_Single: { tab: "weapons", urlCrumb: "melee", anchor: "mw-baton_loaded", label: "Electric Baton", page: "Melee" },
+  WID_Knife: { tab: "weapons", urlCrumb: "melee", anchor: "mw-knife", label: "Knife", page: "Melee" },
+  WID_Machete: { tab: "weapons", urlCrumb: "melee", anchor: "mw-machete", label: "Machete", page: "Melee" },
+  WID_SpikedClub: { tab: "weapons", urlCrumb: "melee", anchor: "mw-spikebat", label: "Spiked Club", page: "Melee" },
+  WID_Striker_Hammer: { tab: "weapons", urlCrumb: "melee", anchor: "mw-sledgehammer", label: "Striker Hammer", page: "Melee" },
+  WID_Sword: { tab: "weapons", urlCrumb: "melee", anchor: "mw-sword", label: "Sword", page: "Melee" },
+  WID_SwordYsabella: {
+    targetPage: "ysabelle",
+    targetSubtab: "combat",
+    href: "?at=ysabelle.combat#ysabella-rapier-section",
+    anchor: "ysabella-rapier-section",
+    label: "Rose Rapier",
+    page: "Ysabella Combat",
+    kindLabel: "Reference",
+    note: "Doesn't drop this item but is equivalent to the one used by player-controlled Ysabella.",
+  },
+  WID_Warhammer: { tab: "weapons", urlCrumb: "melee", anchor: "mw-warhammer", label: "Warhammer", page: "Melee" },
+  WID_Crossbow: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-crossbow", label: "Crossbow", page: "Ranged" },
+  WID_Rifle: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-iao-rifle", label: "IAO Rifle", page: "Ranged" },
+  WID_SniperRifle: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-sniper-rifle", label: "Sniper Rifle", page: "Ranged" },
+  WID_Shotgun: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-iao-shotgun", label: "IAO Shotgun", page: "Ranged" },
+  WID_Rifle_ThinbloodEarly: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-dollar-store-m4", label: "Dollar Store M4", page: "Ranged" },
+  WID_Rifle_Dual: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-stubby-smg", label: "Stubby SMG", page: "Ranged" },
+  WID_SMG: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-smg", label: "SMG", page: "Ranged" },
+  WID_Shotgun_ThinbloodEarly: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-shotgun", label: "Shotgun", page: "Ranged" },
+  WID_Revolver: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-revolver", label: "Revolver", page: "Ranged" },
+  WID_Shotgun_Pump: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-mega-shotty", label: "Mega Shotty", page: "Ranged" },
+  WID_Handgun: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-pistol", label: "Pistol", page: "Ranged" },
+  WID_HighCaliburPistol: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-high-cal-revolver", label: "High Cal Revolver", page: "Ranged" },
+  WID_HighCaliburPistol_Dual: { tab: "ranged", urlCrumb: "ranged", anchor: "rw-high-cal-revolver", label: "Dual High Cal Revolver", page: "Ranged" },
+};
+
+function formatEnemyValue(value) {
+  return value && value !== "-" ? value : `<span class="crossclan__val--dim">-</span>`;
+}
+
+function formatEnemySourceNote(note) {
+  const raw = String(note || "").trim();
+  if (!raw || raw === "-") return "weapon source";
+  const sourceOnly = raw
+    .replace(/;\s*(?:ranged\s+)?(?:little|medium|heavy|obliterate)\s+TK throw,\s*\d+\s*damage(?: inherited)?/gi, "")
+    .replace(/(?:ranged\s+)?(?:little|medium|heavy|obliterate)\s+TK throw,\s*\d+\s*damage(?: inherited)?/gi, "")
+    .replace(/\s*;\s*/g, "; ")
+    .replace(/^;\s*|\s*;$/g, "")
+    .trim();
+  if (sourceOnly) return sourceOnly;
+  if (/^ranged\b/i.test(raw)) return "enemy-held ranged weapon";
+  return "enemy-held weapon";
+}
+
+function enemySourceTermsMatch(lookupTerms, sourceTerms) {
+  return sourceTerms.some(term => lookupTerms.has(term));
+}
+
+function getEnemySourcesForWeapon(weaponKey, fallbackName) {
+  const terms = new Set([...(ENEMY_WEAPON_SOURCE_TERMS[weaponKey] || []), fallbackName].filter(Boolean).map(String));
+  const sources = [];
+  ENEMY_LOADOUTS.forEach(enemy => {
+    if (terms.has(enemy.w) || terms.has(enemy.wid)) {
+      sources.push({
+        enemy,
+        kind: "Initial",
+        note: formatEnemySourceNote(enemy.d),
+      });
+    }
+    getEnemyBackupWeaponSources(enemy).forEach(source => {
+      if (!enemySourceTermsMatch(terms, source.terms)) return;
+      sources.push({
+        enemy,
+        kind: "Backup",
+        note: source.note,
+      });
+    });
+  });
+  return sources;
+}
+
+function getEnemyWeaponReference(enemy) {
+  return ENEMY_WEAPON_REFERENCE_BY_WID.get(enemy.wid) || null;
+}
+
+function getEnemyDropTarget(enemy) {
+  return ENEMY_DROP_TARGETS_BY_WID[enemy.wid] || null;
+}
+
+function getEnemyDropSearchText(enemy) {
+  const target = getEnemyDropTarget(enemy);
+  return [enemy.drops, enemy.pocketReward, target?.label, target?.page, target?.note].filter(Boolean).join(" ");
+}
+
+function renderEnemyDropLink(target) {
+  const href = target.href || `?at=phyre.combat.${target.urlCrumb}#${target.anchor}`;
+  const targetPage = target.targetPage || "phyre-combat";
+  const targetSubtab = target.targetSubtab || "";
+  const comboTab = target.tab || "";
+  return `<a class="enemy-drop-link" href="${href}" data-enemy-drop-link data-combotab="${comboTab}" data-target-page="${targetPage}" data-target-subtab="${targetSubtab}" data-target-id="${target.anchor}">
+    <span>${target.label}</span><small>${target.page}</small>
+  </a>`;
+}
+
+function renderEnemyFallbackLinks(enemy) {
+  if (!enemy.disarm) return "";
+  const sources = getEnemyBackupWeaponSources(enemy);
+  const links = [];
+  const seen = new Set();
+  sources.forEach((source) => {
+    const target = source.wid ? ENEMY_DROP_TARGETS_BY_WID[source.wid] : null;
+    if (!target || seen.has(source.wid)) return;
+    seen.add(source.wid);
+    links.push(renderEnemyDropLink(target));
+  });
+  if (!links.length) return enemy.disarm;
+  const prefix = (enemy.disarm.match(/^[^:]+:/) || ["Fallback:"])[0];
+  return `<span class="enemy-fallback-prefix">${prefix}</span><span class="enemy-fallback-links">${links.join("")}</span>`;
+}
+
+function getEnemyFixedDropPickupId(dropText) {
+  const text = String(dropText || "").toLowerCase();
+  if (/fortitude|ventrue/.test(text)) return "fortitude";
+  if (/potence|brujah/.test(text)) return "potence";
+  if (/mending|health/.test(text)) return "mending";
+  if (/blood elixir|blood pips/.test(text)) return "blood";
+  if (/resonance|blood bag|blood pack/.test(text)) return "resonance_blood_pack";
+  return "";
+}
+
+function renderEnemyPickupDropLink(label, pickupId = "") {
+  const anchor = pickupId ? `#pickup-elixir-${pickupId}` : "";
+  const targetAttr = pickupId ? ` data-pickup-target="${pickupId}"` : "";
+  return `<a class="enemy-drop-link enemy-drop-link--pickup" href="?at=phyre.pickups.items${anchor}" data-enemy-pickup-drop-link${targetAttr}>
+    <span>${label}</span><small>Pickups</small>
+  </a>`;
+}
+
+function renderEnemyDrops(enemy) {
+  const target = getEnemyDropTarget(enemy);
+  if (!enemy.drops && !enemy.pocketReward && !target) return "";
+  const label = target?.kindLabel || "Drops";
+  let h = `<div class="enemy-card__callout enemy-card__callout--drop"><span>${label}</span><strong class="enemy-card__drops">`;
+  if (target) h += renderEnemyDropLink(target);
+  if (target?.note) h += `<span class="enemy-drop-note">${target.note}</span>`;
+  if (enemy.pocketReward) h += renderEnemyPickupDropLink(enemy.pocketReward, "resonance_blood_pack");
+  if (enemy.drops) h += renderEnemyPickupDropLink(enemy.drops, getEnemyFixedDropPickupId(enemy.drops));
+  h += `</strong></div>`;
+  return h;
+}
+
+function formatEnemyTagText(label, value) {
+  return value && value !== "-" ? `${label} ${value}` : "";
+}
+
+function formatEnemyRangedTagText(enemy) {
+  if (!enemy.rangedTags) return "";
+  return [
+    formatEnemyTagText("Crossbow", enemy.rangedTags.crossbow),
+    formatEnemyTagText("Assault", enemy.rangedTags.assaultRifle),
+    formatEnemyTagText("Handgun", enemy.rangedTags.handgun),
+    formatEnemyTagText("Revolver", enemy.rangedTags.revolver),
+    formatEnemyTagText("Shotgun", enemy.rangedTags.shotgun),
+  ].filter(Boolean).join("; ");
+}
+
+function formatEnemyMeleeTagText(enemy) {
+  return [
+    formatEnemyTagText("Armed L/H/C", enemy.armedDamage),
+    formatEnemyTagText("Unarmed L/H/C", enemy.unarmedDamage),
+  ].filter(Boolean).join("; ");
+}
+
+function renderEnemyWeaponDetailRow(label, value) {
+  if (!value) return "";
+  return `<div class="enemy-weapon-detail__row"><dt>${label}</dt><dd>${value}</dd></div>`;
+}
+
+const ENEMY_RANGED_DAMAGE_TAG_BY_WID = {
+  WID_Crossbow: ["Crossbow", "crossbow"],
+  WID_Rifle: ["Assault", "assaultRifle"],
+  WID_Rifle_ThinbloodEarly: ["Assault", "assaultRifle"],
+  WID_Rifle_Dual: ["Assault", "assaultRifle"],
+  WID_SMG: ["Assault", "assaultRifle"],
+  WID_Shotgun: ["Shotgun", "shotgun"],
+  WID_Shotgun_ThinbloodEarly: ["Shotgun", "shotgun"],
+  WID_Shotgun_Pump: ["Shotgun", "shotgun"],
+  WID_Handgun: ["Handgun", "handgun"],
+  WID_Revolver: ["Revolver", "revolver"],
+  WID_HighCaliburPistol: ["Revolver", "revolver"],
+  WID_HighCaliburPistol_Dual: ["Revolver", "revolver"],
+};
+
+function getEnemyCurrentWeaponTagText(enemy) {
+  const ref = getEnemyWeaponReference(enemy);
+  if (ref?.type === "Ranged") {
+    const [label, key] = ENEMY_RANGED_DAMAGE_TAG_BY_WID[enemy.wid] || [];
+    const value = key && enemy.rangedTags ? enemy.rangedTags[key] : "";
+    return value && value !== "-" ? `${label} tag ${value}` : "";
+  }
+  if (ref?.type === "Natural") {
+    return formatEnemyTagText("Unarmed L/H/C", enemy.unarmedDamage);
+  }
+  return formatEnemyTagText("Armed L/H/C", enemy.armedDamage);
+}
+
+function getEnemyAttackSummary(enemy) {
+  const ref = getEnemyWeaponReference(enemy);
+  if (ref?.type === "Ranged") {
+    return ref.enemyUse || "Ranged attack data not exported.";
+  }
+  return getEnemyCurrentWeaponTagText(enemy) || ref?.enemyUse || "No current-weapon attack tags exported for this row.";
+}
+
+function getEnemyAttackTypeLabel(enemy) {
+  const ref = getEnemyWeaponReference(enemy);
+  if (ref?.type) return ref.type;
+  if (/unarmed|claws|benny unarmed/i.test(`${enemy.w || ""} ${enemy.wid || ""}`)) return "Natural";
+  return "Weapon";
+}
+
+function getEnemyDetectionRating(enemy) {
+  const text = String(enemy.detection || "");
+  if (/hearing 500000|auto last-seen/i.test(text)) return { label: "Extreme", className: "extreme" };
+  if (/sniper|heightened|hearing 7500|far F10000/i.test(text)) return { label: "High", className: "high" };
+  if (/all-around|proximity sense/i.test(text)) return { label: "Wide", className: "wide" };
+  if (/blind|non-combat|damage-immune|blocked-targeting/i.test(text)) return { label: "Unusual", className: "unusual" };
+  return { label: "Standard", className: "standard" };
+}
+
+function renderEnemyWeaponDetailPanel(enemy, panelId) {
+  const ref = getEnemyWeaponReference(enemy);
+  const currentWeaponTags = getEnemyCurrentWeaponTagText(enemy) ||
+    (ref?.type === "Ranged" ? "No current-weapon stat tag exported; use the enemy fire data above." : "");
+  let h = `<div class="enemy-weapon-detail" id="${panelId}" hidden>`;
+  h += `<div class="enemy-weapon-detail__head">`;
+  h += `<div><strong>${enemy.w}</strong><span>${getEnemyAttackTypeLabel(enemy)} attack profile</span></div>`;
+  h += ref ? `<span class="enemy-weapon-table__type enemy-weapon-table__type--${ref.type.toLowerCase()}">${ref.type}</span>` : "";
+  h += `</div>`;
+  h += `<dl class="enemy-weapon-detail__grid">`;
+  h += renderEnemyWeaponDetailRow("Enemy Behaviour", ref ? ref.enemyUse : "No shared enemy weapon reference found.");
+  h += renderEnemyWeaponDetailRow("Current Weapon Tags", currentWeaponTags);
+  h += renderEnemyWeaponDetailRow("Weapon Reference", ref ? ref.damage : "");
+  h += renderEnemyWeaponDetailRow("Attack Power", `x${getEnemyAttackPowerValue(enemy.ap)}`);
+  h += renderEnemyWeaponDetailRow("Disarm / Fallback", renderEnemyFallbackLinks(enemy));
+  h += renderEnemyWeaponDetailRow("Special Moves", enemy.specials);
+  h += renderEnemyWeaponDetailRow("Notes", ref ? ref.notes : "");
+  h += `</dl>`;
+  h += `</div>`;
+  return h;
+}
+
+function getEnemyWeaponReferenceSourceSummary(ref) {
+  const terms = new Set([ref.name, ref.wid].filter(Boolean));
+  let initial = 0;
+  let backup = 0;
+  ENEMY_LOADOUTS.forEach(enemy => {
+    if (terms.has(enemy.w) || terms.has(enemy.wid)) initial += 1;
+    getEnemyBackupWeaponSources(enemy).forEach(source => {
+      if (enemySourceTermsMatch(terms, source.terms)) backup += 1;
+    });
+  });
+  if (!initial && !backup) return "No current enemy source";
+  return `${initial} initial${backup ? `, ${backup} backup` : ""}`;
+}
+
+function renderEnemySourcePanel(weaponKey, fallbackName) {
+  const sources = getEnemySourcesForWeapon(weaponKey, fallbackName);
+  const count = sources.length;
+  let h = `<details class="enemy-source-panel"${count ? "" : " open"}>`;
+  h += `<summary class="enemy-source-panel__summary">Enemy sources <span>${count ? `${count} confirmed` : "none confirmed"}</span></summary>`;
+  h += `<div class="enemy-source-panel__body">`;
+  if (!count) {
+    h += `<p class="crossclan-note--sub">No enemy loadout in <code class="crossclan-code">enemy_weapons.md</code> carries this weapon.</p>`;
+  } else {
+    h += `<table class="combos-table enemy-source-table"><thead><tr>
+      <th class="combos-table__th">Enemy</th>
+      <th class="combos-table__th">Alias</th>
+      <th class="combos-table__th">HP</th>
+      <th class="combos-table__th">Stun</th>
+      <th class="combos-table__th">Source</th>
+    </tr></thead><tbody>`;
+    sources.forEach(source => {
+      const enemy = source.enemy;
+      h += `<tr class="combos-table__tr">
+        <td class="combos-table__td">${enemy.n}<span class="enemy-source-table__wid"><code class="crossclan-code">${enemy.wid}</code></span></td>
+        <td class="combos-table__td"><code class="crossclan-code">${enemy.a}</code></td>
+        <td class="combos-table__td">${formatEnemyValue(enemy.hp)}</td>
+        <td class="combos-table__td">${formatEnemyValue(enemy.st)}</td>
+        <td class="combos-table__td"><span class="enemy-source-table__kind enemy-source-table__kind--${source.kind.toLowerCase()}">${source.kind}</span>${source.note}</td>
+      </tr>`;
+    });
+    h += `</tbody></table>`;
+  }
+  h += `</div></details>`;
+  return h;
+}
+
 const RANGED_DUAL_FIRE_DATA = {
   "crossbow": {
     singleAttackset: "Attackset_Crossbow",
@@ -2870,7 +3803,71 @@ const RANGED_ENEMY_RELOAD_PROFILES = {
 };
 
 let RANGED_WEAPON_TABLE_MODE = "single";
+let RANGED_WEAPON_TABLE_SORT = { key: "weapon", dir: "asc" };
 const RANGED_DUAL_CAP_NO_DOUBLE = new Set(["pistol", "revolver", "high-cal-revolver"]);
+
+function getRangedSortDefaultDir(key) {
+  if (key === "weapon" || key === "dualRead") return "asc";
+  if (key === "cycle" || key === "fireRate") return "asc";
+  return "desc";
+}
+
+function getRangedSortValue(weapon, key, mode) {
+  if (key === "weapon") return weapon.name.toLowerCase();
+  if (key === "damage") return getRangedAttacksetShotDamage(weapon, mode) ?? -Infinity;
+  if (key === "ammo") return getRangedAmmoCapShots(weapon, mode) ?? -Infinity;
+  if (key === "cycle") return getRangedCycleTime(weapon, mode);
+  if (key === "fireRate") {
+    const data = RANGED_DUAL_FIRE_DATA[weapon.id] || {};
+    return mode === "dual" ? data.dualFireRate ?? Infinity : data.singleFireRate ?? Infinity;
+  }
+  if (key === "dualRead") return getRangedDualRead(weapon).label.toLowerCase();
+  if (key === "total") return getRangedDpsOutput(weapon, mode)?.totalDamage ?? -Infinity;
+  if (key === "dps") return getRangedDpsOutput(weapon, mode)?.dps ?? -Infinity;
+  if (key === "sources") return getEnemySourcesForWeapon(weapon.id, weapon.name).length;
+  return weapon.name.toLowerCase();
+}
+
+function getSortedRangedWeapons(mode) {
+  const { key, dir } = RANGED_WEAPON_TABLE_SORT;
+  const direction = dir === "desc" ? -1 : 1;
+  return [...RANGED_WEAPONS].sort((a, b) => {
+    const aVal = getRangedSortValue(a, key, mode);
+    const bVal = getRangedSortValue(b, key, mode);
+    let result = 0;
+    if (typeof aVal === "string" || typeof bVal === "string") {
+      result = String(aVal).localeCompare(String(bVal));
+    } else {
+      result = aVal === bVal ? 0 : (aVal > bVal ? 1 : -1);
+    }
+    if (result === 0) result = a.name.localeCompare(b.name);
+    return result * direction;
+  });
+}
+
+function setRangedWeaponSort(key) {
+  if (RANGED_WEAPON_TABLE_SORT.key === key) {
+    RANGED_WEAPON_TABLE_SORT = {
+      key,
+      dir: RANGED_WEAPON_TABLE_SORT.dir === "asc" ? "desc" : "asc",
+    };
+    return;
+  }
+  RANGED_WEAPON_TABLE_SORT = { key, dir: getRangedSortDefaultDir(key) };
+}
+
+function renderRangedSortHeader(key, label, extraClass = "") {
+  const active = RANGED_WEAPON_TABLE_SORT.key === key;
+  const dir = active ? RANGED_WEAPON_TABLE_SORT.dir : getRangedSortDefaultDir(key);
+  const ariaSort = active ? (dir === "asc" ? "ascending" : "descending") : "none";
+  const indicator = active ? (dir === "asc" ? "^" : "v") : "-";
+  const className = extraClass ? ` ${extraClass}` : "";
+  return `<th class="combos-table__th${className}" aria-sort="${ariaSort}">
+    <button type="button" class="ranged-weapons-table__sort${active ? " is-active" : ""}" data-ranged-sort="${key}">
+      <span>${label}</span><span class="ranged-weapons-table__sort-icon">${indicator}</span>
+    </button>
+  </th>`;
+}
 
 function formatRangedNumber(value) {
   if (typeof value !== "number" || !Number.isFinite(value)) return String(value || "");
@@ -3226,6 +4223,36 @@ function renderRangedTotalDamageCell(weapon, mode) {
   return `<span class="ranged-table__value">${formatRangedNumber(output.totalDamage)}</span><span class="ranged-table__sub">${note}</span>`;
 }
 
+function renderRangedSourceCell(weapon) {
+  const sources = getEnemySourcesForWeapon(weapon.id, weapon.name);
+  const panelId = `ranged-source-popout-${weapon.id}`;
+  const countLabel = sources.length ? `${sources.length}` : "0";
+  let html = `<div class="ranged-source-cell">`;
+  html += `<button type="button" class="ranged-source-cell__button" data-ranged-source-button aria-expanded="false" aria-controls="${panelId}">
+    <span class="ranged-source-cell__count">${countLabel}</span>
+    <span class="ranged-source-cell__label">${sources.length === 1 ? "source" : "sources"}</span>
+  </button>`;
+  html += `<div class="ranged-source-popout" id="${panelId}" hidden>`;
+  html += `<div class="ranged-source-popout__head"><strong>${weapon.name}</strong><span>${sources.length ? `${sources.length} confirmed` : "none confirmed"}</span></div>`;
+  if (!sources.length) {
+    html += `<p class="crossclan-note--sub">No enemy loadout in <code class="crossclan-code">enemy_weapons.md</code> carries this weapon.</p>`;
+  } else {
+    html += `<div class="ranged-source-popout__list">`;
+    sources.forEach(source => {
+      const enemy = source.enemy;
+      html += `<div class="ranged-source-popout__item">`;
+      html += `<div><strong>${enemy.n}</strong><code class="crossclan-code">${enemy.a}</code></div>`;
+      html += `<span class="enemy-source-table__kind enemy-source-table__kind--${source.kind.toLowerCase()}">${source.kind}</span>`;
+      html += `<span class="ranged-source-popout__stats">HP ${formatEnemyValue(enemy.hp)} / Stun ${formatEnemyValue(enemy.st)}</span>`;
+      html += `<p>${source.note}</p>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
 function renderRangedWeaponCard(weapon) {
   const notes = weapon.notes && weapon.notes.length
     ? `<ul class="ranged-weapon-card__notes">${weapon.notes.map(note => `<li>${note}</li>`).join("")}</ul>`
@@ -3261,6 +4288,9 @@ function renderRangedWeaponsPage() {
   const container = document.getElementById("combos-subpage-ranged");
   if (!container) return;
   const activeMode = RANGED_WEAPON_TABLE_MODE === "dual" ? "dual" : "single";
+  if (activeMode !== "dual" && RANGED_WEAPON_TABLE_SORT.key === "dualRead") {
+    RANGED_WEAPON_TABLE_SORT = { key: "weapon", dir: "asc" };
+  }
   const activeModeLabel = activeMode === "dual" ? "Dual" : "Single";
   const dpsHeading = activeMode === "dual" ? "Corrected Dual DPS" : "Single DPS";
 
@@ -3294,19 +4324,21 @@ function renderRangedWeaponsPage() {
   h += `<button type="button" class="ranged-weapons-mode__btn ${activeMode === "dual" ? "is-active" : ""}" data-ranged-mode="dual" aria-pressed="${activeMode === "dual"}">Dual</button>`;
   h += `</div>`;
   h += `<div class="ranged-weapons-table-wrap">`;
-  h += `<table class="combos-table ranged-weapons-table"><thead><tr>
-    <th class="combos-table__th ranged-weapons-table__th--weapon">Weapon</th>
-    <th class="combos-table__th">Attackset Damage</th>
-    <th class="combos-table__th">Ammo</th>
-    <th class="combos-table__th">Cycle</th>
-    <th class="combos-table__th">${activeModeLabel}</th>
-    ${activeMode === "dual" ? `<th class="combos-table__th">Dual Read</th>` : ""}
-    <th class="combos-table__th">Total Damage</th>
-    <th class="combos-table__th">${dpsHeading}</th>
-  </tr></thead><tbody>`;
-  for (const w of RANGED_WEAPONS) {
+  h += `<table class="combos-table ranged-weapons-table"><thead><tr>`;
+  h += renderRangedSortHeader("weapon", "Weapon", "ranged-weapons-table__th--weapon");
+  h += renderRangedSortHeader("sources", "Sources");
+  h += renderRangedSortHeader("damage", "Attackset Damage");
+  h += renderRangedSortHeader("ammo", "Ammo");
+  h += renderRangedSortHeader("cycle", "Cycle");
+  h += renderRangedSortHeader("fireRate", activeModeLabel);
+  if (activeMode === "dual") h += renderRangedSortHeader("dualRead", "Dual Read");
+  h += renderRangedSortHeader("total", "Total Damage");
+  h += renderRangedSortHeader("dps", dpsHeading);
+  h += `</tr></thead><tbody>`;
+  for (const w of getSortedRangedWeapons(activeMode)) {
     h += `<tr class="ranged-weapons-table__row" id="rw-${w.id}">`;
     h += `<td class="combos-table__td ranged-weapons-table__weapon"><img src="${w.icon}" alt="" class="ranged-weapons-table__icon"><span><span class="ranged-weapons-table__name">${w.name}</span><span class="ranged-table__sub">${w.family} &middot; <code class="crossclan-code">${w.registryName}</code></span></span></td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric ranged-weapons-table__metric--source">${renderRangedSourceCell(w)}</td>`;
     h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedDamageCell(w)}</td>`;
     h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedCapCell(w)}</td>`;
     h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedCycleTableCell(w)}</td>`;
@@ -3332,6 +4364,7 @@ function renderRangedWeaponsPage() {
     <li>Mega Shotty dual uses inherited <code>FireRate = 0.2</code> with no cycle timing, producing 240 DPS from its 48 damage shot.</li>
     <li><strong>Crossbow explosive:</strong> the bolt's direct hit is only <code>0.1</code>; <code>WrestlerProjectile_ExplodingBolt_C</code> spawns <code>BP_Throwable_Bolt_C</code>, which spawns <code>BP_Explosion_TickDelay_C</code>. The listed <code>80</code> damage is the spawned explosion payload, and the throwable bolt has a <code>3.3s</code> Beepline blinking light timeline before/around detonation.</li>
   </ul>`;
+
   h += `</div>`;
   h += `</div>`;
 
@@ -3348,6 +4381,693 @@ function attachRangedWeaponsModeListeners(container) {
       renderRangedWeaponsPage();
     });
   });
+
+  container.querySelectorAll("[data-ranged-sort]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setRangedWeaponSort(btn.dataset.rangedSort);
+      renderRangedWeaponsPage();
+    });
+  });
+
+  const closeSourcePopouts = (exceptPanel = null) => {
+    container.querySelectorAll(".ranged-source-popout").forEach(panel => {
+      if (panel === exceptPanel) return;
+      panel.hidden = true;
+    });
+    container.querySelectorAll("[data-ranged-source-button]").forEach(button => {
+      if (exceptPanel && button.getAttribute("aria-controls") === exceptPanel.id) return;
+      button.setAttribute("aria-expanded", "false");
+    });
+  };
+
+  const positionSourcePopout = (button, panel) => {
+    const rect = button.getBoundingClientRect();
+    const width = Math.min(440, Math.max(300, window.innerWidth - 24));
+    panel.style.width = `${width}px`;
+    const desiredLeft = Math.min(rect.left, window.innerWidth - width - 12);
+    const left = Math.max(12, desiredLeft);
+    const panelHeight = Math.min(panel.scrollHeight || 320, 420);
+    const below = rect.bottom + 8;
+    const above = rect.top - panelHeight - 8;
+    const top = below + panelHeight < window.innerHeight - 12 ? below : Math.max(12, above);
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+  };
+
+  container.addEventListener("click", (event) => {
+    const sourceButton = event.target.closest("[data-ranged-source-button]");
+    if (sourceButton) {
+      const panel = document.getElementById(sourceButton.getAttribute("aria-controls"));
+      if (!panel) return;
+      const willOpen = panel.hidden;
+      closeSourcePopouts(willOpen ? panel : null);
+      panel.hidden = !willOpen;
+      if (willOpen) positionSourcePopout(sourceButton, panel);
+      sourceButton.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      return;
+    }
+
+    if (!event.target.closest(".ranged-source-popout")) {
+      closeSourcePopouts();
+    }
+  });
+}
+
+function renderEnemyMetric(label, value, options = {}) {
+  const displayValue = value && value !== "-"
+    ? value
+    : `<span class="crossclan__val--dim">${options.emptyText || "-"}</span>`;
+  const note = options.note ? `<small>${options.note}</small>` : "";
+  return `<div class="enemy-card__metric"><span>${label}</span><strong>${displayValue}</strong>${note}</div>`;
+}
+
+function getEnemyAttackPowerValue(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function renderEnemyAttackPowerMetric(enemy) {
+  const value = getEnemyAttackPowerValue(enemy.ap);
+  const risk = Math.max(0, Math.min(1, (value - 1) / 19));
+  const hotClass = value > 1 ? " enemy-card__metric--attack-hot" : "";
+  const style = value > 1 ? ` style="--enemy-attack-risk:${Math.round(risk * 100)}%;"` : "";
+  return `<div class="enemy-card__metric enemy-card__metric--attack${hotClass}"${style}>
+    <span>Damage Mult.</span>
+    <strong>${value}</strong>
+    <small>${value > 1 ? "elevated AttackPower" : "baseline AttackPower"}</small>
+  </div>`;
+}
+
+function renderEnemyTeamDetailPanel(enemy, panelId) {
+  const team = getEnemyTeamMeta(enemy.team);
+  const species = getEnemySpeciesMeta(enemy.species);
+  const hostileText = team.hostileTo.length ? team.hostileTo.join(", ") : "None listed";
+  let h = `<div class="enemy-affiliation-detail" id="${panelId}" hidden>`;
+  h += `<div class="enemy-affiliation-detail__head"><strong>Faction / Team</strong><span class="enemy-team-pill enemy-team-pill--${enemy.team}">${team.label}</span></div>`;
+  h += `<dl class="enemy-affiliation-detail__grid">`;
+  h += `<div><dt>Hostile To</dt><dd>${hostileText}</dd></div>`;
+  h += `<div><dt>Team Note</dt><dd>${team.note}</dd></div>`;
+  h += `<div><dt>Species</dt><dd>${species.label}</dd></div>`;
+  h += `<div><dt>Species Note</dt><dd>${species.note}</dd></div>`;
+  h += `</dl>`;
+  h += `</div>`;
+  return h;
+}
+
+function renderEnemyAffiliation(enemy, panelId) {
+  const team = getEnemyTeamMeta(enemy.team);
+  const species = getEnemySpeciesMeta(enemy.species);
+  return `<div class="enemy-card__identity">
+    <button class="enemy-team-pill enemy-team-pill--${enemy.team}" type="button" data-enemy-team-button aria-expanded="false" aria-controls="${panelId}">
+      <span>Faction</span><strong>${team.label}</strong>
+    </button>
+    <span class="enemy-species-pill enemy-species-pill--${enemy.species}">
+      <span>Species</span><strong>${species.label}</strong>
+    </span>
+  </div>`;
+}
+
+function renderEnemyScreenshotSlot(enemy) {
+  if (enemy.img) {
+    return `<div class="enemy-card__shot"><img src="${enemy.img}" alt="${enemy.n} screenshot"></div>`;
+  }
+  return `<div class="enemy-card__shot" data-screenshot-target="assets/enemies/${enemy.etd}.png">
+    <span class="enemy-card__shot-label">Screenshot pending</span>
+    <span class="enemy-card__shot-path">assets/enemies/${enemy.etd}.png</span>
+  </div>`;
+}
+
+function renderEnemyCallout(label, value, modifier = "") {
+  if (!value) return "";
+  const modifierClass = modifier ? ` enemy-card__callout--${modifier}` : "";
+  return `<div class="enemy-card__callout${modifierClass}"><span>${label}</span><strong>${value}</strong></div>`;
+}
+
+function renderEnemyCallouts(enemy) {
+  if (!enemy.note && !enemy.drops && !enemy.pocketReward && !getEnemyDropTarget(enemy)) return "";
+  let h = `<div class="enemy-card__callouts">`;
+  h += renderEnemyCallout("Note", enemy.note);
+  h += renderEnemyDrops(enemy);
+  h += `</div>`;
+  return h;
+}
+
+function renderEnemyDetectionBlock(enemy) {
+  const rating = getEnemyDetectionRating(enemy);
+  return `<div class="enemy-card__detection enemy-card__detection--${rating.className}">
+    <span>Detection</span>
+    <strong>${rating.label}</strong>
+    <small>${enemy.detection}</small>
+  </div>`;
+}
+
+function renderEnemyExportTags(enemy) {
+  const tags = [
+    ["ETD", enemy.etd],
+    ["WID", enemy.wid],
+    ["Stats", enemy.s],
+  ].filter(([, value]) => value);
+  if (!tags.length) return "";
+  return `<details class="enemy-card__exports">
+    <summary>Export IDs</summary>
+    <div class="enemy-card__export-tags">
+      ${tags.map(([label, value]) => `<span><em>${label}</em><code class="crossclan-code enemy-card__code">${value}</code></span>`).join("")}
+    </div>
+  </details>`;
+}
+
+function renderEnemyAttackProfile(enemy, panelId) {
+  const typeLabel = getEnemyAttackTypeLabel(enemy);
+  const specialsLine = enemy.specials
+    ? `<div class="enemy-card__attack-line--specials"><span>Special Attacks</span><strong>${enemy.specials}</strong></div>`
+    : "";
+  const disarmLine = enemy.disarm
+    ? `<div><span>Disarm / Fallback</span><strong class="enemy-card__fallback-value">${renderEnemyFallbackLinks(enemy)}</strong></div>`
+    : "";
+  return `<div class="enemy-card__attack-profile">
+    <button class="enemy-card__attack-toggle" type="button" data-enemy-weapon-button aria-expanded="false" aria-controls="${panelId}">
+      <span>Attack</span>
+      <strong>${enemy.w}</strong>
+      <small>${typeLabel} - click for attack details</small>
+    </button>
+    <div class="enemy-card__attack-lines">
+      <div><span>Attack Pattern</span><strong>${getEnemyAttackSummary(enemy)}</strong></div>
+      ${specialsLine}
+      ${disarmLine}
+    </div>
+  </div>
+  ${renderEnemyWeaponDetailPanel(enemy, panelId)}`;
+}
+
+function isBossEnemy(enemy) {
+  return /^Boss:/i.test(enemy.n || "") || enemyAliasMatches(enemy, /\b(bossbenny|benny|bosschamp|champion|bosssafia|safia|bossysabella|ysabella|bossysabellabeast|ysabellabeast|bossysabelladiva|ysabelladiva|bossysabellapredator|ysabellapredator)\b/);
+}
+
+function firstEnemyAliasMatchIndex(enemy, patterns) {
+  const alias = enemyAliasText(enemy);
+  const idx = patterns.findIndex(pattern => pattern.test(alias));
+  return idx === -1 ? patterns.length : idx;
+}
+
+function getRegularEnemyRosterOrder(enemy) {
+  if (enemyAliasMatches(enemy, /\b(thinfort|frank|damsel|shadow|mannequin|dummy|testdummy)\b/)) {
+    return [
+      6,
+      firstEnemyAliasMatchIndex(enemy, [
+        /\bthinfort\b/,
+        /\bfrank\b/,
+        /\bdamsel\b/,
+        /\bshadow\b/,
+        /\bmannequin\b/,
+        /\b(dummy|testdummy)\b/,
+      ]),
+      enemy.sourceIndex,
+    ];
+  }
+
+  if (enemyAliasMatches(enemy, /\b(cop|copin|masscop|masspolice|pedestrian|massped|masspedestrian)\b/)) {
+    return [
+      0,
+      firstEnemyAliasMatchIndex(enemy, [
+        /\bcop\b/,
+        /\bcopin\b/,
+        /\b(masscop|masspolice)\b/,
+        /\bpedestrian\b/,
+        /\b(massped|masspedestrian)\b/,
+      ]),
+      enemy.sourceIndex,
+    ];
+  }
+
+  if (enemyAliasMatches(enemy, /\b(ghoul|ghoulknife|ghoulmac|ghoulpis|ghoulrev|ghoulsmg|ghoulsho|ghoulun|ghoulbaton|ghoulsniper|ghoulrifle|ghoulinqshotgun|majorgs|majorgd|majorgslate|majorgdlate|thinvamp|thinvampf|thinvamplate|thinvampflate)\b/)) {
+    return [1, 0, enemy.sourceIndex];
+  }
+
+  if (enemyAliasMatches(enemy, /\b(inq|inqshotgun|inqbaton|inqsniper|inqsniperbase|inqxbow)\b/)) {
+    return [2, 0, enemy.sourceIndex];
+  }
+
+  if (enemyAliasMatches(enemy, /\b(husk|shovelhead|shovel)\b/)) {
+    return [
+      3,
+      firstEnemyAliasMatchIndex(enemy, [
+        /\bhusk\b/,
+        /\b(shovelhead|shovel)\b/,
+      ]),
+      enemy.sourceIndex,
+    ];
+  }
+
+  if (enemyAliasMatches(enemy, /\b(sabbat|sabbatpis|sabbatclub|sabbatar|sabbatsniper|sabbatmaj|sabbatmajd|sabbatvamp|sabbatvampf|sabbatvamplate|sabbatvampflate)\b/)) {
+    return [4, 0, enemy.sourceIndex];
+  }
+
+  return [5, 0, enemy.sourceIndex];
+}
+
+function compareRegularEnemyRosterOrder(a, b) {
+  const left = getRegularEnemyRosterOrder(a);
+  const right = getRegularEnemyRosterOrder(b);
+  for (let i = 0; i < Math.max(left.length, right.length); i += 1) {
+    const delta = (left[i] || 0) - (right[i] || 0);
+    if (delta !== 0) return delta;
+  }
+  return 0;
+}
+
+function getBossEnemyRosterOrder(enemy) {
+  const originOrder = { base: 0, benny: 1, ysabella: 2 };
+  return [
+    originOrder[enemy.origin] ?? 3,
+    firstEnemyAliasMatchIndex(enemy, [
+      /\bbossbenny\b/,
+      /\bbossysabella\b/,
+      /\bbosssafia\b/,
+      /\bbosschamp\b/,
+      /\bbossysabellabeast\b/,
+      /\bbossysabelladiva\b/,
+      /\bbossysabellapredator\b/,
+    ]),
+    enemy.sourceIndex,
+  ];
+}
+
+function compareBossEnemyRosterOrder(a, b) {
+  const left = getBossEnemyRosterOrder(a);
+  const right = getBossEnemyRosterOrder(b);
+  for (let i = 0; i < Math.max(left.length, right.length); i += 1) {
+    const delta = (left[i] || 0) - (right[i] || 0);
+    if (delta !== 0) return delta;
+  }
+  return 0;
+}
+
+function getEnemySearchText(enemy) {
+  const origin = getEnemyOriginMeta(enemy.origin);
+  const team = getEnemyTeamMeta(enemy.team);
+  const species = getEnemySpeciesMeta(enemy.species);
+  return [
+    enemy.a,
+    enemy.n,
+    enemy.etd,
+    enemy.w,
+    enemy.wid,
+    enemy.s,
+    enemy.d,
+    enemy.hp,
+    enemy.st,
+    enemy.ap,
+    enemy.armedDamage,
+    enemy.unarmedDamage,
+    enemy.r,
+    enemy.disarm,
+    enemy.detection,
+    enemy.specials,
+    enemy.note,
+    getEnemyDropSearchText(enemy),
+    origin.label,
+    origin.shortLabel,
+    team.label,
+    team.hostileTo.join(" "),
+    team.note,
+    species.label,
+    species.note,
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function renderEnemyCard(enemy) {
+  const searchText = getEnemySearchText(enemy).replace(/"/g, "&quot;");
+  const panelId = `enemy-weapon-detail-${enemy.etd.replace(/[^a-z0-9_-]+/gi, "-")}`;
+  const teamPanelId = `enemy-affiliation-detail-${enemy.etd.replace(/[^a-z0-9_-]+/gi, "-")}`;
+  const origin = getEnemyOriginMeta(enemy.origin);
+  let h = `<article class="enemy-card" data-enemy-card data-enemy-origin="${origin.id}" data-enemy-team="${enemy.team}" data-enemy-species="${enemy.species}" data-search="${searchText}">`;
+  h += renderEnemyScreenshotSlot(enemy);
+  h += `<div class="enemy-card__body">`;
+  h += `<div class="enemy-card__topline">`;
+  h += `<div class="enemy-card__title"><h3 class="enemy-card__name">${enemy.n}</h3><div class="enemy-card__aliases"><code class="crossclan-code">${enemy.a}</code></div>${renderEnemyExportTags(enemy)}</div>`;
+  h += `<div class="enemy-card__badges"><img class="enemy-card__origin" src="${origin.icon}" alt="${origin.label}" title="${origin.label}"></div>`;
+  h += `</div>`;
+  h += renderEnemyAffiliation(enemy, teamPanelId);
+  h += renderEnemyTeamDetailPanel(enemy, teamPanelId);
+  h += `<div class="enemy-card__metrics">`;
+  h += renderEnemyMetric("HP", enemy.hp);
+  h += renderEnemyMetric("Stun", enemy.st);
+  h += renderEnemyAttackPowerMetric(enemy);
+  h += `</div>`;
+  h += renderEnemyDetectionBlock(enemy);
+  h += renderEnemyAttackProfile(enemy, panelId);
+  h += renderEnemyCallouts(enemy);
+  h += `</div></article>`;
+  return h;
+}
+
+function closeEnemyWeaponDetails(container, exceptPanel = null) {
+  container.querySelectorAll(".enemy-weapon-detail").forEach(panel => {
+    if (panel === exceptPanel) return;
+    panel.hidden = true;
+  });
+  container.querySelectorAll("[data-enemy-weapon-button]").forEach(button => {
+    if (exceptPanel && button.getAttribute("aria-controls") === exceptPanel.id) return;
+    button.setAttribute("aria-expanded", "false");
+  });
+}
+
+function closeEnemyAffiliationDetails(container, exceptPanel = null) {
+  container.querySelectorAll(".enemy-affiliation-detail").forEach(panel => {
+    if (panel === exceptPanel) return;
+    panel.hidden = true;
+  });
+  container.querySelectorAll("[data-enemy-team-button]").forEach(button => {
+    if (exceptPanel && button.getAttribute("aria-controls") === exceptPanel.id) return;
+    button.setAttribute("aria-expanded", "false");
+  });
+}
+
+function scrollToEnemyDropAnchor(targetId) {
+  setTimeout(() => {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    target.classList.add("combos-table__row--highlight");
+    setTimeout(() => target.classList.remove("combos-table__row--highlight"), 2200);
+  }, 80);
+}
+
+function navigateToEnemyDropTarget(dropLink) {
+  const targetPage = dropLink.dataset.targetPage || "phyre-combat";
+  const targetId = dropLink.dataset.targetId;
+
+  if (targetPage === "ysabelle") {
+    const ysabellaTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="ysabelle"]');
+    if (ysabellaTab && !ysabellaTab.classList.contains("active")) ysabellaTab.click();
+
+    const ysabellaCombatTab = document.querySelector('.tab-bar--ysabelle .tab-bar__tab[data-ysabellatab="combat"]');
+    if (ysabellaCombatTab && !ysabellaCombatTab.classList.contains("active")) ysabellaCombatTab.click();
+    if (typeof renderYsabellaCombatPage === "function") renderYsabellaCombatPage();
+    if (typeof persistPosition === "function") persistPosition();
+    scrollToEnemyDropAnchor(targetId);
+    return;
+  }
+
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab && !phyreTab.classList.contains("active")) phyreTab.click();
+
+  const combosTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="combos"]');
+  if (combosTab && !combosTab.classList.contains("active")) combosTab.click();
+
+  if (typeof setActiveCombosSubtab === "function") setActiveCombosSubtab(dropLink.dataset.combotab);
+  if (typeof persistPosition === "function") persistPosition();
+  scrollToEnemyDropAnchor(targetId);
+}
+
+function navigateToEnemyPickupDrop(dropLink) {
+  const pickupId = dropLink.dataset.pickupTarget || "";
+  if (pickupId && typeof navigateToPickupElixir === "function") {
+    navigateToPickupElixir(pickupId);
+    return;
+  }
+
+  const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+  if (phyreTab && !phyreTab.classList.contains("active")) phyreTab.click();
+
+  const pickupsTab = document.querySelector('.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="pickups"]');
+  if (pickupsTab && !pickupsTab.classList.contains("active")) pickupsTab.click();
+
+  if (typeof renderPickupsPage === "function") renderPickupsPage();
+  if (typeof setActivePickupsSubtab === "function") setActivePickupsSubtab("items");
+  if (typeof persistPosition === "function") persistPosition();
+  if (typeof updateMobileChrome === "function") updateMobileChrome();
+}
+
+let ENEMY_ROSTER_TAB = "regular";
+
+function attachEnemySearch(container) {
+  const input = container.querySelector("[data-enemy-search]");
+  const cards = Array.from(container.querySelectorAll("[data-enemy-card]"));
+  const sections = Array.from(container.querySelectorAll("[data-enemy-section]"));
+  const tabs = Array.from(container.querySelectorAll("[data-enemy-roster-tab]"));
+  const originFilters = Array.from(container.querySelectorAll("[data-enemy-origin-filter]"));
+  const count = container.querySelector("[data-enemy-count]");
+  if (!input) return;
+  const apply = () => {
+    const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let visible = 0;
+    let total = 0;
+    cards.forEach(card => {
+      const haystack = card.dataset.search || "";
+      const isActiveRoster = card.closest("[data-enemy-section]")?.dataset.enemyRosterSection === ENEMY_ROSTER_TAB;
+      const isActiveOrigin = ENEMY_ORIGIN_FILTERS_ACTIVE.has(card.dataset.enemyOrigin);
+      const match = terms.every(term => haystack.includes(term));
+      card.hidden = !match || !isActiveOrigin;
+      if (isActiveRoster && isActiveOrigin) {
+        total += 1;
+        if (match) visible += 1;
+      }
+    });
+    sections.forEach(section => {
+      const hasVisibleCard = Array.from(section.querySelectorAll("[data-enemy-card]")).some(card => !card.hidden);
+      const isActiveRoster = section.dataset.enemyRosterSection === ENEMY_ROSTER_TAB;
+      section.hidden = !isActiveRoster || !hasVisibleCard;
+    });
+    tabs.forEach(tab => {
+      const isActive = tab.dataset.enemyRosterTab === ENEMY_ROSTER_TAB;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    originFilters.forEach(button => {
+      const isActive = ENEMY_ORIGIN_FILTERS_ACTIVE.has(button.dataset.enemyOriginFilter);
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+    if (count) count.textContent = `${visible} / ${total}`;
+  };
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const nextTab = tab.dataset.enemyRosterTab === "bosses" ? "bosses" : "regular";
+      if (ENEMY_ROSTER_TAB === nextTab) return;
+      ENEMY_ROSTER_TAB = nextTab;
+      apply();
+    });
+  });
+  originFilters.forEach(button => {
+    button.addEventListener("click", () => {
+      const origin = button.dataset.enemyOriginFilter;
+      if (ENEMY_ORIGIN_FILTERS_ACTIVE.has(origin)) {
+        ENEMY_ORIGIN_FILTERS_ACTIVE.delete(origin);
+      } else {
+        ENEMY_ORIGIN_FILTERS_ACTIVE.add(origin);
+      }
+      apply();
+    });
+  });
+  container.addEventListener("click", (event) => {
+    const weaponButton = event.target.closest("[data-enemy-weapon-button]");
+    if (weaponButton) {
+      const panel = document.getElementById(weaponButton.getAttribute("aria-controls"));
+      if (!panel) return;
+      const willOpen = panel.hidden;
+      closeEnemyAffiliationDetails(container);
+      closeEnemyWeaponDetails(container, willOpen ? panel : null);
+      panel.hidden = !willOpen;
+      weaponButton.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      return;
+    }
+
+    const teamButton = event.target.closest("[data-enemy-team-button]");
+    if (teamButton) {
+      const panel = document.getElementById(teamButton.getAttribute("aria-controls"));
+      if (!panel) return;
+      const willOpen = panel.hidden;
+      closeEnemyWeaponDetails(container);
+      closeEnemyAffiliationDetails(container, willOpen ? panel : null);
+      panel.hidden = !willOpen;
+      teamButton.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      return;
+    }
+
+    const dropLink = event.target.closest("[data-enemy-drop-link]");
+    if (dropLink) {
+      event.preventDefault();
+      navigateToEnemyDropTarget(dropLink);
+      return;
+    }
+
+    const pickupDropLink = event.target.closest("[data-enemy-pickup-drop-link]");
+    if (pickupDropLink) {
+      event.preventDefault();
+      navigateToEnemyPickupDrop(pickupDropLink);
+      return;
+    }
+
+    if (!event.target.closest(".enemy-weapon-detail") && !event.target.closest(".enemy-affiliation-detail")) {
+      closeEnemyWeaponDetails(container);
+      closeEnemyAffiliationDetails(container);
+    }
+  });
+  input.addEventListener("input", apply);
+  apply();
+}
+
+function renderEnemyRosterTabs(regularCount, bossCount) {
+  return `<div class="enemy-roster-tabs" role="tablist" aria-label="Enemy roster">
+    <button class="enemy-roster-tabs__btn" type="button" data-enemy-roster-tab="regular" role="tab">Regular <span>${regularCount}</span></button>
+    <button class="enemy-roster-tabs__btn" type="button" data-enemy-roster-tab="bosses" role="tab">Bosses <span>${bossCount}</span></button>
+  </div>`;
+}
+
+function renderEnemyOriginFilters() {
+  let h = `<div class="enemy-origin-filters" aria-label="Enemy source filters">`;
+  ENEMY_ORIGIN_FILTERS.forEach(filter => {
+    h += `<button class="enemy-origin-filter" type="button" data-enemy-origin-filter="${filter.id}" aria-pressed="true" title="${filter.label}">
+      <img class="tab-bar__tab-icon enemy-origin-filter__icon" src="${filter.icon}" alt="">
+      <span>${filter.shortLabel}</span>
+    </button>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function renderEnemyRosterSection(title, subtitle, enemies, key, modifier = "") {
+  if (!enemies.length) return "";
+  const hidden = key === ENEMY_ROSTER_TAB ? "" : " hidden";
+  let h = `<section class="enemy-roster-section ${modifier}" data-enemy-section data-enemy-roster-section="${key}"${hidden}>`;
+  h += `<div class="enemy-roster-heading">`;
+  h += `<div><h3 class="enemy-roster-heading__title">${title}</h3><p>${subtitle}</p></div>`;
+  h += `<span>${enemies.length}</span>`;
+  h += `</div>`;
+  h += `<div class="enemy-card-grid">`;
+  enemies.forEach(enemy => { h += renderEnemyCard(enemy); });
+  h += `</div>`;
+  h += `</section>`;
+  return h;
+}
+
+function renderEnemyWeaponReferenceTable() {
+  let h = `<details class="enemy-weapon-reference">`;
+  h += `<summary class="enemy-weapon-reference__summary">Enemy Weapon Behaviour <span>shared weapon-instance data; enemy cards show current-weapon tags only</span></summary>`;
+  h += `<div class="enemy-weapon-reference__body">`;
+  h += `<table class="combos-table enemy-weapon-table"><thead><tr>
+    <th class="combos-table__th">Weapon</th>
+    <th class="combos-table__th">Type</th>
+    <th class="combos-table__th">Enemy Behaviour</th>
+    <th class="combos-table__th">Weapon Data</th>
+    <th class="combos-table__th">Sources</th>
+  </tr></thead><tbody>`;
+  ENEMY_WEAPON_REFERENCE.forEach(ref => {
+    h += `<tr class="combos-table__tr">
+      <td class="combos-table__td enemy-weapon-table__weapon"><strong>${ref.name}</strong><code class="crossclan-code enemy-card__code">${ref.wid}</code></td>
+      <td class="combos-table__td"><span class="enemy-weapon-table__type enemy-weapon-table__type--${ref.type.toLowerCase()}">${ref.type}</span></td>
+      <td class="combos-table__td">${ref.enemyUse}</td>
+      <td class="combos-table__td">${ref.damage}<span class="enemy-weapon-table__notes">${ref.notes || ""}</span></td>
+      <td class="combos-table__td">${getEnemyWeaponReferenceSourceSummary(ref)}</td>
+    </tr>`;
+  });
+  h += `</tbody></table>`;
+  h += `</div></details>`;
+  return h;
+}
+
+function renderEnemyFactionReference() {
+  const teamCounts = new Map();
+  const speciesCounts = new Map();
+  ENEMY_LOADOUTS.forEach(enemy => {
+    teamCounts.set(enemy.team, (teamCounts.get(enemy.team) || 0) + 1);
+    speciesCounts.set(enemy.species, (speciesCounts.get(enemy.species) || 0) + 1);
+  });
+
+  let h = `<details class="enemy-weapon-reference enemy-faction-reference">`;
+  h += `<summary class="enemy-weapon-reference__summary">Faction / Species Reference <span>click faction pills on enemy cards for hostility details</span></summary>`;
+  h += `<div class="enemy-weapon-reference__body enemy-faction-reference__body">`;
+  h += `<p class="crossclan-note--sub">The export does not expose a separate literal Faction field; the faction-like combat layer is ETD <code class="crossclan-code">Team</code>. Species is derived from startup tags and ETD groupings called out in <code>enemy_weapons.md</code>.</p>`;
+  h += `<div class="enemy-faction-reference__tables">`;
+
+  h += `<table class="combos-table enemy-faction-table"><thead><tr>
+    <th class="combos-table__th">Faction / Team</th>
+    <th class="combos-table__th">Hostile To</th>
+    <th class="combos-table__th">Rows</th>
+  </tr></thead><tbody>`;
+  Object.entries(ENEMY_TEAM_META)
+    .filter(([teamId]) => teamCounts.has(teamId))
+    .forEach(([teamId, meta]) => {
+      h += `<tr class="combos-table__tr">
+        <td class="combos-table__td"><span class="enemy-team-pill enemy-team-pill--${teamId}">${meta.label}</span></td>
+        <td class="combos-table__td">${meta.hostileTo.length ? meta.hostileTo.join(", ") : "None listed"}<span class="enemy-weapon-table__notes">${meta.note}</span></td>
+        <td class="combos-table__td">${teamCounts.get(teamId)}</td>
+      </tr>`;
+    });
+  h += `</tbody></table>`;
+
+  h += `<table class="combos-table enemy-faction-table"><thead><tr>
+    <th class="combos-table__th">Species</th>
+    <th class="combos-table__th">Source Note</th>
+    <th class="combos-table__th">Rows</th>
+  </tr></thead><tbody>`;
+  Object.entries(ENEMY_SPECIES_META)
+    .filter(([speciesId]) => speciesCounts.has(speciesId))
+    .forEach(([speciesId, meta]) => {
+      h += `<tr class="combos-table__tr">
+        <td class="combos-table__td"><span class="enemy-species-pill enemy-species-pill--${speciesId}">${meta.label}</span></td>
+        <td class="combos-table__td">${meta.note}</td>
+        <td class="combos-table__td">${speciesCounts.get(speciesId)}</td>
+      </tr>`;
+    });
+  h += `</tbody></table>`;
+  h += `</div></div></details>`;
+  return h;
+}
+
+function renderEnemiesPage() {
+  const container = document.getElementById("subpage-enemies");
+  if (!container) return;
+  const bossEnemies = ENEMY_LOADOUTS
+    .filter(isBossEnemy)
+    .sort(compareBossEnemyRosterOrder);
+  const regularEnemies = ENEMY_LOADOUTS
+    .filter(enemy => !isBossEnemy(enemy))
+    .sort(compareRegularEnemyRosterOrder);
+
+  let h = `<div class="combos-layout enemies-page">`;
+  h += `<div class="clan-combos-header">`;
+  h += `<h2 class="combos-header__title">Enemies</h2>`;
+  h += `<p class="combos-header__sub">Factions, health, stun, detection, loadouts, disarm fallback, damage notes, and drops from <code>enemy_weapons.md</code> (build 23416145).</p>`;
+  h += `<div class="enemy-search-bar">`;
+  h += `<input class="enemy-search-bar__input" type="search" data-enemy-search placeholder="Search enemy, alias, faction, species, weapon, drop, detection...">`;
+  h += `<span class="enemy-search-bar__count" data-enemy-count>${ENEMY_LOADOUTS.length} / ${ENEMY_LOADOUTS.length}</span>`;
+  h += `</div>`;
+  h += renderEnemyOriginFilters();
+  h += `<ul class="combos-header__primer">
+    <li><strong class="combos-header__primer-label">Stun / HP:</strong> enemies have both a Stun and an HP value. Stun seems to be what combat mostly diminishes, leading to a feedable state; the role HP plays is still unclear.</li>
+    <li><strong class="combos-header__primer-label">AttackPower:</strong> this is a raw exported stats field, not a move list. Blank exports are displayed as baseline <code>1</code>; higher values get a yellow-to-red danger fill.</li>
+    <li><strong class="combos-header__primer-label">Loadout:</strong> enemy cards show carried weapons, disarm fallback, and row-specific damage. Weapon-source notes live on the Melee and Ranged pages.</li>
+    <li><strong class="combos-header__primer-label">Disarming:</strong> when disarmed, some enemies will fallback to a secondary weapon.</li>
+    <li><strong class="combos-header__primer-label">Pocket rewards:</strong> eligible dynamic-combat enemies can carry a back-pocket elixir or blood resonance bag. Exact chance and item selection are not exposed in the export.</li>
+    <li><strong class="combos-header__primer-label">Screenshots:</strong> each card reserves a screenshot slot using <code>assets/enemies/[ETD row].png</code> for later image drops.</li>
+    <li><strong class="combos-header__primer-label">Faction / Species:</strong> faction is represented by ETD <code>Team</code>; click a faction pill to show hostile-to data from <code>DA_EnemyTeamAttitudes</code>.</li>
+    <li><strong class="combos-header__primer-label">Detection:</strong> ranges are Unreal units. <code>W/H/F</code> means sight pane width, height, and forward offset.</li>
+    <li><strong class="combos-header__primer-label">Attack data:</strong> cards show weapon-specific attack behaviour. Click an enemy's Attack block for current-weapon tags, special moves, and shared weapon data.</li>
+  </ul>`;
+  h += `</div>`;
+
+  h += renderEnemyFactionReference();
+  h += renderEnemyWeaponReferenceTable();
+  h += renderEnemyRosterTabs(regularEnemies.length, bossEnemies.length);
+  h += renderEnemyRosterSection(
+    "Standard Enemies",
+    "Regular combatants, civilians, test rows, and reusable encounter archetypes.",
+    regularEnemies,
+    "regular"
+  );
+  h += renderEnemyRosterSection(
+    "Bosses",
+    "Special encounters with extra moves layered over their exported base stats.",
+    bossEnemies,
+    "bosses",
+    "enemy-roster-section--bosses"
+  );
+  h += `</div>`;
+
+  container.innerHTML = h;
+  attachEnemySearch(container);
 }
 
 
@@ -3722,6 +5442,9 @@ function buildGraphSeries(state) {
 // ── Graph state ─────────────────────────────────────────────
 const GRAPH_STATE = {
   displayMode: "cumulative",
+  defaultsApplied: false,
+  persistenceLoaded: false,
+  userPersisted: false,
   sections: {
     clans: true,
     melee: true,
@@ -3731,6 +5454,212 @@ const GRAPH_STATE = {
   weapons: {},
   ranged: {},
 };
+
+const GRAPH_URL_PARAM = "graph";
+const GRAPH_DISPLAY_PARAM = "gdm";
+const GRAPH_CLAN_PARAM = "gcl";
+const GRAPH_MELEE_PARAM = "gme";
+const GRAPH_RANGED_PARAM = "grg";
+const GRAPH_URL_KEYS = [GRAPH_URL_PARAM, GRAPH_DISPLAY_PARAM, GRAPH_CLAN_PARAM, GRAPH_MELEE_PARAM, GRAPH_RANGED_PARAM];
+const GRAPH_STORAGE_KEY = "vtmb2_graph_state";
+
+function hasAnyGraphSelection() {
+  return Object.values(GRAPH_STATE.clans).some(c => c.enabled) ||
+    Object.values(GRAPH_STATE.weapons).some(w => w.enabled) ||
+    Object.values(GRAPH_STATE.ranged).some(w => w.enabled);
+}
+
+function applyGraphDefaultSelection() {
+  if (GRAPH_STATE.clans.brujah) {
+    GRAPH_STATE.clans.brujah.enabled = true;
+    GRAPH_STATE.clans.brujah.mode = "L";
+    GRAPH_STATE.clans.brujah.loop = false;
+  }
+  if (GRAPH_STATE.weapons.bat) GRAPH_STATE.weapons.bat.enabled = true;
+  if (GRAPH_STATE.weapons.knife) GRAPH_STATE.weapons.knife.enabled = true;
+}
+
+function hasGraphUrlParams(params) {
+  return GRAPH_URL_KEYS.some(key => params.has(key));
+}
+
+function normalizeGraphClanMode(mode) {
+  return ["L", "H", "O"].includes(mode) ? mode : "L";
+}
+
+function normalizeGraphMeleeMode(mode) {
+  return ["L", "F", "S"].includes(mode) ? mode : "L";
+}
+
+function normalizeGraphRangedMode(mode) {
+  if (mode === "D" || mode === "dual") return "dual";
+  return "single";
+}
+
+function encodeGraphEntry(id, mode, loop) {
+  return `${id}:${mode}${loop ? "*" : ""}`;
+}
+
+function parseGraphEntryList(raw, normalizeMode) {
+  if (!raw) return [];
+  return raw.split(",").map(token => {
+    const [id, rawMode = ""] = token.split(":");
+    if (!id) return null;
+    const loop = rawMode.endsWith("*");
+    const mode = normalizeMode(loop ? rawMode.slice(0, -1) : rawMode);
+    return { id, mode, loop };
+  }).filter(Boolean);
+}
+
+function getGraphPersistedPayload() {
+  const clans = [];
+  CLAN_GRAPH_ORDER.forEach(id => {
+    const state = GRAPH_STATE.clans[id];
+    if (state && state.enabled) clans.push({ id, mode: normalizeGraphClanMode(state.mode), loop: !!state.loop });
+  });
+
+  const melee = [];
+  getGraphableWeapons().forEach(w => {
+    const state = GRAPH_STATE.weapons[w.id];
+    if (state && state.enabled) melee.push({ id: w.id, mode: normalizeGraphMeleeMode(state.mode), loop: !!state.loop });
+  });
+
+  const ranged = [];
+  RANGED_WEAPONS.forEach(w => {
+    const state = GRAPH_STATE.ranged[w.id];
+    if (state && state.enabled) ranged.push({ id: w.id, mode: normalizeGraphRangedMode(state.mode), loop: !!state.loop });
+  });
+
+  return {
+    displayMode: GRAPH_STATE.displayMode === "dps" ? "dps" : "cumulative",
+    clans,
+    melee,
+    ranged,
+  };
+}
+
+function readGraphPayloadFromParams(params) {
+  if (!hasGraphUrlParams(params)) return null;
+  return {
+    displayMode: params.get(GRAPH_DISPLAY_PARAM) === "dps" ? "dps" : "cumulative",
+    clans: parseGraphEntryList(params.get(GRAPH_CLAN_PARAM), normalizeGraphClanMode),
+    melee: parseGraphEntryList(params.get(GRAPH_MELEE_PARAM), normalizeGraphMeleeMode),
+    ranged: parseGraphEntryList(params.get(GRAPH_RANGED_PARAM), normalizeGraphRangedMode),
+  };
+}
+
+function readStoredGraphPayload() {
+  try {
+    const raw = localStorage.getItem(GRAPH_STORAGE_KEY);
+    if (!raw) return null;
+    const payload = JSON.parse(raw);
+    if (!payload || typeof payload !== "object") return null;
+    return {
+      displayMode: payload.displayMode === "dps" ? "dps" : "cumulative",
+      clans: Array.isArray(payload.clans) ? payload.clans : [],
+      melee: Array.isArray(payload.melee) ? payload.melee : [],
+      ranged: Array.isArray(payload.ranged) ? payload.ranged : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveGraphPayloadToStorage() {
+  try {
+    localStorage.setItem(GRAPH_STORAGE_KEY, JSON.stringify(getGraphPersistedPayload()));
+  } catch {}
+}
+
+function applyGraphPersistedPayload(payload) {
+  GRAPH_STATE.displayMode = payload.displayMode === "dps" ? "dps" : "cumulative";
+
+  Object.values(GRAPH_STATE.clans).forEach(state => {
+    state.enabled = false;
+    state.mode = "L";
+    state.loop = false;
+  });
+  Object.values(GRAPH_STATE.weapons).forEach(state => {
+    state.enabled = false;
+    state.mode = "L";
+    state.loop = false;
+  });
+  Object.values(GRAPH_STATE.ranged).forEach(state => {
+    state.enabled = false;
+    state.mode = "single";
+    state.loop = false;
+  });
+
+  (payload.clans || []).forEach(entry => {
+    const state = GRAPH_STATE.clans[entry.id];
+    if (!state) return;
+    state.enabled = true;
+    state.mode = normalizeGraphClanMode(entry.mode);
+    state.loop = !!entry.loop;
+  });
+  (payload.melee || []).forEach(entry => {
+    const weapon = getGraphableWeapons().find(w => w.id === entry.id);
+    const state = GRAPH_STATE.weapons[entry.id];
+    if (!weapon || !state) return;
+    state.enabled = true;
+    state.mode = weaponHasMode(weapon, entry.mode) ? normalizeGraphMeleeMode(entry.mode) : "L";
+    state.loop = state.mode === "S" ? false : !!entry.loop;
+  });
+  (payload.ranged || []).forEach(entry => {
+    const state = GRAPH_STATE.ranged[entry.id];
+    if (!state) return;
+    state.enabled = true;
+    state.mode = normalizeGraphRangedMode(entry.mode);
+    state.loop = !!entry.loop;
+  });
+
+  GRAPH_STATE.defaultsApplied = true;
+  GRAPH_STATE.userPersisted = true;
+}
+
+function loadGraphPersistedPayload() {
+  const params = new URL(window.location.href).searchParams;
+  const fromUrl = readGraphPayloadFromParams(params);
+  if (fromUrl) return { payload: fromUrl, source: "url" };
+  const fromStorage = readStoredGraphPayload();
+  return fromStorage ? { payload: fromStorage, source: "storage" } : null;
+}
+
+function writeGraphUrlParams(targetParams) {
+  GRAPH_URL_KEYS.forEach(key => targetParams.delete(key));
+  if (!GRAPH_STATE.userPersisted) return false;
+
+  const payload = getGraphPersistedPayload();
+  targetParams.set(GRAPH_URL_PARAM, "1");
+  if (payload.displayMode === "dps") targetParams.set(GRAPH_DISPLAY_PARAM, "dps");
+  if (payload.clans.length) {
+    targetParams.set(GRAPH_CLAN_PARAM, payload.clans.map(entry => encodeGraphEntry(entry.id, entry.mode, entry.loop)).join(","));
+  }
+  if (payload.melee.length) {
+    targetParams.set(GRAPH_MELEE_PARAM, payload.melee.map(entry => encodeGraphEntry(entry.id, entry.mode, entry.loop)).join(","));
+  }
+  if (payload.ranged.length) {
+    targetParams.set(GRAPH_RANGED_PARAM, payload.ranged.map(entry => {
+      const mode = entry.mode === "dual" ? "D" : "S";
+      return encodeGraphEntry(entry.id, mode, entry.loop);
+    }).join(","));
+  }
+  return true;
+}
+
+function persistGraphUrlState() {
+  if (!GRAPH_STATE.userPersisted) return;
+  saveGraphPayloadToStorage();
+  const url = new URL(window.location.href);
+  writeGraphUrlParams(url.searchParams);
+  history.replaceState(null, "", url.toString());
+}
+
+function noteGraphUserChange() {
+  GRAPH_STATE.defaultsApplied = true;
+  GRAPH_STATE.userPersisted = true;
+  persistGraphUrlState();
+}
 
 function initGraphState() {
   if (!GRAPH_STATE.sections) GRAPH_STATE.sections = { clans: true, melee: true, ranged: true };
@@ -3767,15 +5696,21 @@ function initGraphState() {
       if (typeof GRAPH_STATE.ranged[w.id].enabled !== "boolean") GRAPH_STATE.ranged[w.id].enabled = false;
     }
   }
+
+  if (!GRAPH_STATE.persistenceLoaded) {
+    const persisted = loadGraphPersistedPayload();
+    if (persisted) {
+      applyGraphPersistedPayload(persisted.payload);
+      saveGraphPayloadToStorage();
+      if (persisted.source === "storage") persistGraphUrlState();
+    }
+    GRAPH_STATE.persistenceLoaded = true;
+  }
+
   // Sensible default selection on first open: a quick comparison.
-  const anyEnabled =
-    Object.values(GRAPH_STATE.clans).some(c => c.enabled) ||
-    Object.values(GRAPH_STATE.weapons).some(w => w.enabled) ||
-    Object.values(GRAPH_STATE.ranged).some(w => w.enabled);
-  if (!anyEnabled) {
-    if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "L"; GRAPH_STATE.clans.brujah.loop = false; }
-    if (GRAPH_STATE.weapons.bat) { GRAPH_STATE.weapons.bat.enabled = true; }
-    if (GRAPH_STATE.weapons.knife) { GRAPH_STATE.weapons.knife.enabled = true; }
+  if (!GRAPH_STATE.defaultsApplied) {
+    if (!hasAnyGraphSelection()) applyGraphDefaultSelection();
+    GRAPH_STATE.defaultsApplied = true;
   }
 }
 
@@ -4158,6 +6093,7 @@ function attachGraphLegendListeners(root) {
       } else if (parts[0] === "ranged" && GRAPH_STATE.ranged[parts[1]]) {
         GRAPH_STATE.ranged[parts[1]].enabled = false;
       }
+      noteGraphUserChange();
       // Update the matching filter checkbox in place.
       const cb = root.querySelector(`[data-graph-clan-toggle="${parts[1]}"], [data-graph-weapon-toggle="${parts[1]}"], [data-graph-ranged-toggle="${parts[1]}"]`);
       if (cb) cb.checked = false;
@@ -4187,6 +6123,7 @@ function attachGraphFilterListeners(root) {
   root.querySelectorAll("[data-graph-section-enable]").forEach(cb => {
     cb.addEventListener("change", () => {
       setGraphSectionEnabled(cb.dataset.graphSectionEnable, cb.checked);
+      noteGraphUserChange();
       renderCombatGraphPage();
     });
   });
@@ -4194,12 +6131,14 @@ function attachGraphFilterListeners(root) {
     r.addEventListener("change", () => {
       if (!r.checked) return;
       setGraphSectionMode(r.dataset.graphSectionMode, r.value);
+      noteGraphUserChange();
       renderCombatGraphPage();
     });
   });
   root.querySelectorAll("[data-graph-section-loop]").forEach(cb => {
     cb.addEventListener("change", () => {
       setGraphSectionLoop(cb.dataset.graphSectionLoop, cb.checked);
+      noteGraphUserChange();
       renderCombatGraphPage();
     });
   });
@@ -4209,6 +6148,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphClanToggle;
       if (GRAPH_STATE.clans[id]) GRAPH_STATE.clans[id].enabled = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4224,6 +6164,7 @@ function attachGraphFilterListeners(root) {
           const inp = l.querySelector("input");
           l.classList.toggle("is-active", !!(inp && inp.checked));
         });
+        noteGraphUserChange();
         rerenderGraphChart();
       }
     });
@@ -4232,6 +6173,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphClanLoop;
       if (GRAPH_STATE.clans[id]) GRAPH_STATE.clans[id].loop = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4240,6 +6182,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphWeaponToggle;
       if (GRAPH_STATE.weapons[id]) GRAPH_STATE.weapons[id].enabled = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4267,6 +6210,7 @@ function attachGraphFilterListeners(root) {
           }
           if (loopLabel) loopLabel.classList.toggle("is-disabled", r.value === "S");
         }
+        noteGraphUserChange();
         rerenderGraphChart();
       }
     });
@@ -4275,6 +6219,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphWeaponLoop;
       if (GRAPH_STATE.weapons[id]) GRAPH_STATE.weapons[id].loop = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4283,6 +6228,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphRangedToggle;
       if (GRAPH_STATE.ranged[id]) GRAPH_STATE.ranged[id].enabled = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4296,6 +6242,7 @@ function attachGraphFilterListeners(root) {
           const inp = l.querySelector("input");
           l.classList.toggle("is-active", !!(inp && inp.checked));
         });
+        noteGraphUserChange();
         rerenderGraphChart();
       }
     });
@@ -4304,6 +6251,7 @@ function attachGraphFilterListeners(root) {
     cb.addEventListener("change", () => {
       const id = cb.dataset.graphRangedLoop;
       if (GRAPH_STATE.ranged[id]) GRAPH_STATE.ranged[id].loop = cb.checked;
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });
@@ -4327,9 +6275,8 @@ function attachGraphFilterListeners(root) {
           GRAPH_STATE.ranged[id].mode = "single";
           GRAPH_STATE.ranged[id].loop = false;
         }
-        if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "L"; GRAPH_STATE.clans.brujah.loop = false; }
-        if (GRAPH_STATE.weapons.bat) GRAPH_STATE.weapons.bat.enabled = true;
-        if (GRAPH_STATE.weapons.knife) GRAPH_STATE.weapons.knife.enabled = true;
+        applyGraphDefaultSelection();
+        noteGraphUserChange();
       } else {
         return;
       }
@@ -4347,6 +6294,7 @@ function attachGraphFilterListeners(root) {
         const inp = l.querySelector("input");
         l.classList.toggle("is-active", !!(inp && inp.checked));
       });
+      noteGraphUserChange();
       rerenderGraphChart();
     });
   });

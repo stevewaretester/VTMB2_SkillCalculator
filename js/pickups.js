@@ -106,6 +106,15 @@ const ELIXIRS = [
     duration: 'Permanent',
     missionOnly: false,
   },
+  {
+    id: 'resonance_blood_pack',
+    name: 'Resonance Blood Pack',
+    iconType: 'tri-res',
+    effect: 'Found in the world or dropped by certain rooftop enemies. Grants blood resonance across Sanguine, Choleric, and Melancholic.',
+    magnitude: 'Small/Medium/Large: +40/+60/+100 Blood Resonance',
+    duration: 'Instant',
+    missionOnly: false,
+  },
 ];
 
 // Alchemy utility actions (MAHAH mod)
@@ -224,6 +233,28 @@ function formatResourceTokens(tokens) {
   return bits.join('<span class="pickup-token__sep">+</span>');
 }
 
+function renderPickupTriResIcon(title = 'Resonance', extraClass = '') {
+  const classText = extraClass ? ` ${extraClass}` : '';
+  return `<div class="pickup-img-slot pickup-img-slot--tri-res${classText}" title="${title}">
+    <img class="pickup-tri-res pickup-tri-res--top" src="${RES_ACTION_ICONS.san}" alt="Sanguine">
+    <img class="pickup-tri-res pickup-tri-res--left" src="${RES_ACTION_ICONS.cho}" alt="Choleric">
+    <img class="pickup-tri-res pickup-tri-res--right" src="${RES_ACTION_ICONS.mel}" alt="Melancholic">
+  </div>`;
+}
+
+function renderPickupItemIcon(row, extraClass = '') {
+  const classText = extraClass ? ` ${extraClass}` : '';
+  if (row.iconType === 'tri-res') {
+    return renderPickupTriResIcon(row.name, extraClass);
+  }
+
+  return `<div class="pickup-img-slot pickup-img-slot--elixir${classText}"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
+    ${row.iconSil
+      ? `<img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">`
+      : `<span class="pickup-img-slot__placeholder">?</span>`}
+  </div>`;
+}
+
 function renderAlchemyRowIcon(row) {
   const iconElixirs = ELIXIRS.slice(0, 4);
   if (row.iconType === 'all-four') {
@@ -275,11 +306,7 @@ function renderAlchemyRowIcon(row) {
   }
 
   if (row.iconType === 'ap-to-res') {
-    return `<div class="pickup-img-slot pickup-img-slot--tri-res" title="AP to Resonance">
-      <img class="pickup-tri-res pickup-tri-res--top" src="${RES_ACTION_ICONS.san}" alt="Sanguine">
-      <img class="pickup-tri-res pickup-tri-res--left" src="${RES_ACTION_ICONS.cho}" alt="Choleric">
-      <img class="pickup-tri-res pickup-tri-res--right" src="${RES_ACTION_ICONS.mel}" alt="Melancholic">
-    </div>`;
+    return renderPickupTriResIcon('AP to Resonance');
   }
 
   if (row.iconType === 'bottle') {
@@ -637,6 +664,7 @@ function renderItemsPage() {
       iconBg: e.iconBg,
       iconSil: e.iconSil,
       iconClass: e.iconClass,
+      iconType: e.iconType,
       source: e,
     });
   }
@@ -692,11 +720,7 @@ function renderItemsPage() {
     for (const row of sortedItemRows) {
       if (row.rowKind === 'elixir') {
         const e = row.source;
-        const iconHtml = row.iconSil
-          ? `<div class="pickup-img-slot pickup-img-slot--elixir pickup-card__icon"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
-              <img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">
-             </div>`
-          : '';
+        const iconHtml = renderPickupItemIcon(row, 'pickup-card__icon');
         html += `<div class="pickup-card${row.missionOnly ? ' pickup-card--mission' : ''}" id="pickup-elixir-${e.id}">
           <div class="pickup-card__header">
             ${iconHtml}
@@ -751,11 +775,7 @@ function renderItemsPage() {
         html += `<tr class="${row.missionOnly ? 'elixir-card--mission' : ''}" id="pickup-elixir-${e.id}">
         ${havenActive ? `<td>${row.key ? `<kbd class="pickup-key">${row.key}</kbd>` : '—'}</td>` : ''}
         <td class="col-img">
-          <div class="pickup-img-slot pickup-img-slot--elixir"${row.iconBg ? ` style="background:${row.iconBg}"` : ''}>
-            ${row.iconSil
-              ? `<img src="${row.iconSil}" alt="${row.name}" class="${row.iconClass || 'elixir-icon-sil'}">`
-              : `<span class="pickup-img-slot__placeholder">?</span>`}
-          </div>
+          ${renderPickupItemIcon(row)}
         </td>
         <td class="pickup-name">${row.name}${row.missionOnly ? ' <span class="elixir-card__badge">Mission Only</span>' : ''}</td>
         <td>${row.effect}</td>
