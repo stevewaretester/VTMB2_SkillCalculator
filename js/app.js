@@ -100,6 +100,7 @@ const state = {
   modFabienPhlegmatic: false,
   modHaven: false,
   modCorrosiveShield: false,
+  modMasqManipulation: false,
   modClanMeleeOverride: false,
   // Per-ability state: "locked" | "awakened" | "unlocked"
   // Key: "clanId:tier"
@@ -272,6 +273,7 @@ function applyPersistedPosition(pos) {
         document.querySelectorAll(".ysabelle-subpage").forEach(p => p.classList.add("hidden"));
         const ysabellaEl = document.getElementById(`ysabelle-subpage-${sub}`);
         if (ysabellaEl) ysabellaEl.classList.remove("hidden");
+        if (sub === "combat" && typeof renderYsabellaCombatPage === "function") renderYsabellaCombatPage();
       }
     }
     if (typeof refreshYsabellaPage === "function") refreshYsabellaPage();
@@ -324,6 +326,7 @@ function makePersistedState() {
     mh: !!state.modHaven,
     mf: !!state.modFabienPhlegmatic,
     mcr: !!state.modCorrosiveShield,
+    mmq: !!state.modMasqManipulation,
     mcm: !!state.modClanMeleeOverride,
     cs: !!state.clanSelectorCollapsed,
     sp: state.selectedPerTier,
@@ -359,6 +362,7 @@ function makeStateParams(payload) {
   if (payload.mh) p.set('mh', '1');
   if (payload.mf) p.set('mf', '1');
   if (payload.mcr) p.set('mcr', '1');
+  if (payload.mmq) p.set('mmq', '1');
   if (payload.mcm) p.set('mcm', '1');
   if (payload.cs) p.set('cs', '1');
   if (payload.lc) p.set('lc', '1');
@@ -396,6 +400,7 @@ function decodeStateV2(params) {
     mh: params.get('mh') === '1',
     mf: params.get('mf') === '1',
     mcr: params.get('mcr') === '1',
+    mmq: params.get('mmq') === '1',
     mcm: params.get('mcm') === '1',
     cs: params.get('cs') === '1',
     lc: params.get('lc') === '1',
@@ -434,6 +439,7 @@ function applyPersistedState(payload) {
   state.modHaven = !!payload.mh;
   state.modFabienPhlegmatic = !!payload.mf;
   state.modCorrosiveShield = !!payload.mcr;
+  state.modMasqManipulation = !!payload.mmq;
   state.modClanMeleeOverride = !!payload.mcm;
   state.clanSelectorCollapsed = !!payload.cs;
   state.selectedPerTier = payload.sp && typeof payload.sp === "object" ? payload.sp : {};
@@ -468,7 +474,7 @@ function loadPersistedState() {
   const params = url.searchParams;
 
   // V2: human-readable params — detected by presence of 'sc' or any clan short code
-  const isV2 = params.has('sc') || params.has('cv') || params.has('lc') || params.has('yf') || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
+  const isV2 = params.has('sc') || params.has('cv') || params.has('lc') || params.has('yf') || ['ct', 'mh', 'mf', 'mcr', 'mmq', 'mcm', 'cs', 'cx'].some(k => params.has(k)) || CLAN_ORDER.some(id => params.has(CLAN_SHORT[id]));
   if (isV2) {
     const payload = decodeStateV2(params);
     applyPersistedState(payload);
@@ -577,6 +583,8 @@ function setActiveCombosSubtab(tabId) {
     if (typeof renderClanCombosPage === "function") renderClanCombosPage();
   } else if (tabId === "weapons") {
     if (typeof renderMeleeWeaponsPage === "function") renderMeleeWeaponsPage();
+  } else if (tabId === "ranged") {
+    if (typeof renderRangedWeaponsPage === "function") renderRangedWeaponsPage();
   } else if (tabId === "graph") {
     if (typeof renderCombatGraphPage === "function") renderCombatGraphPage();
   }
@@ -796,6 +804,9 @@ function bindTabs() {
       document.querySelectorAll(".ysabelle-subpage").forEach(p => p.classList.add("hidden"));
       const target = document.getElementById(`ysabelle-subpage-${tab.dataset.ysabellatab}`);
       if (target) target.classList.remove("hidden");
+      if (tab.dataset.ysabellatab === "combat" && typeof renderYsabellaCombatPage === "function") {
+        renderYsabellaCombatPage();
+      }
       if (typeof refreshYsabellaPage === "function") refreshYsabellaPage();
       persistPosition();
     });
@@ -1251,9 +1262,8 @@ function bindToggles() {
     persistState();
   });
 
-  // Helper: jump to a specific Tremere ability tier (passive or perk).
-  // Used by both new mod toggles' goto buttons.
-  function gotoTremereAbility(tier) {
+  // Helper: jump to a specific ability from the Mods modal.
+  function gotoModAbility(clanId, tier) {
     document.getElementById("mods-modal").classList.add("hidden");
     // Primary: Phyre
     document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
@@ -1268,14 +1278,23 @@ function bindToggles() {
     if (skillTab) skillTab.classList.add("active");
     document.getElementById("subpage-skilltree").classList.remove("hidden");
     if (typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
-    // Select Tremere and focus the requested tier
-    state.selectedClan = "tremere";
-    state.focusedAbility = { type: "ability", clanId: "tremere", tier };
+    // Select the relevant clan and focus the requested tier
+    state.selectedClan = clanId;
+    state.focusedAbility = { type: "ability", clanId, tier };
     renderGrid();
     renderDetailPanel();
     persistPosition();
     persistState();
     if (typeof updateMobileChrome === "function") updateMobileChrome();
+  }
+
+  function gotoTremereAbility(tier) {
+    gotoModAbility("tremere", tier);
+  }
+
+  function gotoModSpecialDetail(detailId) {
+    document.getElementById("mods-modal").classList.add("hidden");
+    if (typeof navigateToSpecialDetail === "function") navigateToSpecialDetail(detailId);
   }
 
   function gotoPickupsItems() {
@@ -1305,6 +1324,7 @@ function bindToggles() {
   const corrosiveGotoRecall = document.getElementById("goto-corrosive-shield-recall");
   const corrosiveGotoItems = document.getElementById("goto-corrosive-shield-items");
   const corrosiveGotoBloodCurse = document.getElementById("goto-corrosive-shield-blood-curse");
+  const corrosiveGotoBloodPotency = document.getElementById("goto-corrosive-shield-blood-potency");
   if (corrosiveToggle) {
     corrosiveToggle.checked = state.modCorrosiveShield;
     if (corrosiveEffects) corrosiveEffects.classList.toggle("hidden", !state.modCorrosiveShield);
@@ -1321,6 +1341,30 @@ function bindToggles() {
     if (corrosiveGotoRecall) corrosiveGotoRecall.addEventListener("click", () => gotoTremereAbility("relocate"));
     if (corrosiveGotoItems) corrosiveGotoItems.addEventListener("click", gotoPickupsItems);
     if (corrosiveGotoBloodCurse) corrosiveGotoBloodCurse.addEventListener("click", () => gotoTremereAbility("strike"));
+    if (corrosiveGotoBloodPotency) corrosiveGotoBloodPotency.addEventListener("click", () => gotoTremereAbility("perk"));
+  }
+
+  const masqManipulationToggle = document.getElementById("toggle-masq-manipulation");
+  const masqManipulationEffects = document.getElementById("masq-manipulation-effects");
+  const masqManipulationGotoMute = document.getElementById("goto-masq-manipulation-mute");
+  const masqManipulationGotoCloud = document.getElementById("goto-masq-manipulation-cloud-memory");
+  const masqManipulationGotoCloudImpact = document.getElementById("goto-masq-manipulation-cloud-impact");
+  const masqManipulationGotoDetail = document.getElementById("goto-masq-manipulation-detail");
+  if (masqManipulationToggle) {
+    masqManipulationToggle.checked = state.modMasqManipulation;
+    if (masqManipulationEffects) masqManipulationEffects.classList.toggle("hidden", !state.modMasqManipulation);
+    masqManipulationToggle.addEventListener("change", (e) => {
+      state.modMasqManipulation = e.target.checked;
+      if (masqManipulationEffects) masqManipulationEffects.classList.toggle("hidden", !e.target.checked);
+      renderDetailPanel();
+      if (typeof refreshYsabellaPage === "function") refreshYsabellaPage();
+      if (typeof renderTierList === "function") renderTierList();
+      persistState();
+    });
+    if (masqManipulationGotoMute) masqManipulationGotoMute.addEventListener("click", () => gotoModAbility("banuHaqim", "affect"));
+    if (masqManipulationGotoCloud) masqManipulationGotoCloud.addEventListener("click", () => gotoModAbility("ventrue", "affect"));
+    if (masqManipulationGotoCloudImpact) masqManipulationGotoCloudImpact.addEventListener("click", () => gotoModAbility("ventrue", "affect"));
+    if (masqManipulationGotoDetail) masqManipulationGotoDetail.addEventListener("click", () => gotoModSpecialDetail("masquedMind"));
   }
 
   const havenToggle = document.getElementById("toggle-haven");
@@ -2680,7 +2724,9 @@ function renderSpecialDetailPanel(panel) {
     return;
   }
 
-  const related = detail.relatedAbility || null;
+  const relatedItems = Array.isArray(detail.relatedAbilities)
+    ? detail.relatedAbilities
+    : detail.relatedAbility ? [detail.relatedAbility] : [];
   let html = "";
   html += `<div class="detail-panel__tier">${detail.category || "Detail"}</div>`;
   html += `<div class="detail-panel__name-row">`;
@@ -2698,14 +2744,16 @@ function renderSpecialDetailPanel(panel) {
     html += `<div class="detail-panel__desc">${linkifyDetailText(detail.description)}</div>`;
   }
 
-  if (related && related.clan && related.tier) {
-    const ability = ABILITIES[related.clan] && ABILITIES[related.clan][related.tier];
-    const icon = ability && ability.icon ? ability.icon : detail.icon;
-    const label = related.label || (ability && ability.name) || "Related Ability";
-    html += `<button class="detail-panel__related-lozenge" type="button" data-link-clan="${related.clan}" data-link-tier="${related.tier}">
-      ${icon ? `<img src="${icon}" alt="">` : ""}
-      <span>${label}</span>
-    </button>`;
+  for (const related of relatedItems) {
+    if (related && related.clan && related.tier) {
+      const ability = ABILITIES[related.clan] && ABILITIES[related.clan][related.tier];
+      const icon = ability && ability.icon ? ability.icon : detail.icon;
+      const label = related.label || (ability && ability.name) || "Related Ability";
+      html += `<button class="detail-panel__related-lozenge" type="button" data-link-clan="${related.clan}" data-link-tier="${related.tier}">
+        ${icon ? `<img src="${icon}" alt="">` : ""}
+        <span>${label}</span>
+      </button>`;
+    }
   }
 
   panel.innerHTML = html;
@@ -2755,6 +2803,17 @@ function renderDetailPanel(targetEl = null) {
   const isPerk = tier === "perk";
   const key = `${clanId}:${tier}`;
   const abilityState = state.abilities[key];
+  const bloodOfPotencyUnlocked = state.abilities["tremere:perk"] === "unlocked";
+  const buildBloodOfPotencyLozenge = (text) => {
+    const lockedClass = bloodOfPotencyUnlocked ? "" : " detail-panel__mod-lozenge--locked";
+    return `<details class="detail-panel__res-effect detail-panel__mod-lozenge${lockedClass}">
+      <summary>
+        <img src="${CLANS.tremere.logo}" alt="Tremere">
+        <span>Blood of Potency</span>
+      </summary>
+      <div class="fabien-mod-line">${text}</div>
+    </details>`;
+  };
 
   let html = "";
 
@@ -2800,9 +2859,11 @@ function renderDetailPanel(targetEl = null) {
   // toggled on and the focused ability is the affected one.
   if (clanId === "tremere" && tier === "passive" && state.modCorrosiveShield) {
     html += `<div class="fabien-mod-line">Dissolved bodies grant shield and resonance.</div>`;
+    html += buildBloodOfPotencyLozenge("On dissolve: restore 1 blood pip to a non-full ability.");
   }
   if (clanId === "tremere" && tier === "relocate" && state.modCorrosiveShield) {
     html += `<div class="fabien-mod-line">Telefrag restores 25 shield</div>`;
+    html += buildBloodOfPotencyLozenge("On telefrag: restores 1 blood pip in each ability.");
   }
   if (clanId === "tremere" && tier === "strike" && state.modCorrosiveShield) {
     html += `<div class="fabien-mod-line">Feed on cursed target to spawn elixir dependent on their resonance:
@@ -2813,6 +2874,13 @@ function renderDetailPanel(targetEl = null) {
         <li>Fortitude from Melancholic</li>
       </ul>
     </div>`;
+    html += buildBloodOfPotencyLozenge("On explosion: restores 1 blood pip in each ability.");
+  }
+  if (clanId === "tremere" && tier === "perk" && state.modCorrosiveShield) {
+    html += `<div class="fabien-mod-line">Bodies disposed of through Blood Sorcery also recover blood pips</div>`;
+  }
+  if (clanId === "ventrue" && tier === "affect" && state.modMasqManipulation) {
+    html += `<div class="fabien-mod-line">Reduces current Masquerade impact, increased effect is paired with Mass Manipulation</div>`;
   }
   // Discipline — highlight if affinity match
   if (ability.discipline) {
@@ -2833,6 +2901,13 @@ function renderDetailPanel(targetEl = null) {
     html += `<button class="detail-panel__effect-link" type="button" data-special-detail="${detail.id}">
       <img src="${detail.icon}" alt="">
       <span>BOILING BLOOD</span>
+    </button>`;
+  }
+  if (state.modMasqManipulation && tier === "affect" && (clanId === "banuHaqim" || clanId === "ventrue") && typeof SPECIAL_DETAILS !== "undefined" && SPECIAL_DETAILS.masquedMind) {
+    const detail = SPECIAL_DETAILS.masquedMind;
+    html += `<button class="detail-panel__effect-link detail-panel__effect-link--mod" type="button" data-special-detail="${detail.id}">
+      <img src="${detail.icon}" alt="">
+      <span>MASQUED MIND</span>
     </button>`;
   }
 
@@ -3035,13 +3110,34 @@ function renderDetailPanel(targetEl = null) {
   if (comboIds.length > 0) {
     const matchedCombos = COMBOS.filter(c => comboIds.includes(c.id) && (typeof comboIsVisible !== "function" || comboIsVisible(c)));
     if (matchedCombos.length > 0) {
+      const isSignatureCombo = (combo) => /\bsignature\b|sig\.\s*combo/i.test(`${combo.subtitle || ""} ${combo.reference || ""}`);
+      const signatureCombos = matchedCombos.filter(isSignatureCombo);
+      const referenceCombos = matchedCombos.filter(c => !isSignatureCombo(c));
+
+      if (signatureCombos.length > 0) {
+        html += `<div class="detail-panel__signature-combos">`;
+        for (const c of signatureCombos) {
+          const modClass = c.requiresMod ? " detail-panel__signature-combo-link--mod" : "";
+          html += `<button class="detail-panel__signature-combo-link${modClass}" data-combo-id="${c.id}">
+            <img src="${COMBO_ICON}" alt="">
+            <span class="detail-panel__signature-combo-text">
+              <span class="detail-panel__signature-combo-label">${c.subtitle}</span>
+              <span class="detail-panel__signature-combo-name">${c.name}</span>
+            </span>
+            <span class="combo-rank ${RANK_CLASS[c.rank] || ""} combo-rank--sm">${c.rank}</span>
+          </button>`;
+        }
+        html += `</div>`;
+      }
+
+      if (referenceCombos.length > 0) {
       html += `<details class="detail-panel__res-effect detail-panel__combos">
         <summary>
           <img src="${COMBO_ICON}" alt="Combos">
-          <span>Combos (${matchedCombos.length})</span>
+          <span>Combo References (${referenceCombos.length})</span>
         </summary>
         <ul class="detail-panel__combos-list">`;
-      for (const c of matchedCombos) {
+      for (const c of referenceCombos) {
         const modClass = c.requiresMod ? " detail-panel__combo-link--mod" : "";
         html += `<li>
           <button class="detail-panel__combo-link${modClass}" data-combo-id="${c.id}">
@@ -3052,6 +3148,7 @@ function renderDetailPanel(targetEl = null) {
         </li>`;
       }
       html += `</ul></details>`;
+      }
     }
   }
 
@@ -3149,7 +3246,7 @@ function renderDetailPanel(targetEl = null) {
   }
 
   // Bind combo link buttons
-  panel.querySelectorAll(".detail-panel__combo-link").forEach(btn => {
+  panel.querySelectorAll(".detail-panel__combo-link, .detail-panel__signature-combo-link").forEach(btn => {
     btn.addEventListener("click", () => {
       if (typeof navigateToCombos === "function") navigateToCombos(btn.dataset.comboId);
     });
@@ -3860,7 +3957,7 @@ function _bindSheetBodyEvents(body) {
     });
   }
   // Combo links
-  body.querySelectorAll('.detail-panel__combo-link').forEach(btn => {
+  body.querySelectorAll('.detail-panel__combo-link, .detail-panel__signature-combo-link').forEach(btn => {
     btn.addEventListener('click', () => {
       if (typeof navigateToCombos === 'function') navigateToCombos(btn.dataset.comboId);
       closeMobileSheet();

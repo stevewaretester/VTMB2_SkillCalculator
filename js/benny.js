@@ -205,7 +205,7 @@ function renderBennyTree() {
     const dlcContent = document.createElement("div");
     dlcContent.className = "benny-dlc-content";
 
-    // "OUT NOW" + DLC tile, the whole stack links to the DLC page
+    // DLC tile links to the store page; the OUT NOW pill is positioned over the section.
     const dlcTileWrap = document.createElement("a");
     dlcTileWrap.className = "benny-dlc-tile-wrap";
     dlcTileWrap.href = "https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/add-ons/loose-cannon-story-pack";
@@ -216,7 +216,6 @@ function renderBennyTree() {
     const outNow = document.createElement("span");
     outNow.className = "benny-dlc-out-now";
     outNow.textContent = "OUT NOW";
-    dlcTileWrap.appendChild(outNow);
 
     const dlcImg = document.createElement("img");
     dlcImg.className = "benny-dlc-tile";
@@ -225,6 +224,7 @@ function renderBennyTree() {
     dlcTileWrap.appendChild(dlcImg);
 
     dlcContent.appendChild(dlcTileWrap);
+    dlcContent.appendChild(outNow);
 
     const dlcRight = document.createElement("div");
     dlcRight.className = "benny-dlc-right";

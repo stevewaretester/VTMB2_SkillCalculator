@@ -242,7 +242,7 @@ function renderOutfitGrid() {
     (isYsabellaFocused ? " focused" : "");
   if (isYsabellaUnlocked) {
     ysabellaCell.innerHTML = `
-    <img class="outfit-cell__lock" src="${UI.blockedPadlock}" alt="Unlocked placeholder">
+    <img class="outfit-cell__thumb" src="${YSABELLA_OUTFIT.thumb}" alt="${YSABELLA_OUTFIT.name}">
     <img class="outfit-cell__badge" src="${UI.ysabellaLogo}" alt="The Flower and the Flame DLC">
     <div class="outfit-cell__name">${YSABELLA_OUTFIT.name}</div>
     <div class="outfit-cell__type outfit-type--${YSABELLA_OUTFIT.type}">${OUTFIT_TYPES[YSABELLA_OUTFIT.type].label}</div>`;

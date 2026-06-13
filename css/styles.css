@@ -146,8 +146,8 @@ body {
     position: absolute;
     left: 180px;
     background: none;
-    border: 1px solid rgba(255, 175, 110, 0.5);
-    color: rgba(255, 195, 145, 0.9);
+    border: 1px solid rgba(255, 202, 92, 0.62);
+    color: rgba(255, 226, 152, 0.94);
     font-family: 'Cinzel', serif;
     font-size: 10px;
     letter-spacing: 0.5px;
@@ -158,13 +158,13 @@ body {
     text-decoration: none;
     transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
     white-space: nowrap;
-    box-shadow: 0 0 6px rgba(255, 150, 90, 0.3);
+    box-shadow: 0 0 7px rgba(255, 126, 74, 0.36);
 }
 
 .header__patch-btn:hover {
-    color: rgb(255, 215, 175);
-    border-color: rgba(255, 175, 110, 0.9);
-    box-shadow: 0 0 12px rgba(255, 150, 90, 0.55);
+    color: rgb(255, 244, 191);
+    border-color: rgba(255, 216, 112, 0.95);
+    box-shadow: 0 0 14px rgba(255, 126, 74, 0.62);
 }
 
 .header__patch-build {
@@ -1147,6 +1147,14 @@ body.no-custom-cursor {
     text-shadow: 0 0 14px rgba(220, 82, 96, 0.5);
 }
 
+.ysabella-combat .clan-combo-block__heading {
+    border-left: 2px solid rgba(236, 116, 142, 0.45);
+}
+
+.ysabella-context-table {
+    min-width: 1080px;
+}
+
 .benny-layout {
     display: flex;
     gap: 24px;
@@ -1422,15 +1430,16 @@ kbd.innate-key-ref {
 }
 
 .benny-dlc-tile-wrap:hover {
-    transform: translateY(-2px);
+    transform: none;
     filter: drop-shadow(0 0 14px rgba(220, 120, 30, 0.55));
 }
 
 .ysabella-dlc-tile-wrap:hover {
     transform: none;
-    filter: drop-shadow(0 0 16px rgba(220, 82, 96, 0.55));
+    filter: drop-shadow(0 0 14px rgba(236, 116, 142, 0.62));
 }
 
+#benny-dlc-section:not(.collapsed),
 #ysabella-dlc-section:not(.collapsed) {
     max-height: 360px;
     padding-top: 62px;
@@ -1448,6 +1457,17 @@ kbd.innate-key-ref {
 }
 
 .benny-dlc-out-now {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    z-index: 5;
+    width: min(calc(100% - 160px), 400px);
+    min-height: 21px;
+    transform: translateX(-50%);
+    box-sizing: border-box;
     font-family: 'Cinzel', serif;
     font-size: 14px;
     font-weight: 700;
@@ -1461,11 +1481,11 @@ kbd.innate-key-ref {
     box-shadow: 0 0 10px rgba(220, 120, 30, 0.45),
                 inset 0 0 0 1px rgba(255, 220, 140, 0.08);
     text-shadow: 0 0 8px rgba(255, 180, 80, 0.55);
-    align-self: stretch;
     text-align: center;
 }
 
-.benny-dlc-tile-wrap:hover .benny-dlc-out-now {
+.benny-dlc-tile-wrap:hover ~ .benny-dlc-out-now,
+.benny-dlc-tile-wrap:focus-visible ~ .benny-dlc-out-now {
     color: #fff1c2;
     border-color: rgba(255, 200, 120, 0.95);
     box-shadow: 0 0 22px rgba(220, 120, 30, 0.75),
@@ -1481,32 +1501,17 @@ kbd.innate-key-ref {
 }
 
 .ysabella-dlc-tile {
-    width: 360px;
+    width: 400px;
     max-width: calc(100vw - 48px);
 }
 
-/* Hover swaps the tile art to the alt UI_export variant. */
+/* Benny hover swaps the tile art to the alt UI_export variant. */
 #benny-dlc-section .benny-dlc-tile-wrap:hover .benny-dlc-tile {
     content: url("../assets/T_UI_DLC_FrontEnd_Icon_LooseCannon_Hover.png");
 }
 
-.ysabella-dlc-tile-wrap:hover .ysabella-dlc-tile {
-    filter: brightness(1.08) saturate(1.08);
-}
-
 .ysabella-dlc-release {
     display: flex !important;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    z-index: 5;
-    width: min(calc(100% - 160px), 400px);
-    min-height: 21px;
-    transform: translateX(-50%);
-    box-sizing: border-box;
-    padding: 3px 12px 2px;
     color: #f4cbd2;
     background: linear-gradient(180deg, rgba(220, 82, 96, 0.24) 0%, rgba(90, 28, 62, 0.1) 100%);
     border-color: rgba(220, 82, 96, 0.72);
@@ -1519,7 +1524,7 @@ kbd.innate-key-ref {
 .ysabella-dlc-tile-wrap:focus-visible ~ .ysabella-dlc-release {
     color: #fff1f4;
     border-color: rgba(255, 170, 190, 0.95);
-    box-shadow: 0 0 22px rgba(220, 82, 96, 0.75),
+    box-shadow: 0 0 22px rgba(236, 116, 142, 0.78),
                 inset 0 0 0 1px rgba(255, 220, 230, 0.18);
 }
 
@@ -2803,6 +2808,18 @@ kbd.innate-key-ref {
     box-shadow: 0 0 10px rgba(210, 60, 60, 0.28);
 }
 
+.detail-panel__effect-link--mod {
+    border-color: rgba(90, 191, 106, 0.48);
+    background: rgba(46, 127, 61, 0.12);
+    color: #5abf6a;
+}
+
+.detail-panel__effect-link--mod:hover {
+    border-color: rgba(112, 222, 130, 0.82);
+    color: #9ff0a9;
+    box-shadow: 0 0 10px rgba(90, 191, 106, 0.25);
+}
+
 .detail-panel__related-lozenge:hover {
     border-color: var(--gold);
     color: var(--gold-bright);
@@ -2966,6 +2983,57 @@ kbd.innate-key-ref {
     font-size: 0.8em;
     opacity: 0.85;
     line-height: 1.4;
+}
+
+/* Mod effect dropdown lozenges */
+.detail-panel__mod-lozenge {
+    display: block;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: #5abf6a;
+    background: rgba(46, 127, 61, 0.12);
+    outline: 1px solid rgba(90, 191, 106, 0.48);
+    border-radius: 4px;
+}
+
+.detail-panel__mod-lozenge summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    user-select: none;
+}
+
+.detail-panel__mod-lozenge summary::-webkit-details-marker { display: none; }
+
+.detail-panel__mod-lozenge summary::before {
+    content: '▸';
+    font-size: 0.7em;
+    opacity: 0.7;
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.detail-panel__mod-lozenge[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.detail-panel__mod-lozenge summary img {
+    filter: drop-shadow(0 0 3px rgba(90, 191, 106, 0.6));
+}
+
+.detail-panel__mod-lozenge .fabien-mod-line {
+    margin: 6px 0 2px 24px;
+}
+
+.detail-panel__mod-lozenge--locked {
+    color: #8c9298;
+    background: rgba(160, 170, 184, 0.06);
+    outline-color: rgba(160, 170, 184, 0.24);
+}
+
+.detail-panel__mod-lozenge--locked summary img {
+    filter: grayscale(1) opacity(0.48);
 }
 
 /* ── Tooltip ──────────────────────────────────────────────── */
@@ -6064,6 +6132,20 @@ kbd.pickup-key {
     color: var(--gold-bright);
 }
 
+.combos-legend--ranged .combos-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.combos-legend__icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 4px rgba(201, 168, 76, 0.25));
+}
+
 .combos-legend__item {
     appearance: none;
     background: none;
@@ -6301,6 +6383,16 @@ kbd.pickup-key {
     transform: rotate(90deg);
 }
 
+.combo-name--plain {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.combo-name--plain .combo-name__text::before {
+    content: none;
+}
+
 .combo-name__subtitle {
     font-size: 10px;
     color: var(--text-dim);
@@ -6531,6 +6623,66 @@ kbd.pickup-key {
     color: var(--text-dim);
     opacity: 0.6;
     flex-shrink: 0;
+}
+
+.detail-panel__signature-combos {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.detail-panel__signature-combo-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid rgba(201, 168, 76, 0.38);
+    border-radius: 4px;
+    background: rgba(201, 168, 76, 0.08);
+    color: var(--gold);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.detail-panel__signature-combo-link:hover {
+    border-color: rgba(201, 168, 76, 0.72);
+    background: rgba(201, 168, 76, 0.13);
+    box-shadow: 0 0 10px rgba(201, 168, 76, 0.18);
+}
+
+.detail-panel__signature-combo-link img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 3px rgba(201,168,76,0.5));
+}
+
+.detail-panel__signature-combo-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.detail-panel__signature-combo-label {
+    color: var(--text-dim);
+    font-size: 10px;
+    font-style: italic;
+}
+
+.detail-panel__signature-combo-name {
+    color: var(--gold-bright);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+}
+
+.detail-panel__signature-combo-link--mod .detail-panel__signature-combo-name {
+    color: #5abf6a;
 }
 
 /* ── Melee combos table ──────────────────────────────────────── */
@@ -7493,6 +7645,483 @@ kbd.pickup-key {
     text-align: center;
 }
 
+.ranged-code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.ranged-weapons-footnotes {
+    padding: 12px 16px 16px;
+}
+
+.ranged-weapons-table-wrap {
+    overflow-x: auto;
+    padding: 0 16px 4px;
+}
+
+.ranged-weapons-mode {
+    display: inline-flex;
+    margin: 12px 16px 10px;
+    border: 1px solid rgba(201, 168, 76, 0.28);
+    border-radius: 3px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.ranged-weapons-mode__btn {
+    appearance: none;
+    min-width: 82px;
+    padding: 5px 12px;
+    border: 0;
+    border-right: 1px solid rgba(201, 168, 76, 0.22);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.ranged-weapons-mode__btn:last-child {
+    border-right: 0;
+}
+
+.ranged-weapons-mode__btn:hover {
+    color: var(--text);
+    background: rgba(201, 168, 76, 0.07);
+}
+
+.ranged-weapons-mode__btn.is-active {
+    color: var(--gold-bright);
+    background: rgba(201, 168, 76, 0.14);
+    box-shadow: inset 0 -2px 0 rgba(201, 168, 76, 0.75);
+}
+
+.ranged-weapons-table {
+    min-width: 1120px;
+}
+
+.ranged-weapons-table__th--weapon {
+    width: 18%;
+}
+
+.ranged-weapons-table__row {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.ranged-weapons-table__row:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.ranged-weapons-table__weapon {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.ranged-weapons-table__icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    object-fit: contain;
+    padding: 3px;
+    border: 1px solid rgba(201, 168, 76, 0.22);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    filter: drop-shadow(0 0 5px rgba(201, 168, 76, 0.18));
+}
+
+.ranged-weapons-table__name {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold-bright);
+}
+
+.ranged-weapons-table__metric {
+    font-size: 11px;
+    line-height: 1.35;
+    vertical-align: middle;
+}
+
+.ranged-table__value {
+    display: block;
+    color: var(--text);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.ranged-table__value--dps {
+    color: var(--gold-bright);
+    font-size: 13px;
+}
+
+.ranged-table__value--ammo-limited,
+.ranged-cadence-cell__output-value--ammo-limited {
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(255, 205, 92, 0.9);
+}
+
+.ranged-table__sub {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.ranged-table__sub--accent {
+    color: #9fc8ff;
+}
+
+/* Ranged weapon data cards */
+.ranged-weapon-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 16px 4px;
+}
+
+.ranged-weapon-card {
+    border: 1px solid rgba(201, 168, 76, 0.18);
+    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.10));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+}
+
+.ranged-weapon-card__header {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) minmax(180px, auto);
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.ranged-weapon-card__icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    padding: 4px;
+    border: 1px solid rgba(201, 168, 76, 0.24);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.035);
+    filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.20));
+}
+
+.ranged-weapon-card__heading {
+    min-width: 0;
+}
+
+.ranged-weapon-card__name {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    letter-spacing: 0;
+}
+
+.ranged-weapon-card__meta,
+.ranged-weapon-card__instance {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.35;
+}
+
+.ranged-weapon-card__instance {
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.ranged-weapon-card__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 12px;
+    padding: 12px;
+}
+
+.ranged-weapon-card__main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ranged-shared-panel,
+.ranged-cadence-panel {
+    min-width: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.ranged-shared-panel__title,
+.ranged-cadence-panel__title {
+    padding: 7px 9px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.ranged-cadence-panel__title {
+    color: #9fc8ff;
+}
+
+.ranged-card-stat {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 8px;
+    row-gap: 2px;
+    align-items: baseline;
+    padding: 6px 9px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+.ranged-card-stat__label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+}
+
+.ranged-card-stat__value {
+    min-width: 0;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.ranged-card-stat__extra {
+    grid-column: 2;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.ranged-card-stat__total {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--gold-bright);
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid rgba(201, 168, 76, 0.22);
+}
+
+.ranged-cadence-panel__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 0.75fr);
+    gap: 0;
+}
+
+.ranged-cadence-cell {
+    min-width: 0;
+    padding: 8px 9px;
+    border-right: 1px solid rgba(255, 255, 255, 0.055);
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ranged-cadence-cell:last-child {
+    border-right: 0;
+}
+
+.ranged-cadence-cell--dual {
+    background: rgba(60, 100, 150, 0.09);
+}
+
+.ranged-cadence-cell__label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.ranged-cadence-cell__value {
+    display: block;
+    margin: 2px 0 4px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.ranged-cadence-cell__value--hot {
+    color: #9fc8ff;
+    text-shadow: 0 0 8px rgba(120, 170, 220, 0.35);
+}
+
+.ranged-cadence-cell__output {
+    display: block;
+    margin: 4px 0 5px;
+    padding: 4px 6px;
+    border-left: 2px solid rgba(201, 168, 76, 0.42);
+    background: rgba(201, 168, 76, 0.055);
+}
+
+.ranged-cadence-cell__output-value {
+    display: block;
+    color: var(--gold-bright);
+    font-size: 12px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+}
+
+.ranged-cadence-cell__output-note {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.25;
+}
+
+.ranged-cadence-panel__montages {
+    padding: 7px 9px 9px;
+    border-top: 1px solid rgba(255, 255, 255, 0.045);
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ranged-weapon-card__side {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    align-content: start;
+}
+
+.ranged-card-sideblock {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 9px 10px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.ranged-card-sideblock__label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.ranged-card-sideblock__value {
+    display: block;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.ranged-card-sideblock__value--hot {
+    color: #9fc8ff;
+    text-shadow: 0 0 8px rgba(120, 170, 220, 0.35);
+}
+
+.ranged-card-sideblock__note {
+    display: block;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ranged-card-sideblock__note + .ranged-card-sideblock__note {
+    margin-top: 3px;
+}
+
+.ranged-weapon-card__notes {
+    list-style: none;
+    margin: 0;
+    padding: 0 12px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ranged-weapon-card__notes li {
+    position: relative;
+    padding-left: 12px;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.ranged-weapon-card__notes li::before {
+    content: "-";
+    position: absolute;
+    left: 0;
+    color: var(--border-accent);
+}
+
+@media (max-width: 1020px) {
+    .ranged-weapon-card__body {
+        grid-template-columns: 1fr;
+    }
+    .ranged-weapon-card__side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .ranged-weapon-card__header {
+        grid-template-columns: 48px minmax(0, 1fr);
+    }
+    .ranged-weapon-card__instance {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+    .ranged-weapon-card__side {
+        grid-template-columns: 1fr;
+    }
+    .ranged-cadence-panel__grid {
+        grid-template-columns: 1fr;
+    }
+    .ranged-cadence-cell {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+    }
+    .ranged-cadence-cell:last-child {
+        border-bottom: 0;
+    }
+}
+
 .clan-combo-block__notes {
     list-style: none;
     padding: 8px 0 0 0;
@@ -8121,13 +8750,13 @@ body.is-mobile-landscape .mobile-detail-hint {
     padding: 4px 0 8px;
 }
 .mobile-drawer__item--patch {
-    color: rgba(255, 195, 145, 0.95);
-    text-shadow: 0 0 6px rgba(255, 150, 90, 0.35);
+    color: rgba(255, 226, 152, 0.96);
+    text-shadow: 0 0 6px rgba(255, 126, 74, 0.38);
 }
 .mobile-drawer__item--patch:hover,
 .mobile-drawer__item--patch:active {
-    color: rgb(255, 215, 175);
-    background: rgba(255, 150, 90, 0.08);
+    color: rgb(255, 244, 191);
+    background: rgba(255, 126, 74, 0.1);
 }
 .mobile-drawer__build { opacity: 0.5; font-size: 10px; margin-left: 3px; }
 .mobile-drawer__item-icon { vertical-align: middle; margin-right: 7px; opacity: 0.75; flex-shrink: 0; }
@@ -9806,7 +10435,7 @@ body.is-mobile-landscape .mobile-detail-hint {
     }
 
     .ysabella-dlc-tile {
-        width: min(100%, 300px);
+        width: min(100%, 360px);
     }
 
     .benny-dlc-right {
@@ -10111,7 +10740,8 @@ body.is-mobile-landscape .mobile-detail-hint {
 
 .tierlist__item:hover { transform: scale(1.08); z-index: 1; }
 
-/* Wobbly light-green shield barrier overlay — applied when Corrosive Shield mod is on */
+/* Wobbly light-green mod overlay — applied when an active mod changes a tier item */
+.tierlist__item--modded::after,
 .tierlist__item--shielded::after {
     content: "";
     position: absolute;
@@ -10410,6 +11040,15 @@ body.is-mobile-landscape .mobile-detail-hint {
 .combat-graph__filter-section { margin-top: 10px; }
 
 .combat-graph__filter-heading {
+    appearance: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.18);
     font-family: 'Cinzel', serif;
     font-size: 11px;
     letter-spacing: 1.2px;
@@ -10417,7 +11056,72 @@ body.is-mobile-landscape .mobile-detail-hint {
     color: var(--gold, #d4af37);
     margin: 0 0 6px;
     padding-bottom: 4px;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+    cursor: pointer;
+    text-align: left;
+}
+
+.combat-graph__filter-heading:hover {
+    color: var(--accent, #f0cf75);
+}
+
+.combat-graph__filter-heading-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.combat-graph__filter-heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 3px;
+    background: rgba(212, 175, 55, 0.06);
+    color: var(--gold, #d4af37);
+    line-height: 1;
+}
+
+.combat-graph__filter-section-body[hidden] {
+    display: none;
+}
+
+.combat-graph__section-tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    padding: 3px 2px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.combat-graph__section-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim, #b8b8b8);
+    cursor: pointer;
+    user-select: none;
+}
+
+.combat-graph__section-check input[type="checkbox"] {
+    accent-color: var(--gold, #d4af37);
+    cursor: pointer;
+}
+
+.combat-graph__section-check.is-mixed {
+    color: #d6ba6a;
+}
+
+.combat-graph__radio-group--section {
+    background: rgba(255, 255, 255, 0.025);
 }
 
 .combat-graph__filter-row {
@@ -10473,6 +11177,12 @@ body.is-mobile-landscape .mobile-detail-hint {
 }
 
 .combat-graph__weapon-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.combat-graph__clan-controls {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -10642,9 +11352,14 @@ body.is-mobile-landscape .mobile-detail-hint {
     filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
 }
 
-.combat-graph__legend-item:hover {
+.combat-graph__legend-item:hover,
+.combat-graph__legend-item.is-highlighted {
     border-color: var(--gold, #d4af37);
     background: rgba(212, 175, 55, 0.06);
+}
+
+.combat-graph__legend-item.is-highlighted {
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.18);
 }
 
 .combat-graph__legend-swatch {

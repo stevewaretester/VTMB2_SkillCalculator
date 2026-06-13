@@ -151,6 +151,12 @@ function _applyTierlistModOverrides(item) {
       modNote: 'With the ability to produce elixirs Blood Curse now has a unique utility that lets you give up some opportunity now for some stored power you can take advantage of later.',
     });
   }
+  if (item.id === 'tremere-perk' && typeof state !== 'undefined' && state.modCorrosiveShield) {
+    return Object.assign({}, item, {
+      tier: 's-plus',
+      modNote: 'With the ability to restore blood pips through blood sorcery and corrosive touch this ability becomes much more worthwhile, especially for Tremere who are now the true blood mages they were always meant to be',
+    });
+  }
   if (item.id === 'elixir-mending' && typeof state !== 'undefined' && state.modCorrosiveShield) {
     return Object.assign({}, item, {
       tier: 'a',
@@ -173,6 +179,18 @@ function _applyTierlistModOverrides(item) {
     return Object.assign({}, item, {
       tier: 's',
       modNote: 'With Corrosive Shield and Alchemic Sorcery active: Getting a solid, reliable, range-extending weapon is a true boon for Potence and transforms it from "hurt one enemy hard" to "turn the tide of battle".',
+    });
+  }
+  if (item.id === 'banu-affect' && typeof state !== 'undefined' && state.modMasqManipulation) {
+    return Object.assign({}, item, {
+      tier: 'c',
+      modNote: "Feeding in the open is a huge boon to the Banu who lack cheap access to affects that can change targets resonance - you still can't farm resonance on demand but every resonance target or partial resonance becomes safer without the run-around.\n\nFor other clans, it makes a terrible ability more attractive.",
+    });
+  }
+  if (item.id === 'ventrue-affect' && typeof state !== 'undefined' && state.modMasqManipulation) {
+    return Object.assign({}, item, {
+      tier: 'b',
+      modNote: "With the ability to manipulate the masquerade this ability gains a lot more utility/functionality - it can protect you from Tolly but it's not a guarantee.",
     });
   }
   return item;
@@ -582,9 +600,7 @@ function renderTierList() {
     const btn = document.createElement('button');
     btn.className = `tierlist__item tierlist__item--${item.filter}`;
     if (useClanIcon(item.filter)) btn.classList.add('tierlist__item--clan');
-    if ((item.id === 'tremere-passive' || item.id === 'tremere-relocate') && typeof state !== 'undefined' && state.modCorrosiveShield) {
-      btn.classList.add('tierlist__item--shielded');
-    }
+    if (item.modNote) btn.classList.add('tierlist__item--modded');
     btn.dataset.id     = item.id;
     btn.dataset.filter = item.filter;
     btn.dataset.clan   = item.clan || '';

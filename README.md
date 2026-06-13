@@ -43,6 +43,7 @@ An interactive skill tree and build planner for **Vampire: The Masquerade – Bl
 ### Mods Panel
 
 - **Obvious Fabien Phlegmatic Fast Travel** toggle — adjusts the calculator to reflect the mod's behaviour, with a shortcut arrow to navigate directly to the relevant ability
+- **Masq Manipulation** toggle — adds Masqued Mind to Mute and Cloud Memory, plus the mod-only Cloud Memory Masquerade impact note
 - Related mods listed with links to Nexus Mods
 - Clan Completion Talents toggle (coming soon)
 

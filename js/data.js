@@ -992,7 +992,7 @@ const YSABELLA_OUTFIT = {
   name: "The Icon",
   tier: "strike",
   type: "attractive",
-  thumb: `assets/T_UI_Ysabella_TheIcon.png`,
+  thumb: `${SILO}/T_UI_Thumb_Phyre2_Ysabella.png`,
   fullImg: `assets/T_UI_Ysabella_TheIcon.png`,
   desc: "A glorious bloom coiled in steel flames, less an outfit than a declaration: this room belongs to me now, and so do all of you.",
 };
@@ -1103,6 +1103,18 @@ const SPECIAL_DETAILS = {
     description: "Take damage over time, but recover blood pips.",
     relatedAbility: { label: "Cauldron of Blood", clan: "tremere", tier: "affect" },
   },
+  masquedMind: {
+    id: "masquedMind",
+    name: "Masqued Mind",
+    aliases: ["Masqued Mind", "MasquedMind"],
+    category: "Mod Ability",
+    icon: "assets/AbilityTreeIcons/MasquedMind.png",
+    description: "Temporarily suppresses Masquerade increases. Civilians and cops will still witness and panic, but the collective unconscious won't become any more aware of vampires during this time. However, if they're still witnessing you or alert afterwards, it can lead to Masquerade violations.",
+    relatedAbilities: [
+      { label: "Mute", clan: "banuHaqim", tier: "affect" },
+      { label: "Cloud Memory", clan: "ventrue", tier: "affect" },
+    ],
+  },
 };
 
 // ── Combos ───────────────────────────────────────────────────
@@ -1130,7 +1142,7 @@ const COMBOS = [
   {
     id: "banish",
     name: "Banish",
-    subtitle: "Lasombra Sig. Combo",
+    subtitle: "Lasombra Clan Signature Ability",
     reference: "YouTube",
     referenceUrl: "https://youtu.be/zEytZO4tIYU",
     abilities: ["Enter Oblivion", "Arms of Ahriman"],
@@ -1150,7 +1162,7 @@ const COMBOS = [
   {
     id: "fist-of-cain",
     name: "Fist of Cain",
-    subtitle: "Brujah's Signature Combo",
+    subtitle: "Brujah Clan Signature Ability",
     reference: "A Potence power in V5",
     referenceUrl: null,
     abilities: ["Taunt", "Lightning Strike"],
@@ -1166,6 +1178,40 @@ const COMBOS = [
     outputElixir: { id: "blood", name: "Blood Elixir" },
     explanation: "Blood elixirs are widely useful as they will help restore your powers, and unlike the others, Beckon makes targets feedable all by itself.",
     rank: "S", patched: false,
+    requiresMod: "modCorrosiveShield",
+  },
+  {
+    id: "visceral-absorption",
+    name: "Visceral Absorption",
+    subtitle: "A v5 amalgam ability",
+    reference: null,
+    referenceUrl: null,
+    abilities: ["Corrosive Touch", "Blood of Potency", "Spark of Rage"],
+    explanation: "Tremere's true potential is realised as every kill results in a blood pip allowing for unprecedented utility of your abilities.",
+    rank: "S+",
+    patched: false,
+    requiresMod: "modCorrosiveShield",
+  },
+  {
+    id: "meat-shields",
+    name: "Meat Shields",
+    reference: "V5 Fortitude ability",
+    referenceUrl: null,
+    abilities: ["Flesh of Marble", "Spark of Rage", "Recall"],
+    explanation: "Triggering Ventrues Passive AND a shield increase at the same time makes this functionally the same as chugging a fortitude elixir, plus you killed an enemy to activate - a great combo for the tankiest clan.",
+    rank: "S+",
+    patched: false,
+    requiresMod: "modCorrosiveShield",
+  },
+  {
+    id: "reclamation-of-vitae",
+    name: "Reclamation of Vitae",
+    reference: "V5 Blood Sorcery ability",
+    referenceUrl: null,
+    abilities: ["Blood of Potency", "Cauldron of Blood", "Recall"],
+    explanation: "These abilities on rotation almost pay for themselves, allowing you to regain entire rows of blood pips to fuel your other abilities.",
+    rank: "S",
+    patched: false,
     requiresMod: "modCorrosiveShield",
   },
   {
@@ -1216,7 +1262,7 @@ const COMBOS = [
   {
     id: "entrancement",
     name: "Entrancement",
-    subtitle: "Toreador's Signature Combo",
+    subtitle: "Toreador Clan Signature Ability",
     reference: "A Presence power in V5",
     referenceUrl: null,
     abilities: ["Entrancing Kiss", "Beckon"],
@@ -1244,7 +1290,7 @@ const COMBOS = [
   {
     id: "unseen-strike",
     name: "Unseen Strike",
-    subtitle: "Banu Signature Combo",
+    subtitle: "Banu Haqim Clan Signature Ability",
     reference: "A Celerity/Obfuscate power in V5",
     referenceUrl: null,
     abilities: ["Split Second", "Bladed Hand"],
@@ -1265,7 +1311,7 @@ const COMBOS = [
   {
     id: "mass-berserk",
     name: "Mass Berserk",
-    subtitle: "Ventrue Signature Combo",
+    subtitle: "Ventrue Clan Signature Ability",
     reference: "Dementation 4-dot ability in VTMB1",
     referenceUrl: null,
     abilities: ["Mass Manipulation", "Possession"],
@@ -1331,7 +1377,7 @@ const COMBOS = [
   {
     id: "blood-boil",
     name: "Blood Boil",
-    subtitle: "Tremere Signature Combo",
+    subtitle: "Tremere Clan Signature Ability",
     reference: "Thaumaturgy 5-dot ability in VTMB1",
     referenceUrl: null,
     abilities: ["Cauldron of Blood", "Blood Curse"],

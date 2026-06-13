@@ -1,0 +1,13 @@
+Weapon,SingleAttackset,DualAttackset,SingleFireRate,DualFireRate,CadenceMultiplier,SingleDamage,DualDamage,SinglePellets,DualPellets,DualRangedFire,DualRangedFire_L,Notes
+Crossbow,Attackset_Crossbow,Attackset_Crossbow_Dual,0.4,0.1,4.0,0.1,0.1,,,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Much faster than single; not simply doubled
+DollarStoreM4,Attackset_DollarStoreM4,Attackset_DollarStoreM4_dual,0.1,0.1,1.0,6,6,,,AM_Player_Dual_Fire,AM_Player_Dual_Fire,Same attack cadence
+Handgun,Attackset_Handgun,Attackset_Handgun_Dual,0.06,0.06,1.0,10,10,,,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Same attack cadence
+HighCalRevolver,Attackset_HicalRevolver,Attackset_HicalRevolver_Dual,0.25,0.25,1.0,20,20,,,AM_Player_Dual_FireBig_R,AM_Player_Dual_FireBig_L,Same attack cadence
+IAORifle,Attackset_IAORifle,Attackset_IAORifle_Dual,0.1,0.1,1.0,6,6,,,AM_Player_Dual_Fire,AM_Player_Dual_Fire,Same attack cadence
+IAOShotgun,Attackset_IAOShotgun,Attackset_IAOShotgun_Dual,0.06,0.06,1.0,5.2,5.2,9,9,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Same attack cadence and same pellets
+MegaShotgun,Attackset_MegaShotgun,Attackset_MegaShotgun_dual,0.25,,unknown,6,6,8,8,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Dual attackset has no explicit FireRate
+MP5,Attackset_MP5,Attackset_MP5_Dual,0.07,0.07,1.0,3.6,3.6,,,AM_Player_Dual_Fire,AM_Player_Dual_Fire,Same attack cadence
+Revolver,Attackset_Revolver,Attackset_Revolver_Dual,0.15,0.1,1.5,10,10,,,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Faster but not doubled
+ShedShotgun,Attackset_ShedShotgun,Attackset_ShedShotgun_Dual,0.06,0.06,1.0,4.8,4.8,12,12,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Same attack cadence and same pellets
+Sniper,Attackset_Sniper,Attackset_Sniper_Dual,0.5,0.1,5.0,60,60,,,AM_Player_Dual_Fire_R,AM_Player_Dual_Fire_L,Much faster than single; not simply doubled
+StubbySMG,Attackset_StubbySMG,Attackset_StubbySMGDual,0.08,0.08,1.0,4,4,,,AM_Player_Dual_Fire,AM_Player_Dual_Fire,Same attack cadence

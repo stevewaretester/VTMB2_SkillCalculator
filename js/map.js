@@ -102,7 +102,7 @@
   // Bump storage key when default geometry changes so cached transforms
   // from earlier defaults don't override the new defaults.
   const TX_STORAGE_KEY = "vtmb2.mapTransform.v11";
-  const FILTERS_STORAGE_KEY = "vtmb2.mapFilters.v2";
+  const FILTERS_STORAGE_KEY = "vtmb2.mapFilters.v4";
   const MAP_STYLE_STORAGE_KEY = "vtmb2.mapStyle.v1";
 
   // ── Taxonomies ───────────────────────────────────────────
@@ -111,7 +111,7 @@
     { id: "phyre",    label: "Phyre",    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_PhyreMark.png" },
     { id: "fabien",   label: "Fabien",   icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_ClanLogo_Malkavian.png" },
     { id: "benny",    label: "Benny",    icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_BennyLogo.png" },
-    { id: "ysabelle", label: "Ysabella", icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" },
+    { id: "ysabella", label: "Ysabella", icon: "assets/N_Textures/AbilityTree/AbilitiesIcons/ClanLogos/T_UI_YsabellaLogo.png" },
     { id: "shared",   label: "Shared / Unknown", icon: null },
   ];
 
@@ -125,6 +125,7 @@
         { id: "camera",    label: "Camera",     color: "#ffce4d", icon: "assets/Map/Icons/Collectables/T_UI_Icons_Map_Camera.png" },
         { id: "graffiti",  label: "Graffiti",   color: "#4dffce", icon: "assets/Map/Icons/Collectables/T_UI_Icons_Map_Graffiti.png" },
         { id: "sword",     label: "Sword",      color: "#c8a2ff", icon: "assets/Map/Icons/Collectables/T_UI_Icons_Map_Camarilla.png" },
+        { id: "adverts", label: "Adverts", color: "#ff6f8f", icon: "assets/Map/Icons/Collectables/T_UI_Icons_Map_Ysabella_Collectable.png" },
         { id: "resonance", label: "Resonance",  color: "#64d8b6", icon: "assets/N_Textures/ClanTrainer/T_UI_BloodResonance_Sanguine.png" },
       ],
     },
@@ -205,6 +206,7 @@
     const CLASS_RULES = {
       "BP_AchievementCollectible_Thinblood_C": { story: "phyre", type: "collectible", subtype: "graffiti" },
       "BP_XPCollectable_C":                    { story: "phyre", type: "collectible", subtype: "phyremark"  },
+      "BP_AchievementCollectible_Base_DLC2_C": { story: "ysabella", type: "collectible", subtype: "adverts" },
       "BP_CodexItem_MDM_SwordOfStJames1_C":    { story: "fabien", type: "codex",       subtype: "codex" },
     };
     if (CLASS_RULES[cls]) {
@@ -223,6 +225,7 @@
     else if (item.c === "BENNY")   { type = "collectible"; subtype = "thinblood"; }
     else if (item.c === "CAM")     { type = "collectible"; subtype = "sword"; }
     else if (item.c === "CAMERA")  { type = "collectible"; subtype = "camera"; }
+    else if (item.c === "YSA")     { type = "collectible"; subtype = "adverts"; }
     else if (item.c === "NEWS")    { type = "codex";       subtype = "news"; }
     else if (item.c === "KNIFE")   { type = "codex";       subtype = "codex"; }
     else if (item.c === "CODEX")   { type = "codex";       subtype = "codex"; }
@@ -238,6 +241,7 @@
       if      (o === "benny")  story = "benny";
       else if (o === "fabien") story = "fabien";
       else if (o === "phyre")  story = "phyre";
+      else if (o === "ysabella" || o === "ysabelle") story = "ysabella";
       // "unknown" → fall through to heuristics below
     }
     if (!item.owner || item.owner === "Unknown") {
@@ -247,11 +251,12 @@
       else if (item.c === "KNIFE")              story = "fabien";
       else if (item.c === "CAM")                story = "phyre";
       else if (item.c === "CAMERA")             story = "phyre";
+      else if (item.c === "YSA")                story = "ysabella";
       else if (item.c === "NEWS")               story = "phyre";
       else if (/Fabien/i.test(blob))            story = "fabien";
       else if (/StrickBW|StrickNR/i.test(blob)) story = "fabien";
       else if (/Benny/i.test(blob))             story = "benny";
-      else if (/Ysabell[ae]/i.test(blob))       story = "ysabelle";
+      else if (/Ysabell[ae]/i.test(blob))       story = "ysabella";
     }
 
     // Progress (placeholder — left as 'unknown' until quest map is known)
@@ -298,6 +303,9 @@
     "BP_XPCollectable_C": {
       name: "Phyre Mark",
       description: "A psychic resonance left by a fellow thin-blood. Touch it to harvest the imprint.",
+    },
+    "BP_AchievementCollectible_Base_DLC2_C": {
+      description: "Advert collectible from Ysabella's Flower and the Flame DLC. There are 15 in the hub, and collecting them all unlocks Good Publicity.",
     },
   };
 

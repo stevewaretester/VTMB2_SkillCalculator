@@ -52,6 +52,9 @@ Current persisted payload shape:
 - `ct`: completion talents toggle
 - `mh`: MAHA/Haven toggle
 - `mf`: Fabien fast travel toggle
+- `mcr`: Corrosive Shield and Alchemic Sorcery toggle
+- `mmq`: Masq Manipulation toggle
+- `mcm`: Clan Melee Override toggle
 - `cs`: clan selector collapsed
 - `sp`: selectedPerTier map
 - `a`: abilities map (only non-locked entries)

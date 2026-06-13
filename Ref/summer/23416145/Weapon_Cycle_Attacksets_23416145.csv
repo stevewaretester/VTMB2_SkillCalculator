@@ -1,0 +1,5 @@
+Attackset,WeaponMapId,WeaponInstance,PlayerWieldAmmo,PlayerWieldAmmoMag,RangedCycle,CycleTime,MontageLength,AudioOrVFX,Notes
+Attackset_ShedShotgun,27,BP_WeaponInstance_Shotgun_ThinbloodEarly_C,1,1,AM_Shotgun_Cycle,0.6,0.98333335,WEP_NPC_Foley_Shotgun_Pump_Player at 0.27788734s; NS_Shotgun_Shell at 0.20549753s in AM_wep_Player_shotgun_Cycle,Player pump cycle
+Attackset_ShedShotgun_Dual,32,BP_WeaponInstance_Shotgun_ThinbloodEarly_C,1,1,AM_Shotgun_Cycle_Dual,0.6,0.98333335,WEP_NPC_Foley_Shotgun_Pump_Player at 0.2100539s left and 0.30831707s right; plays AM_wep_Player_shotgun_Cycle twice,Dual player pump cycle
+Attackset_Sniper,28,BP_WeaponInstance_SniperRifle_C,1,1,AM_Sniper_Cycle,0.8,1.34445,WEP_Sniper_Load_Player at 0.19579965s; NS_Rifle_Shell at 0.47729275s,Player sniper bolt/load cycle
+Attackset_Sniper_Dual,33,BP_WeaponInstance_SniperRifle_C,1,1,AM_Sniper_Cycle_Dual,0.8,0.98333335,WEP_Sniper_Load_Player at 0.11647004s and 0.27623114s; plays AM_wep_Player_shotgun_Cycle twice,Named sniper dual but reuses shotgun dual cycle animation

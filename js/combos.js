@@ -15,9 +15,16 @@ const RANK_CLASS = {
   "F":  "rank--f",
 };
 
+const COMBO_RANK_ORDER = ["S+", "S", "A+", "A", "B+", "B", "B-", "C", "D", "F"];
+
 const COMBOS_FILTER = {
   selected: null, // "all" | "partial" | "locked" | null
 };
+
+function getComboRankSortValue(rank) {
+  const idx = COMBO_RANK_ORDER.indexOf(rank);
+  return idx === -1 ? COMBO_RANK_ORDER.length : idx;
+}
 
 // ── Unlock state helpers ─────────────────────────────────────
 function getAbilityState(abilityName) {
@@ -70,11 +77,12 @@ function buildComboAbilityIcon(abilityName) {
   const ability = ABILITIES[loc.clan][loc.tier];
   const abilState = state.abilities[`${loc.clan}:${loc.tier}`] || "locked";
   const stateClass = `combo-ability--${abilState}`;
+  const iconSrc = ability.icon || (CLANS[loc.clan] ? CLANS[loc.clan].logo : "");
   return `<button class="combo-ability ${stateClass}"
     data-clan="${loc.clan}" data-tier="${loc.tier}"
     title="${ability.name}"
     aria-label="Go to ${ability.name} in skill tree">
-    <img src="${ability.icon}" alt="${ability.name}">
+    ${iconSrc ? `<img src="${iconSrc}" alt="${ability.name}">` : ""}
     ${abilState === "unlocked" ? '<span class="combo-ability__state combo-ability__state--unlocked">✓</span>' : ""}
     ${abilState === "awakened" ? '<span class="combo-ability__state combo-ability__state--awakened">◈</span>' : ""}
     ${abilState === "locked"   ? '<span class="combo-ability__state combo-ability__state--locked">🔒</span>' : ""}
@@ -173,6 +181,10 @@ function renderCombosPage() {
   if (!container) return;
 
   const isMobile = document.body.classList.contains('is-mobile');
+  const orderedCombos = COMBOS
+    .map((combo, index) => ({ combo, index }))
+    .sort((a, b) => getComboRankSortValue(a.combo.rank) - getComboRankSortValue(b.combo.rank) || a.index - b.index)
+    .map(entry => entry.combo);
 
   let html = `
     <div class="combos-header">
@@ -191,7 +203,7 @@ function renderCombosPage() {
   if (isMobile) {
     // ── Mobile: card view ─────────────────────────────────────
     html += `<div class="combo-card-list">`;
-    for (const combo of COMBOS) {
+    for (const combo of orderedCombos) {
       if (typeof comboIsVisible === "function" && !comboIsVisible(combo)) continue;
       const unlockState = getComboUnlockState(combo);
       if (!comboPassesFilter(unlockState)) continue;
@@ -234,31 +246,43 @@ function renderCombosPage() {
       </thead>
       <tbody>`;
 
-    for (const combo of COMBOS) {
+    for (const combo of orderedCombos) {
       if (typeof comboIsVisible === "function" && !comboIsVisible(combo)) continue;
       const unlockState = getComboUnlockState(combo);
       if (!comboPassesFilter(unlockState)) continue;
       const rowClass = `combos-table__row combos-table__row--${unlockState}`;
 
       const modClass = combo.requiresMod ? " combo-name--mod" : "";
-      let nameCell = `<details class="combo-name${modClass}">
-        <summary class="combo-name__summary">
-          <span class="combo-name__text">${combo.name}</span>
-          ${combo.patched ? `<span class="combo-name__patched">PATCHED</span>` : ""}
-        </summary>`;
-      if (combo.subtitle) {
-        nameCell += `<div class="combo-name__subtitle">${combo.subtitle}</div>`;
-      }
+      const subtitleHtml = combo.subtitle ? `<div class="combo-name__subtitle">${combo.subtitle}</div>` : "";
+      const patchedHtml = combo.patched ? `<span class="combo-name__patched">PATCHED</span>` : "";
+      let refHtml = "";
       if (combo.reference || combo.referenceUrl) {
-        nameCell += `<div class="combo-name__ref">`;
+        refHtml += `<div class="combo-name__ref">`;
         if (combo.referenceUrl) {
-          nameCell += `<span class="combo-name__ref-label">Ref: </span><a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a>`;
+          refHtml += `<span class="combo-name__ref-label">Ref: </span><a href="${combo.referenceUrl}" target="_blank" rel="noopener">${combo.reference || combo.referenceUrl}</a>`;
         } else if (combo.reference) {
-          nameCell += `<span class="combo-name__ref-label">Ref: </span><em>${combo.reference}</em>`;
+          refHtml += `<span class="combo-name__ref-label">Ref: </span><em>${combo.reference}</em>`;
         }
-        nameCell += `</div>`;
+        refHtml += `</div>`;
       }
-      nameCell += `</details>`;
+
+      let nameCell = "";
+      if (refHtml) {
+        nameCell = `<details class="combo-name${modClass}">
+          <summary class="combo-name__summary">
+            <span class="combo-name__text">${combo.name}</span>
+            ${patchedHtml}
+            ${subtitleHtml}
+          </summary>
+          ${refHtml}
+        </details>`;
+      } else {
+        nameCell = `<div class="combo-name combo-name--plain${modClass}">
+          <span class="combo-name__text">${combo.name}</span>
+          ${patchedHtml}
+          ${subtitleHtml}
+        </div>`;
+      }
 
       const abilitiesHtml  = combo.abilities.map(buildComboAbilityIcon).join("");
       const explanationHtml = buildComboExplanationHtml(combo);
@@ -835,14 +859,12 @@ function evaluateClanPattern(rows, pattern) {
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     const type = pattern[i];
-    const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
-    const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
     if (type === "H") {
       damage += row.heavyDmg;
-      time += (row.heavyThresh * maxWindup) + row.comboDelay;
+      time += getClanHeavyStepTime(row);
     } else {
       damage += row.lightDmg;
-      time += minWindup + row.comboDelay;
+      time += getClanLightStepTime(row);
     }
   }
   return {
@@ -866,10 +888,8 @@ function findOptimalPattern(rows) {
 
 function findSingleRunPeakPattern(rows) {
   const pattern = rows.map((row) => {
-    const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
-    const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
-    const lightTime = minWindup + row.comboDelay;
-    const heavyTime = (row.heavyThresh * maxWindup) + row.comboDelay;
+    const lightTime = getClanLightStepTime(row);
+    const heavyTime = getClanHeavyStepTime(row);
     const lightDps = lightTime > 0 ? (row.lightDmg / lightTime) : 0;
     const heavyDps = heavyTime > 0 ? (row.heavyDmg / heavyTime) : 0;
     return heavyDps > lightDps ? "H" : "L";
@@ -2349,14 +2369,996 @@ function renderMeleeWeaponsPage() {
   });
 }
 
+// ── Ranged Weapons Combat Page ────────────────────────────────
+// Sources:
+// - Ref/summer/23416145/Ranged_Weapons_23416145.md
+// - Ref/summer/23416145/TKable_Weapons_23416145.csv
+// - Ref/summer/23416145/Weapon_Cycle_Attacksets_23416145.csv
+// - Ref/summer/23416145/Weapon_Reload_Cycle_23416145.md
+const RANGED_WEAPONS = [
+  {
+    id: "crossbow",
+    name: "Crossbow",
+    registryName: "Crossbow",
+    family: "Crossbow",
+    icon: "assets/ammo/T_UI_tempwep_crossbow.png",
+    ammoBeforeReload: 1,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 1,
+    projectileDamage: "special",
+    directDamage: 0.1,
+    explosionDamage: 80,
+    shotDamageOverride: 80.1,
+    projectilesPerShot: 1,
+    playerFireRate: 1.0,
+    maxAmmo: 1,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 0.1, damagePerProjectile: "special" },
+    damageTag: "Data.Damage.Ranged.Crossbow",
+    instanceClass: "BP_WeaponInstance_Crossbow_C",
+    projectileSource: "verified:BP_WeaponInstance_Crossbow",
+    notes: ["Only crossbows have a true one-shot pickup profile.", "Player attacksets fire WrestlerProjectile_ExplodingBolt_C: 0.1 direct damage plus 80 enemy explosion damage."],
+  },
+  {
+    id: "iao-rifle",
+    name: "IAO Rifle",
+    registryName: "IAORifle",
+    family: "Rifle",
+    icon: "assets/ammo/T_UI_tempwep_IAOrifle.png",
+    ammoBeforeReload: 20,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 20,
+    projectileDamage: 6.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.1,
+    maxAmmo: 30,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 5, shotFireRate: 0.1, damagePerProjectile: 1.5 },
+    damageTag: "Data.Damage.Ranged.AssaultRifle",
+    instanceClass: "BP_WeaponInstance_Rifle_C",
+    projectileSource: "verified:DT_ThrowableWeapons",
+  },
+  {
+    id: "sniper-rifle",
+    name: "Sniper Rifle",
+    registryName: "SniperRifle",
+    family: "Scoped rifle",
+    icon: "assets/ammo/T_UI_tempwep_sniper.png",
+    ammoBeforeReload: 1,
+    reloadAmmoMag: 1,
+    defaultAmmoTotal: 2,
+    projectileDamage: 60.0,
+    projectilesPerShot: 1,
+    playerFireRate: 1.0,
+    maxAmmo: 5,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 0.7, damagePerProjectile: 14.0 },
+    damageTag: "",
+    instanceClass: "BP_WeaponInstance_SniperRifle_C",
+    projectileSource: "verified:DT_ThrowableWeapons",
+    cycle: {
+      kind: "Bolt/load cycle",
+      single: { attackset: "Attackset_Sniper", cycle: "AM_Sniper_Cycle", cycleTime: 0.8, montageLength: 1.34445 },
+      dual: { attackset: "Attackset_Sniper_Dual", cycle: "AM_Sniper_Cycle_Dual", cycleTime: 0.8, montageLength: 0.98333335 },
+      notes: ["Dual sniper cycle reuses the shotgun dual-cycle animation asset."],
+    },
+    notes: ["Hold right click for scope. Scope is lost while dual-wielding.", "Observed pickups can show 2 shots, but reload/cycle mag is 1."],
+  },
+  {
+    id: "iao-shotgun",
+    name: "IAO Shotgun",
+    registryName: "IAOShotgun",
+    family: "Shotgun",
+    icon: "assets/ammo/T_UI_tempwep_IAOShotgun.png",
+    ammoBeforeReload: 2,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 2,
+    projectileDamage: 4.3,
+    projectilesPerShot: 7,
+    playerFireRate: 0.2,
+    maxAmmo: 5,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 1.4, damagePerProjectile: 1.0 },
+    damageTag: "Data.Damage.Ranged.Shotgun",
+    instanceClass: "BP_WeaponInstance_Shotgun_C",
+    projectileSource: "verified:BP_WeaponInstance_Shotgun",
+    cycleAbsentNote: "No RangedCycle or CycleTime in this export; treated as straight fire.",
+    notes: ["Loaded ammo is 2 shots; no pump/cycle timing is applied."],
+  },
+  {
+    id: "dollar-store-m4",
+    name: "Dollar Store M4",
+    registryName: "DollarStoreM4",
+    family: "Rifle",
+    icon: "assets/ammo/T_UI_tempwep_M4.png",
+    ammoBeforeReload: 20,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 20,
+    projectileDamage: 6.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.1,
+    maxAmmo: 30,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 5, shotFireRate: 0.1, damagePerProjectile: 1.5 },
+    damageTag: "Data.Damage.Ranged.AssaultRifle",
+    instanceClass: "BP_WeaponInstance_Rifle_ThinbloodEarly_C",
+    projectileSource: "verified:DT_ThrowableWeapons",
+  },
+  {
+    id: "stubby-smg",
+    name: "Stubby SMG",
+    registryName: "StubbySmg",
+    family: "SMG",
+    icon: "assets/ammo/T_UI_tempwep_stubby.png",
+    ammoBeforeReload: 25,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 25,
+    projectileDamage: 4.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.08,
+    maxAmmo: 60,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 15, shotFireRate: 0.08, damagePerProjectile: 1.2 },
+    damageTag: "",
+    instanceClass: "BP_WeaponInstance_Rifle_Dual_C",
+    projectileSource: "verified:DT_ThrowableWeapons",
+  },
+  {
+    id: "smg",
+    name: "SMG",
+    registryName: "SMG",
+    family: "SMG",
+    icon: "assets/ammo/T_UI_tempwep_mp5.png",
+    ammoBeforeReload: 30,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 30,
+    projectileDamage: 3.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.07,
+    maxAmmo: 30,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 3, shotFireRate: 0.07, damagePerProjectile: 1.5 },
+    damageTag: "",
+    instanceClass: "BP_WeaponInstance_SMG_C",
+    projectileSource: "verified:BP_WeaponInstance_SMG",
+  },
+  {
+    id: "shotgun",
+    name: "Shotgun",
+    registryName: "Shotgun",
+    family: "Shotgun",
+    icon: "assets/ammo/T_UI_tempwep_shotgun.png",
+    ammoBeforeReload: 1,
+    reloadAmmoMag: 1,
+    defaultAmmoTotal: 2,
+    projectileDamage: 4.8,
+    projectilesPerShot: 12,
+    playerFireRate: 0.7,
+    maxAmmo: 4,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 1.5, damagePerProjectile: 1.0 },
+    damageTag: "Data.Damage.Ranged.Shotgun",
+    instanceClass: "BP_WeaponInstance_Shotgun_ThinbloodEarly_C",
+    projectileSource: "verified:BP_WeaponInstance_Shotgun_ThinbloodEarly",
+    cycle: {
+      kind: "Pump action",
+      single: { attackset: "Attackset_ShedShotgun", cycle: "AM_Shotgun_Cycle", cycleTime: 0.6, montageLength: 0.98333335 },
+      dual: { attackset: "Attackset_ShedShotgun_Dual", cycle: "AM_Shotgun_Cycle_Dual", cycleTime: 0.6, montageLength: 0.98333335 },
+      notes: ["Player pump cycle uses AM_wep_Player_shotgun_Cycle."],
+    },
+    notes: ["Pickup total can show 2 shots, but reload/cycle mag is 1."],
+  },
+  {
+    id: "revolver",
+    name: "Revolver",
+    registryName: "Revolver",
+    family: "Handgun",
+    icon: "assets/ammo/T_UI_tempwep_revolver.png",
+    ammoBeforeReload: 6,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 6,
+    projectileDamage: 10.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.2,
+    maxAmmo: 6,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 1.25, damagePerProjectile: 3.75 },
+    damageTag: "Data.Damage.Ranged.Revolver",
+    instanceClass: "BP_WeaponInstance_Revolver_C",
+    projectileSource: "verified:BP_WeaponInstance_Revolver",
+  },
+  {
+    id: "mega-shotty",
+    name: "Mega Shotty",
+    registryName: "MegaShotty",
+    family: "Shotgun",
+    icon: "assets/ammo/T_UI_tempwep_MegaShotgun.png",
+    ammoBeforeReload: 5,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 5,
+    projectileDamage: 3.4,
+    projectilesPerShot: 8,
+    playerFireRate: 0.25,
+    maxAmmo: 10,
+    maxAmmoSource: "inherited_native_default",
+    enemy: { shotsPerBurst: 5, shotFireRate: 0.8, damagePerProjectile: 1.0 },
+    damageTag: "Data.Damage.Ranged.Shotgun",
+    instanceClass: "BP_WeaponInstance_Shotgun_Pump_C",
+    projectileSource: "verified:BP_WeaponInstance_Shotgun_Pump",
+    cycleAbsentNote: "No RangedCycle or CycleTime in this export; pump naming is on the weapon instance/asset identity.",
+  },
+  {
+    id: "pistol",
+    name: "Pistol",
+    registryName: "Pistol",
+    family: "Handgun",
+    icon: "assets/ammo/T_UI_tempwep_pistol.png",
+    ammoBeforeReload: 10,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 10,
+    projectileDamage: 10.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.2,
+    maxAmmo: 15,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 6, shotFireRate: 0.5, damagePerProjectile: 3.0 },
+    damageTag: "Data.Damage.Ranged.Handgun",
+    instanceClass: "BP_WeaponInstance_Handgun_C",
+    projectileSource: "verified:BP_WeaponInstance_Handgun",
+  },
+  {
+    id: "high-cal-revolver",
+    name: "High Cal Revolver",
+    registryName: "HighCalRevolver",
+    family: "Handgun",
+    icon: "assets/ammo/T_UI_tempwep_hical.png",
+    ammoBeforeReload: 6,
+    reloadAmmoMag: null,
+    defaultAmmoTotal: 6,
+    projectileDamage: 15.0,
+    projectilesPerShot: 1,
+    playerFireRate: 0.25,
+    maxAmmo: 6,
+    maxAmmoSource: "override",
+    enemy: { shotsPerBurst: 1, shotFireRate: 1.25, damagePerProjectile: 3.75 },
+    damageTag: "Data.Damage.Ranged.Revolver",
+    instanceClass: "BP_WeaponInstance_HighCaliburPistol_C",
+    projectileSource: "verified:BP_WeaponInstance_HighCaliburPistol",
+  },
+];
+
+const RANGED_DUAL_FIRE_DATA = {
+  "crossbow": {
+    singleAttackset: "Attackset_Crossbow",
+    dualAttackset: "Attackset_Crossbow_Dual",
+    singleFireRate: 0.4,
+    dualFireRate: 0.1,
+    cadenceMultiplier: 4.0,
+    singleDamage: 0.1,
+    dualDamage: 0.1,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Much faster than single; not simply doubled.",
+  },
+  "dollar-store-m4": {
+    singleAttackset: "Attackset_DollarStoreM4",
+    dualAttackset: "Attackset_DollarStoreM4_dual",
+    singleFireRate: 0.1,
+    dualFireRate: 0.1,
+    cadenceMultiplier: 1.0,
+    singleDamage: 6,
+    dualDamage: 6,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire",
+    dualRangedFireL: "AM_Player_Dual_Fire",
+    notes: "Same attack cadence.",
+  },
+  "pistol": {
+    singleAttackset: "Attackset_Handgun",
+    dualAttackset: "Attackset_Handgun_Dual",
+    singleFireRate: 0.06,
+    dualFireRate: 0.06,
+    cadenceMultiplier: 1.0,
+    singleDamage: 10,
+    dualDamage: 10,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Same attack cadence.",
+  },
+  "high-cal-revolver": {
+    singleAttackset: "Attackset_HicalRevolver",
+    dualAttackset: "Attackset_HicalRevolver_Dual",
+    singleFireRate: 0.25,
+    dualFireRate: 0.25,
+    cadenceMultiplier: 1.0,
+    singleDamage: 20,
+    dualDamage: 20,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_FireBig_R",
+    dualRangedFireL: "AM_Player_Dual_FireBig_L",
+    notes: "Same attack cadence.",
+  },
+  "iao-rifle": {
+    singleAttackset: "Attackset_IAORifle",
+    dualAttackset: "Attackset_IAORifle_Dual",
+    singleFireRate: 0.1,
+    dualFireRate: 0.1,
+    cadenceMultiplier: 1.0,
+    singleDamage: 6,
+    dualDamage: 6,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire",
+    dualRangedFireL: "AM_Player_Dual_Fire",
+    notes: "Same attack cadence.",
+  },
+  "iao-shotgun": {
+    singleAttackset: "Attackset_IAOShotgun",
+    dualAttackset: "Attackset_IAOShotgun_Dual",
+    singleFireRate: 0.06,
+    dualFireRate: 0.06,
+    cadenceMultiplier: 1.0,
+    singleDamage: 5.2,
+    dualDamage: 5.2,
+    singlePellets: 9,
+    dualPellets: 9,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Same attack cadence and same pellets.",
+  },
+  "mega-shotty": {
+    singleAttackset: "Attackset_MegaShotgun",
+    dualAttackset: "Attackset_MegaShotgun_dual",
+    singleFireRate: 0.25,
+    dualFireRate: 0.2,
+    cadenceMultiplier: 1.25,
+    singleDamage: 6,
+    dualDamage: 6,
+    singlePellets: 8,
+    dualPellets: 8,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Dual uses inherited 0.2s FireRate.",
+  },
+  "smg": {
+    singleAttackset: "Attackset_MP5",
+    dualAttackset: "Attackset_MP5_Dual",
+    singleFireRate: 0.07,
+    dualFireRate: 0.07,
+    cadenceMultiplier: 1.0,
+    singleDamage: 3.6,
+    dualDamage: 3.6,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire",
+    dualRangedFireL: "AM_Player_Dual_Fire",
+    notes: "Same attack cadence.",
+  },
+  "revolver": {
+    singleAttackset: "Attackset_Revolver",
+    dualAttackset: "Attackset_Revolver_Dual",
+    singleFireRate: 0.15,
+    dualFireRate: 0.1,
+    cadenceMultiplier: 1.5,
+    singleDamage: 10,
+    dualDamage: 10,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Faster, but not doubled.",
+  },
+  "shotgun": {
+    singleAttackset: "Attackset_ShedShotgun",
+    dualAttackset: "Attackset_ShedShotgun_Dual",
+    singleFireRate: 0.06,
+    dualFireRate: 0.06,
+    cadenceMultiplier: 1.0,
+    singleDamage: 4.8,
+    dualDamage: 4.8,
+    singlePellets: 12,
+    dualPellets: 12,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Same attack cadence and same pellets.",
+  },
+  "sniper-rifle": {
+    singleAttackset: "Attackset_Sniper",
+    dualAttackset: "Attackset_Sniper_Dual",
+    singleFireRate: 0.5,
+    dualFireRate: 0.1,
+    cadenceMultiplier: 5.0,
+    singleDamage: 60,
+    dualDamage: 60,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire_R",
+    dualRangedFireL: "AM_Player_Dual_Fire_L",
+    notes: "Much faster than single; not simply doubled.",
+  },
+  "stubby-smg": {
+    singleAttackset: "Attackset_StubbySMG",
+    dualAttackset: "Attackset_StubbySMGDual",
+    singleFireRate: 0.08,
+    dualFireRate: 0.08,
+    cadenceMultiplier: 1.0,
+    singleDamage: 4,
+    dualDamage: 4,
+    singlePellets: null,
+    dualPellets: null,
+    dualRangedFire: "AM_Player_Dual_Fire",
+    dualRangedFireL: "AM_Player_Dual_Fire",
+    notes: "Same attack cadence.",
+  },
+};
+
+const RANGED_DUAL_READS = {
+  "crossbow": {
+    label: "Exploding bolt",
+    text: "Exploding bolt: one R/L bolt per cadence; damage is 0.1 direct + 80 explosion.",
+    damageEventsPerCadence: 1,
+  },
+  "iao-rifle": {
+    label: "Both-guns",
+    text: "Shared AM_Player_Dual_Fire montage; assumes 2 damage events per cadence.",
+    damageEventsPerCadence: 2,
+  },
+  "sniper-rifle": {
+    label: "R/L cycle pair",
+    text: "R/L montages; one dual cycle after each two-hand pair.",
+    damageEventsPerCadence: 1,
+  },
+  "iao-shotgun": {
+    label: "R/L straight",
+    text: "R/L montages; no cycle timing exported, treated as straight fire.",
+    damageEventsPerCadence: 1,
+  },
+  "dollar-store-m4": {
+    label: "Both-guns",
+    text: "Shared AM_Player_Dual_Fire montage; assumes 2 damage events per cadence.",
+    damageEventsPerCadence: 2,
+  },
+  "stubby-smg": {
+    label: "Both-guns",
+    text: "Shared AM_Player_Dual_Fire montage; assumes 2 damage events per cadence.",
+    damageEventsPerCadence: 2,
+  },
+  "smg": {
+    label: "Both-guns",
+    text: "Shared AM_Player_Dual_Fire montage; assumes 2 damage events per cadence.",
+    damageEventsPerCadence: 2,
+  },
+  "shotgun": {
+    label: "R/L cycle pair",
+    text: "R/L montages; one dual pump after each two-hand pair.",
+    damageEventsPerCadence: 1,
+  },
+  "revolver": {
+    label: "R/L faster",
+    text: "R/L montages; faster cadence only.",
+    damageEventsPerCadence: 1,
+  },
+  "mega-shotty": {
+    label: "R/L inherited",
+    text: "R/L montages; inherited 0.2s dual FireRate, no cycle timing.",
+    damageEventsPerCadence: 1,
+  },
+  "pistol": {
+    label: "R/L alternating",
+    text: "R/L montages; alternating/single damage event per cadence.",
+    damageEventsPerCadence: 1,
+  },
+  "high-cal-revolver": {
+    label: "R/L big-fire",
+    text: "R/L big-fire montages; alternating/single damage event per cadence.",
+    damageEventsPerCadence: 1,
+  },
+};
+
+const RANGED_ENEMY_RELOAD_PROFILES = {
+  crossbow: { asset: "AM_Enemy_Combat_Reload_Crossbow", length: 4.26667, note: "Rifle reload animation at play rate 0.5." },
+  rifle: { asset: "AM_Enemy_Combat_Reload_Rifle_01", length: 2.13333, note: "Generic enemy rifle reload." },
+  shotgun: { asset: "AM_Enemy_Combat_Reload_Shotgun_01", length: 2.7, cycle: "AM_shotgun_Cycle", cycleLength: 1.1, note: "Enemy shotgun reload; enemy shotgun cycle is separate." },
+  pistol: { asset: "AM_Enemy_Combat_Reload_Pistol_01", length: 2.13333, note: "Generic enemy pistol reload." },
+  revolver: { asset: "AM_Enemy_Combat_Reload_Pistol_Revolver_01", length: 2.13333, note: "Generic enemy revolver reload." },
+};
+
+let RANGED_WEAPON_TABLE_MODE = "single";
+const RANGED_DUAL_CAP_NO_DOUBLE = new Set(["pistol", "revolver", "high-cal-revolver"]);
+
+function formatRangedNumber(value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return String(value || "");
+  if (Number.isInteger(value)) return String(value);
+  return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function formatRangedValue(value, suffix = "") {
+  const formatted = formatRangedNumber(value);
+  if (!formatted) return `<span class="crossclan__val--dim">&mdash;</span>`;
+  return `${formatted}${suffix}`;
+}
+
+function getRangedEnemyBurstTotal(weapon) {
+  const enemy = weapon.enemy || {};
+  if (typeof enemy.damagePerProjectile !== "number" || typeof enemy.shotsPerBurst !== "number") return null;
+  return enemy.damagePerProjectile * enemy.shotsPerBurst;
+}
+
+function renderRangedCardStat(label, value, extra = "") {
+  return `<div class="ranged-card-stat"><span class="ranged-card-stat__label">${label}</span><span class="ranged-card-stat__value">${value}</span>${extra ? `<span class="ranged-card-stat__extra">${extra}</span>` : ""}</div>`;
+}
+
+function renderRangedAttacksetDamage(damage, pellets) {
+  if (typeof damage !== "number") return `<span class="crossclan__val--dim">&mdash;</span>`;
+  if (typeof pellets === "number" && pellets > 1) {
+    const total = damage * pellets;
+    return `${formatRangedNumber(damage)} x ${formatRangedNumber(pellets)} <span class="ranged-card-stat__total">${formatRangedNumber(total)}</span>`;
+  }
+  return formatRangedNumber(damage);
+}
+
+function renderRangedWeaponDamageValue(weapon) {
+  if (typeof weapon.shotDamageOverride === "number") {
+    return `${formatRangedNumber(weapon.directDamage)} + ${formatRangedNumber(weapon.explosionDamage)} <span class="ranged-card-stat__total">${formatRangedNumber(weapon.shotDamageOverride)}</span>`;
+  }
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const damageChanges = data.singleDamage !== data.dualDamage || data.singlePellets !== data.dualPellets;
+  if (weapon.projectileDamage === "special") return `<span class="crossclan__val--dim">special</span>`;
+  if (damageChanges) {
+    return `Single ${renderRangedAttacksetDamage(data.singleDamage, data.singlePellets)} / Dual ${renderRangedAttacksetDamage(data.dualDamage, data.dualPellets)}`;
+  }
+  return renderRangedAttacksetDamage(data.singleDamage, data.singlePellets);
+}
+
+function getRangedWeaponDamageNote(weapon) {
+  if (typeof weapon.shotDamageOverride === "number") {
+    return "direct attackset hit + BP_Explosion_C EnemyDamage";
+  }
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const damageChanges = data.singleDamage !== data.dualDamage || data.singlePellets !== data.dualPellets;
+  if (weapon.projectileDamage === "special") {
+    return "damage is special-cased outside the direct attackset/projectile fields";
+  }
+  if (damageChanges) return "single and dual attacksets differ";
+  return typeof data.singlePellets === "number" && data.singlePellets > 1
+    ? "per projectile x pellets; unchanged by dual-wield"
+    : "attackset damage; unchanged by dual-wield";
+}
+
+function getRangedAttacksetShotDamage(weapon, mode) {
+  if (typeof weapon.shotDamageOverride === "number") return weapon.shotDamageOverride;
+  if (weapon.projectileDamage === "special") return null;
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const damage = mode === "dual" ? data.dualDamage : data.singleDamage;
+  const pellets = mode === "dual" ? data.dualPellets : data.singlePellets;
+  if (typeof damage !== "number") return null;
+  return damage * (typeof pellets === "number" && pellets > 1 ? pellets : 1);
+}
+
+function getRangedCapDisplay(weapon) {
+  if (typeof weapon.reloadAmmoMag === "number") {
+    return `${formatRangedNumber(weapon.ammoBeforeReload)} loaded + ${formatRangedNumber(weapon.reloadAmmoMag)} mag`;
+  }
+  return formatRangedNumber(weapon.ammoBeforeReload || weapon.defaultAmmoTotal || weapon.maxAmmo);
+}
+
+function getRangedAmmoCapShots(weapon, mode) {
+  const baseCap = typeof weapon.defaultAmmoTotal === "number"
+    ? weapon.defaultAmmoTotal
+    : (weapon.ammoBeforeReload || 0) + (weapon.reloadAmmoMag || 0);
+  if (mode !== "dual" || RANGED_DUAL_CAP_NO_DOUBLE.has(weapon.id)) return baseCap;
+  return baseCap * 2;
+}
+
+function getRangedDualRead(weapon) {
+  return RANGED_DUAL_READS[weapon.id] || {
+    label: "Dual",
+    text: "Dual read unavailable.",
+    damageEventsPerCadence: 1,
+  };
+}
+
+function getRangedCycleTime(weapon, mode) {
+  if (!weapon.cycle) return 0;
+  const cycle = mode === "dual" ? weapon.cycle.dual : weapon.cycle.single;
+  return cycle && typeof cycle.cycleTime === "number" ? cycle.cycleTime : 0;
+}
+
+function getRangedDpsOutput(weapon, mode) {
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const fireRate = mode === "dual" ? data.dualFireRate : data.singleFireRate;
+  const damagePerShot = getRangedAttacksetShotDamage(weapon, mode);
+  if (typeof fireRate !== "number" || typeof damagePerShot !== "number") return null;
+
+  const capShots = getRangedAmmoCapShots(weapon, mode);
+  if (typeof capShots !== "number" || capShots <= 0) return null;
+
+  if (weapon.cycle) {
+    const shots = capShots;
+    const cycleTime = getRangedCycleTime(weapon, mode);
+    const fireTime = fireRate * shots;
+    const totalCycleTime = cycleTime;
+    const totalTime = fireTime + totalCycleTime;
+    const totalDamage = damagePerShot * shots;
+    const theoreticalDps = totalTime > 0 ? totalDamage / totalTime : null;
+    const ammoLimited = typeof theoreticalDps === "number" && totalDamage + 0.0001 < theoreticalDps;
+    return {
+      shots,
+      damageEvents: shots,
+      damagePerShot,
+      totalDamage,
+      totalTime,
+      dps: ammoLimited ? totalDamage : theoreticalDps,
+      theoreticalDps,
+      ammoLimited,
+      capShots,
+      fireTime,
+      cycleTime,
+      totalCycleTime,
+      cycleCount: cycleTime > 0 ? 1 : 0,
+      formulaType: "cycle",
+    };
+  }
+
+  const read = getRangedDualRead(weapon);
+  const damageEvents = mode === "dual" && typeof read.damageEventsPerCadence === "number"
+    ? read.damageEventsPerCadence
+    : 1;
+  const cadenceDamage = damagePerShot * damageEvents;
+  const cadenceTime = fireRate;
+  const totalDamage = damagePerShot * capShots;
+  const totalTime = (capShots / damageEvents) * fireRate;
+  const theoreticalDps = cadenceTime > 0 ? cadenceDamage / cadenceTime : null;
+  const ammoLimited = typeof theoreticalDps === "number" && totalDamage + 0.0001 < theoreticalDps;
+  return {
+    shots: capShots,
+    damageEvents,
+    damagePerShot,
+    totalDamage,
+    totalTime,
+    dps: ammoLimited ? totalDamage : theoreticalDps,
+    theoreticalDps,
+    ammoLimited,
+    capShots,
+    cadenceDamage,
+    cadenceTime,
+    fireTime: fireRate,
+    cycleTime: 0,
+    totalCycleTime: 0,
+    cycleCount: 0,
+    formulaType: "cadence",
+  };
+}
+
+function getRangedClipOutput(weapon, mode) {
+  return getRangedDpsOutput(weapon, mode);
+}
+
+function renderRangedClipOutput(weapon, mode) {
+  const output = getRangedDpsOutput(weapon, mode);
+  if (!output || typeof output.dps !== "number") {
+    return `<span class="ranged-cadence-cell__output"><span class="crossclan__val--dim">DPS unavailable</span></span>`;
+  }
+
+  const valueClass = output.ammoLimited ? " ranged-cadence-cell__output-value--ammo-limited" : "";
+  const cycleNote = output.formulaType === "cycle" && output.totalCycleTime > 0
+    ? ` + ${formatRangedNumber(output.totalCycleTime)}s cycle`
+    : "/cadence";
+  const outputUnit = output.formulaType === "cycle"
+    ? `${output.shots} shots`
+    : `${formatRangedNumber(output.damageEvents)} damage event${output.damageEvents === 1 ? "" : "s"}`;
+  const note = output.ammoLimited
+    ? `ammo limit: ${formatRangedNumber(output.totalDamage)} dmg in ${formatRangedNumber(output.totalTime)}s; true ${formatRangedNumber(output.theoreticalDps)}`
+    : `${formatRangedNumber(output.totalDamage)} dmg / ${formatRangedNumber(output.totalTime)}s (${outputUnit}${cycleNote})`;
+  return `<span class="ranged-cadence-cell__output">
+    <span class="ranged-cadence-cell__output-value${valueClass}">${formatRangedNumber(output.dps)} DPS</span>
+    <span class="ranged-cadence-cell__output-note">${note}</span>
+  </span>`;
+}
+
+function renderRangedCapSummary(weapon) {
+  return {
+    value: getRangedCapDisplay(weapon),
+    note: "loaded before reload/cycle",
+  };
+}
+
+function renderRangedCycleSummary(weapon) {
+  if (!weapon.cycle) {
+    return {
+      value: `<span class="crossclan__val--dim">none exported</span>`,
+      note: weapon.cycleAbsentNote || "No player RangedCycle field.",
+    };
+  }
+
+  const single = weapon.cycle.single;
+  const dual = weapon.cycle.dual;
+  const sameTime = dual && single.cycleTime === dual.cycleTime;
+  const dualLine = dual
+    ? ` Dual: <code class="crossclan-code">${dual.cycle}</code>${sameTime ? "" : ` ${formatRangedNumber(dual.cycleTime)}s`}.`
+    : "";
+  const notes = weapon.cycle.notes && weapon.cycle.notes.length ? ` ${weapon.cycle.notes.join(" ")}` : "";
+  return {
+    value: `${weapon.cycle.kind} ${formatRangedNumber(single.cycleTime)}s`,
+    note: `Single: <code class="crossclan-code">${single.cycle}</code>.${dualLine} ${formatRangedNumber(single.montageLength)}s single montage.${notes}`,
+  };
+}
+
+function renderRangedSharedStats(weapon) {
+  const cap = renderRangedCapSummary(weapon);
+  const cycle = renderRangedCycleSummary(weapon);
+  const damageValue = renderRangedWeaponDamageValue(weapon);
+  const damageNote = getRangedWeaponDamageNote(weapon);
+
+  let html = `<div class="ranged-shared-panel">`;
+  html += `<div class="ranged-shared-panel__title">Shared Weapon Stats</div>`;
+  html += renderRangedCardStat("Damage", damageValue, damageNote);
+  html += renderRangedCardStat("Ammo", cap.value, cap.note);
+  html += renderRangedCardStat("Cycle", cycle.value, cycle.note);
+  html += `</div>`;
+  return html;
+}
+
+function getRangedEnemyReloadProfile(weapon) {
+  if (weapon.id === "crossbow") return RANGED_ENEMY_RELOAD_PROFILES.crossbow;
+  if (weapon.id === "pistol") return RANGED_ENEMY_RELOAD_PROFILES.pistol;
+  if (weapon.id === "revolver" || weapon.id === "high-cal-revolver") return RANGED_ENEMY_RELOAD_PROFILES.revolver;
+  if (/shotgun/i.test(weapon.family)) return RANGED_ENEMY_RELOAD_PROFILES.shotgun;
+  return RANGED_ENEMY_RELOAD_PROFILES.rifle;
+}
+
+function renderRangedCadenceBlock(weapon) {
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const mult = typeof data.cadenceMultiplier === "number"
+    ? `${formatRangedNumber(data.cadenceMultiplier)}x`
+    : "unknown";
+  const hot = typeof data.cadenceMultiplier === "number" && data.cadenceMultiplier > 1;
+  const singleOutput = getRangedDpsOutput(weapon, "single");
+  const dualOutput = getRangedDpsOutput(weapon, "dual");
+  const dpsMult = singleOutput && dualOutput && singleOutput.dps > 0
+    ? dualOutput.dps / singleOutput.dps
+    : null;
+  let html = `<div class="ranged-cadence-panel">`;
+  html += `<div class="ranged-cadence-panel__title">Wield Cadence</div>`;
+  html += `<div class="ranged-cadence-panel__grid">`;
+  html += `<div class="ranged-cadence-cell"><span class="ranged-cadence-cell__label">Single</span><span class="ranged-cadence-cell__value">${formatRangedValue(data.singleFireRate, "s")}</span>${renderRangedClipOutput(weapon, "single")}<code class="crossclan-code ranged-code">${data.singleAttackset}</code></div>`;
+  html += `<div class="ranged-cadence-cell ranged-cadence-cell--dual"><span class="ranged-cadence-cell__label">Dual</span><span class="ranged-cadence-cell__value">${formatRangedValue(data.dualFireRate, "s")}</span>${renderRangedClipOutput(weapon, "dual")}<code class="crossclan-code ranged-code">${data.dualAttackset}</code></div>`;
+  html += `<div class="ranged-cadence-cell ranged-cadence-cell--mult"><span class="ranged-cadence-cell__label">FireRate Mult</span><span class="ranged-cadence-cell__value${hot ? " ranged-cadence-cell__value--hot" : ""}">${mult}</span><span>${data.notes}</span>${dpsMult ? `<span class="ranged-cadence-cell__output"><span class="ranged-cadence-cell__output-value">${formatRangedNumber(dpsMult)}x DPS</span><span class="ranged-cadence-cell__output-note">after corrected cadence/cycle math</span></span>` : ""}</div>`;
+  html += `</div>`;
+  html += `<div class="ranged-cadence-panel__montages">Dual fire montages: <code class="crossclan-code ranged-code">${data.dualRangedFire}</code> / <code class="crossclan-code ranged-code">${data.dualRangedFireL}</code></div>`;
+  html += `</div>`;
+  return html;
+}
+
+function renderRangedEnemyBlock(weapon) {
+  const enemyBurstTotal = getRangedEnemyBurstTotal(weapon);
+  const reload = getRangedEnemyReloadProfile(weapon);
+  let html = `<div class="ranged-card-sideblock ranged-card-sideblock--enemy">`;
+  html += `<span class="ranged-card-sideblock__label">Enemy / GAS</span>`;
+  html += `<span class="ranged-card-sideblock__note">Burst: ${formatRangedValue(weapon.enemy.shotsPerBurst)}${enemyBurstTotal !== null ? ` (${formatRangedNumber(enemyBurstTotal)} dmg)` : ""}</span>`;
+  html += `<span class="ranged-card-sideblock__note">ShotFireRate: ${formatRangedValue(weapon.enemy.shotFireRate, "s")}</span>`;
+  html += `<span class="ranged-card-sideblock__note">Projectile dmg: ${formatRangedValue(weapon.enemy.damagePerProjectile)}</span>`;
+  html += `<span class="ranged-card-sideblock__note">Reload: <code class="crossclan-code ranged-code">${reload.asset}</code> ${formatRangedNumber(reload.length)}s</span>`;
+  if (reload.cycle) {
+    html += `<span class="ranged-card-sideblock__note">Cycle: <code class="crossclan-code ranged-code">${reload.cycle}</code> ${formatRangedNumber(reload.cycleLength)}s</span>`;
+  }
+  html += `<span class="ranged-card-sideblock__note">${reload.note}</span>`;
+  html += `</div>`;
+  return html;
+}
+
+function renderRangedDamageCell(weapon) {
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  if (typeof weapon.shotDamageOverride === "number") {
+    return `<span class="ranged-table__value">${formatRangedNumber(weapon.directDamage)} + ${formatRangedNumber(weapon.explosionDamage)}</span><span class="ranged-table__sub">direct + explosion = ${formatRangedNumber(weapon.shotDamageOverride)}</span>`;
+  }
+  if (weapon.projectileDamage === "special") {
+    return `<span class="crossclan__val--dim">special</span><span class="ranged-table__sub">outside direct damage fields</span>`;
+  }
+  const changes = data.singleDamage !== data.dualDamage || data.singlePellets !== data.dualPellets;
+  const base = renderRangedAttacksetDamage(data.singleDamage, data.singlePellets);
+  if (!changes) return `${base}<span class="ranged-table__sub">attackset shot damage</span>`;
+  return `<span>Single ${renderRangedAttacksetDamage(data.singleDamage, data.singlePellets)}</span><span class="ranged-table__sub">Dual ${renderRangedAttacksetDamage(data.dualDamage, data.dualPellets)}</span>`;
+}
+
+function renderRangedCapCell(weapon) {
+  return `<span class="ranged-table__value">${getRangedCapDisplay(weapon)}</span>`;
+}
+
+function renderRangedDualReadCell(weapon) {
+  const read = getRangedDualRead(weapon);
+  return `<span class="ranged-table__value">${read.label}</span><span class="ranged-table__sub">${read.text}</span>`;
+}
+
+function renderRangedCycleTableCell(weapon) {
+  if (!weapon.cycle) {
+    return `<span class="crossclan__val--dim">none exported</span><span class="ranged-table__sub">${weapon.cycleAbsentNote || "no cycle timing applied"}</span>`;
+  }
+
+  const single = weapon.cycle.single;
+  const dual = weapon.cycle.dual;
+  const inferred = weapon.cycle.inferred ? "inferred" : "exported";
+  const dualText = dual && dual.cycleTime !== single.cycleTime ? ` / dual ${formatRangedNumber(dual.cycleTime)}s` : "";
+  const montageText = typeof single.montageLength === "number"
+    ? `<span class="ranged-table__sub">${formatRangedNumber(single.montageLength)}s montage</span>`
+    : "";
+  return `<span class="ranged-table__value">${formatRangedNumber(single.cycleTime)}s${dualText}</span><span class="ranged-table__sub">${weapon.cycle.kind} wait, ${inferred}</span>${montageText}`;
+}
+
+function renderRangedFireRateCell(weapon, mode) {
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  const isDual = mode === "dual";
+  const fireRate = isDual ? data.dualFireRate : data.singleFireRate;
+  const attackset = isDual ? data.dualAttackset : data.singleAttackset;
+  const mult = typeof data.cadenceMultiplier === "number" ? ` (${formatRangedNumber(data.cadenceMultiplier)}x)` : " (unknown mult)";
+  return `<span class="ranged-table__value">${formatRangedValue(fireRate, "s")}${isDual ? mult : ""}</span><span class="ranged-table__sub"><code class="crossclan-code ranged-code">${attackset}</code></span>`;
+}
+
+function renderRangedDpsCell(weapon, mode) {
+  const output = getRangedDpsOutput(weapon, mode);
+  if (!output || typeof output.dps !== "number") {
+    return `<span class="crossclan__val--dim">n/a</span><span class="ranged-table__sub">special/unknown damage</span>`;
+  }
+  const detail = output.formulaType === "cycle"
+    ? `${output.shots} shots + ${formatRangedNumber(output.totalCycleTime)}s cycle`
+    : `${formatRangedNumber(output.damageEvents)} damage event${output.damageEvents === 1 ? "" : "s"}/cadence`;
+  const valueClass = output.ammoLimited ? " ranged-table__value--ammo-limited" : "";
+  const note = output.ammoLimited
+    ? `ammo-limited: ${formatRangedNumber(output.totalDamage)} dmg in ${formatRangedNumber(output.totalTime)}s; true ${formatRangedNumber(output.theoreticalDps)}`
+    : `over ${formatRangedNumber(output.totalTime)}s (${detail})`;
+  return `<span class="ranged-table__value ranged-table__value--dps${valueClass}">${formatRangedNumber(output.dps)}</span><span class="ranged-table__sub">${note}</span>`;
+}
+
+function renderRangedTotalDamageCell(weapon, mode) {
+  const output = getRangedDpsOutput(weapon, mode);
+  if (!output || typeof output.totalDamage !== "number") {
+    return `<span class="crossclan__val--dim">n/a</span><span class="ranged-table__sub">special/unknown damage</span>`;
+  }
+  const note = output.formulaType === "cycle"
+    ? `${output.shots} shots before empty`
+    : `${output.capShots} shots before empty`;
+  return `<span class="ranged-table__value">${formatRangedNumber(output.totalDamage)}</span><span class="ranged-table__sub">${note}</span>`;
+}
+
+function renderRangedWeaponCard(weapon) {
+  const notes = weapon.notes && weapon.notes.length
+    ? `<ul class="ranged-weapon-card__notes">${weapon.notes.map(note => `<li>${note}</li>`).join("")}</ul>`
+    : "";
+  const cycleNotes = weapon.cycle && weapon.cycle.notes && weapon.cycle.notes.length
+    ? `<ul class="ranged-weapon-card__notes ranged-weapon-card__notes--cycle">${weapon.cycle.notes.map(note => `<li>${note}</li>`).join("")}</ul>`
+    : "";
+
+  let html = `<article class="ranged-weapon-card" id="rw-${weapon.id}">`;
+  html += `<header class="ranged-weapon-card__header">`;
+  html += `<img src="${weapon.icon}" alt="" class="ranged-weapon-card__icon">`;
+  html += `<div class="ranged-weapon-card__heading">`;
+  html += `<h3 class="ranged-weapon-card__name">${weapon.name}</h3>`;
+  html += `<span class="ranged-weapon-card__meta">${weapon.family} &middot; <code class="crossclan-code">${weapon.registryName}</code></span>`;
+  html += `</div>`;
+  html += `<span class="ranged-weapon-card__instance"><code class="crossclan-code ranged-code">${weapon.instanceClass}</code></span>`;
+  html += `</header>`;
+  html += `<div class="ranged-weapon-card__body">`;
+  html += `<div class="ranged-weapon-card__main">`;
+  html += renderRangedSharedStats(weapon);
+  html += renderRangedCadenceBlock(weapon);
+  html += `</div>`;
+  html += `<aside class="ranged-weapon-card__side">`;
+  html += renderRangedEnemyBlock(weapon);
+  html += `</aside>`;
+  html += `</div>`;
+  html += `${notes}${cycleNotes}`;
+  html += `</article>`;
+  return html;
+}
+
+function renderRangedWeaponsPage() {
+  const container = document.getElementById("combos-subpage-ranged");
+  if (!container) return;
+  const activeMode = RANGED_WEAPON_TABLE_MODE === "dual" ? "dual" : "single";
+  const activeModeLabel = activeMode === "dual" ? "Dual" : "Single";
+  const dpsHeading = activeMode === "dual" ? "Corrected Dual DPS" : "Single DPS";
+
+  let h = `<div class="combos-layout">`;
+
+  h += `<div class="clan-combos-header">`;
+  h += `<h2 class="combos-header__title">Ranged Weapon Data</h2>`;
+  h += `<p class="combos-header__sub">Gun, shotgun, sniper and crossbow tuning from <code>Ranged_Weapons_23416145.md</code> (Summer Update build 23416145).</p>`;
+  h += `<div class="combos-legend combos-legend--melee combos-legend--ranged">`;
+  for (const w of RANGED_WEAPONS) {
+    h += `<a class="combos-legend__item" href="#rw-${w.id}"><img src="${w.icon}" alt="" class="combos-legend__icon">${w.name}</a>`;
+  }
+  h += `</div>`;
+  h += `<ul class="combos-header__primer">
+    <li><strong class="combos-header__primer-label combos-header__primer-label--light">Carry:</strong> guns can be used one-handed or dual-wielded.</li>
+    <li><strong class="combos-header__primer-label combos-header__primer-label--light">Scopes:</strong> sniper rifles scope by holding right click, but lose scope access when dual-wielded.</li>
+    <li><strong class="combos-header__primer-label combos-header__primer-label--heavy">Ammo:</strong> <code>AmmoBeforeReload</code> is loaded ammo before reload/cycle, not pickup total.</li>
+    <li><strong class="combos-header__primer-label">Single/Dual:</strong> DPS uses player attackset <code>FireRate</code>, attackset damage, pellets, dual montage read, ammo limit, and cycle timing.</li>
+    <li><strong class="combos-header__primer-label">Dual reads:</strong> shared <code>AM_Player_Dual_Fire</code> rifle/SMG entries count as two damage events per cadence; R/L entries usually count as one.</li>
+    <li><strong class="combos-header__primer-label">Cycle:</strong> dual shotgun/sniper-style cycle montages cycle both hands in one action, so dual cycle DPS pays one cycle per two-hand pair.</li>
+  </ul>`;
+  h += `</div>`;
+
+  h += `<div class="crossclan-section-wrap crossclan-section-wrap--no-pad">`;
+  h += `<div class="crossclan-section-heading">`;
+  h += `<span>Ranged Tuning Table</span>`;
+  h += `<span class="crossclan-section-heading__sub">Attackset damage, loaded ammo and ${activeModeLabel.toLowerCase()} cadence output</span>`;
+  h += `</div>`;
+  h += `<div class="ranged-weapons-mode" role="group" aria-label="Ranged weapon firing mode">`;
+  h += `<button type="button" class="ranged-weapons-mode__btn ${activeMode === "single" ? "is-active" : ""}" data-ranged-mode="single" aria-pressed="${activeMode === "single"}">Single</button>`;
+  h += `<button type="button" class="ranged-weapons-mode__btn ${activeMode === "dual" ? "is-active" : ""}" data-ranged-mode="dual" aria-pressed="${activeMode === "dual"}">Dual</button>`;
+  h += `</div>`;
+  h += `<div class="ranged-weapons-table-wrap">`;
+  h += `<table class="combos-table ranged-weapons-table"><thead><tr>
+    <th class="combos-table__th ranged-weapons-table__th--weapon">Weapon</th>
+    <th class="combos-table__th">Attackset Damage</th>
+    <th class="combos-table__th">Ammo</th>
+    <th class="combos-table__th">Cycle</th>
+    <th class="combos-table__th">${activeModeLabel}</th>
+    ${activeMode === "dual" ? `<th class="combos-table__th">Dual Read</th>` : ""}
+    <th class="combos-table__th">Total Damage</th>
+    <th class="combos-table__th">${dpsHeading}</th>
+  </tr></thead><tbody>`;
+  for (const w of RANGED_WEAPONS) {
+    h += `<tr class="ranged-weapons-table__row" id="rw-${w.id}">`;
+    h += `<td class="combos-table__td ranged-weapons-table__weapon"><img src="${w.icon}" alt="" class="ranged-weapons-table__icon"><span><span class="ranged-weapons-table__name">${w.name}</span><span class="ranged-table__sub">${w.family} &middot; <code class="crossclan-code">${w.registryName}</code></span></span></td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedDamageCell(w)}</td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedCapCell(w)}</td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedCycleTableCell(w)}</td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedFireRateCell(w, activeMode)}</td>`;
+    if (activeMode === "dual") {
+      h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedDualReadCell(w)}</td>`;
+    }
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedTotalDamageCell(w, activeMode)}</td>`;
+    h += `<td class="combos-table__td ranged-weapons-table__metric">${renderRangedDpsCell(w, activeMode)}</td>`;
+    h += `</tr>`;
+  }
+  h += `</tbody></table>`;
+  h += `</div>`;
+  h += `<ul class="crossclan-list crossclan-list--notes ranged-weapons-footnotes">
+    <li>Throw damage is intentionally omitted here; this tab is focused on ranged firing data.</li>
+    <li>Attackset damage/pellet values can differ from weapon-instance projectile values; corrected DPS uses player attackset damage fields from the consolidated source.</li>
+    <li><strong>Ammo</strong> shows loaded ammo before reload/cycle. Sniper and shotgun show <code>1 loaded + 1 mag</code> because they have a one-round mag/cycle value.</li>
+    <li>Non-cycle DPS is damage per firing cadence divided by <code>FireRate</code>, ammo-limited by the selected mode's pre-reload damage if the weapon empties before one second.</li>
+    <li>Cycle DPS uses <code>2 shots / (2 * FireRate + CycleTime)</code>; dual cycle DPS uses <code>4 shots / (4 * FireRate + CycleTime)</code>.</li>
+    <li>Underlined DPS values are ammo-limited; the subline shows the theoretical cadence DPS that the weapon cannot sustain before emptying.</li>
+    <li>Dual ammo doubles the listed ammo unless the weapon uses pistol/revolver-style alternate fire behavior.</li>
+    <li>IAO Shotgun has no exported player <code>RangedCycle</code>, so it is treated as straight fire despite its loaded ammo of 2.</li>
+    <li>Mega Shotty dual uses inherited <code>FireRate = 0.2</code> with no cycle timing, producing 240 DPS from its 48 damage shot.</li>
+    <li><strong>Crossbow explosive:</strong> the bolt's direct hit is only <code>0.1</code>; <code>WrestlerProjectile_ExplodingBolt_C</code> spawns <code>BP_Throwable_Bolt_C</code>, which spawns <code>BP_Explosion_TickDelay_C</code>. The listed <code>80</code> damage is the spawned explosion payload, and the throwable bolt has a <code>3.3s</code> Beepline blinking light timeline before/around detonation.</li>
+  </ul>`;
+  h += `</div>`;
+  h += `</div>`;
+
+  container.innerHTML = h;
+  attachRangedWeaponsModeListeners(container);
+}
+
+function attachRangedWeaponsModeListeners(container) {
+  container.querySelectorAll("[data-ranged-mode]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = btn.dataset.rangedMode === "dual" ? "dual" : "single";
+      if (RANGED_WEAPON_TABLE_MODE === mode) return;
+      RANGED_WEAPON_TABLE_MODE = mode;
+      renderRangedWeaponsPage();
+    });
+  });
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Combat Graph — aggregate damage-over-time visualisation for clan combos and
-// melee weapons. Reuses the same rotation evaluators as the Clan / Melee tabs
-// so the curves match those tables exactly.
+// Combat Graph — aggregate damage-over-time visualisation for clan combos,
+// melee weapons, and ranged weapons. Reuses the same rotation evaluators as the
+// Clan / Melee / Ranged tabs so the curves match those tables exactly.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const LOOP_GRAPH_CYCLES = 3;
+const RANGED_GRAPH_DURATION_SECONDS = 5;
 
 const CLAN_GRAPH_COLORS = {
   brujah:    "#c44121",
@@ -2365,9 +3367,89 @@ const CLAN_GRAPH_COLORS = {
   ventrue:   "#d8b352",
   lasombra:  "#7e7ea8",
   toreador:  "#3fb6a4",
+  ysabella:  "#ec748e",
 };
 
-const CLAN_GRAPH_ORDER = ["brujah", "tremere", "banuHaqim", "ventrue", "lasombra", "toreador"];
+const CLAN_GRAPH_ORDER = ["brujah", "tremere", "banuHaqim", "ventrue", "lasombra", "toreador", "ysabella"];
+
+const RANGED_GRAPH_COLORS = [
+  "#d86b72",
+  "#d99f54",
+  "#d6c65e",
+  "#74bd75",
+  "#55b7a8",
+  "#54a9d6",
+  "#7f92df",
+  "#a879d6",
+  "#d174b7",
+  "#bb8e62",
+  "#8eb0ef",
+  "#b5bd64",
+  "#e0c96e",
+];
+
+function buildYsabellaGraphData() {
+  if (typeof YSABELLA_RAPIER_COMBO === "undefined") return null;
+  const rapier = YSABELLA_RAPIER_COMBO;
+  return {
+    name: "Ysabella",
+    icon: typeof YSABELLA_LOGO !== "undefined" ? YSABELLA_LOGO : (typeof UI !== "undefined" ? UI.ysabellaLogo : null),
+    steps: rapier.steps,
+    lightType: rapier.lightType,
+    rows: rapier.rows.map(row => ({
+      step: row.step,
+      lightDmg: row.lightDmg,
+      lightMontage: row.lightMontage,
+      lightLen: row.lightLen,
+      heavyDmg: rapier.heavy.observedTotalDamage || rapier.heavy.chargedDamage,
+      heavyMontage: rapier.heavy.followUpMontage ? `${rapier.heavy.montage} + ${rapier.heavy.followUpMontage}` : rapier.heavy.montage,
+      heavyLen: rapier.heavy.followUpSequenceLength ? rapier.heavy.sequenceLength + rapier.heavy.followUpSequenceLength : rapier.heavy.sequenceLength,
+      minWindup: rapier.windup.minimumWindup,
+      maxWindup: rapier.windup.maximumWindup,
+      heavyThresh: rapier.windup.heavyThreshold,
+      comboDelay: row.comboDelay,
+      lightComboDelay: row.comboDelay,
+      heavyComboDelay: rapier.heavy.comboDelay,
+      finisher: !!row.finisher,
+    })),
+  };
+}
+
+function getGraphClanData(clanId) {
+  if (CLAN_COMBOS[clanId]) return CLAN_COMBOS[clanId];
+  if (clanId === "ysabella") return buildYsabellaGraphData();
+  return null;
+}
+
+function getGraphClanIcon(clanId, data) {
+  if (data && data.icon) return data.icon;
+  return CLANS[clanId] && CLANS[clanId].logo ? CLANS[clanId].logo : null;
+}
+
+function getClanLightStepTime(row) {
+  const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
+  const comboDelay = typeof row.lightComboDelay === "number" ? row.lightComboDelay : row.comboDelay;
+  return minWindup + comboDelay;
+}
+
+function getClanHeavyStepTime(row) {
+  const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
+  const heavyThresh = typeof row.heavyThresh === "number" ? row.heavyThresh : 0.7;
+  const comboDelay = typeof row.heavyComboDelay === "number" ? row.heavyComboDelay : row.comboDelay;
+  return (heavyThresh * maxWindup) + comboDelay;
+}
+
+function buildClanGraphPattern(rows, mode) {
+  if (mode === "H") return rows.map(() => "H");
+  if (mode === "O") return findOptimalPattern(rows).pattern;
+  return rows.map(() => "L");
+}
+
+function getClanGraphModeLabel(mode) {
+  if (mode === "H") return "Heavy";
+  if (mode === "O") return "Optimal";
+  return "Light";
+}
 
 function weaponHasMode(weapon, mode) {
   if (mode === "L") return true;
@@ -2397,15 +3479,22 @@ function getWeaponGraphColor(idx) {
   return `hsl(${hue}, 62%, 58%)`;
 }
 
+function getRangedGraphColor(idx) {
+  return RANGED_GRAPH_COLORS[idx % RANGED_GRAPH_COLORS.length];
+}
+
+function getRangedGraphModeLabel(mode) {
+  return mode === "dual" ? "Dual" : "Single";
+}
+
 // ── Series construction ──────────────────────────────────────
-function buildClanSeries(clanId, mode) {
-  const data = CLAN_COMBOS[clanId];
+function buildClanSeries(clanId, mode, loop = false) {
+  const data = getGraphClanData(clanId);
   if (!data) return null;
   const rows = data.rows;
-  const cycles = mode === "loop" ? LOOP_GRAPH_CYCLES : 1;
-  const cyclePattern = mode === "loop"
-    ? findOptimalPattern(rows).pattern
-    : findSingleRunPeakPattern(rows).pattern;
+  const cycles = loop ? LOOP_GRAPH_CYCLES : 1;
+  const cyclePattern = buildClanGraphPattern(rows, mode);
+  const modeLabel = getClanGraphModeLabel(mode);
 
   const points = [{ t: 0, dmg: 0, label: "start" }];
   let t = 0, dmg = 0;
@@ -2413,16 +3502,14 @@ function buildClanSeries(clanId, mode) {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const type = cyclePattern[i];
-      const minWindup = typeof row.minWindup === "number" ? row.minWindup : 0.2;
-      const maxWindup = typeof row.maxWindup === "number" ? row.maxWindup : 1.0;
       let stepDmg, stepTime, stepLabel;
       if (type === "H") {
         stepDmg = row.heavyDmg;
-        stepTime = (row.heavyThresh * maxWindup) + row.comboDelay;
+        stepTime = getClanHeavyStepTime(row);
         stepLabel = `Step ${row.step} Heavy (${row.heavyDmg})`;
       } else {
         stepDmg = row.lightDmg;
-        stepTime = minWindup + row.comboDelay;
+        stepTime = getClanLightStepTime(row);
         stepLabel = `Step ${row.step} Light (${row.lightDmg})`;
       }
       t += stepTime;
@@ -2431,11 +3518,11 @@ function buildClanSeries(clanId, mode) {
     }
   }
   return {
-    id: `clan:${clanId}:${mode}`,
+    id: `clan:${clanId}:${mode}:${cycles > 1 ? "loop" : "single"}`,
     kind: "clan",
     sourceId: clanId,
-    label: `${data.name} — ${mode === "loop" ? `Loop ×${cycles}` : "Single Combo"}`,
-    icon: CLANS[clanId] && CLANS[clanId].logo ? CLANS[clanId].logo : null,
+    label: `${data.name} - ${modeLabel}${cycles > 1 ? ` Loop x${cycles}` : " Chain"}`,
+    icon: getGraphClanIcon(clanId, data),
     color: CLAN_GRAPH_COLORS[clanId] || "#aaaaaa",
     pattern: cyclePattern.join(""),
     points,
@@ -2494,13 +3581,121 @@ function buildWeaponSeries(weapon, mode, color, loop = false) {
   };
 }
 
+function getRangedGraphConfig(weapon, mode) {
+  const data = RANGED_DUAL_FIRE_DATA[weapon.id];
+  if (!data) return null;
+  const fireRate = mode === "dual" ? data.dualFireRate : data.singleFireRate;
+  const damagePerShot = getRangedAttacksetShotDamage(weapon, mode);
+  const ammoShots = getRangedAmmoCapShots(weapon, mode);
+  if (typeof fireRate !== "number" || fireRate <= 0) return null;
+  if (typeof damagePerShot !== "number" || damagePerShot <= 0) return null;
+  if (typeof ammoShots !== "number" || ammoShots <= 0) return null;
+  const read = getRangedDualRead(weapon);
+  const damageEvents = mode === "dual" && typeof read.damageEventsPerCadence === "number"
+    ? read.damageEventsPerCadence
+    : 1;
+  return {
+    fireRate,
+    damagePerShot,
+    ammoShots,
+    damageEvents: Math.max(1, damageEvents),
+    cycleTime: getRangedCycleTime(weapon, mode),
+  };
+}
+
+function pushGraphPoint(points, t, dmg, label) {
+  const last = points[points.length - 1];
+  if (last && Math.abs(last.t - t) < 0.0001 && Math.abs(last.dmg - dmg) < 0.0001) return;
+  points.push({ t, dmg, label });
+}
+
+function buildRangedSeries(weapon, mode, color, infiniteAmmo = false) {
+  const config = getRangedGraphConfig(weapon, mode);
+  if (!config) return null;
+
+  const points = [{ t: 0, dmg: 0, label: "start" }];
+  const modeLabel = getRangedGraphModeLabel(mode);
+  const targetDuration = infiniteAmmo ? RANGED_GRAPH_DURATION_SECONDS : Number.POSITIVE_INFINITY;
+  const maxShots = infiniteAmmo ? Number.POSITIVE_INFINITY : config.ammoShots;
+  let t = 0;
+  let dmg = 0;
+  let shotsUsed = 0;
+  let cadenceIndex = 0;
+
+  if (weapon.cycle && config.cycleTime > 0) {
+    const shotsPerCycle = Math.max(1, config.ammoShots);
+    let cycleIndex = 1;
+    while (shotsUsed < maxShots && t < targetDuration - 0.0001) {
+      let shotsThisCycle = 0;
+      while (shotsThisCycle < shotsPerCycle && shotsUsed < maxShots) {
+        const nextT = t + config.fireRate;
+        if (nextT > targetDuration + 0.0001) break;
+        t = nextT;
+        shotsThisCycle += 1;
+        shotsUsed += 1;
+        dmg += config.damagePerShot;
+        pushGraphPoint(points, t, dmg, `${modeLabel} shot ${Number.isFinite(shotsUsed) ? shotsUsed : shotsThisCycle} (${formatRangedNumber(config.damagePerShot)})`);
+      }
+      if (shotsThisCycle === 0 || t >= targetDuration - 0.0001) break;
+      const cycleEnd = t + config.cycleTime;
+      const nextT = infiniteAmmo ? Math.min(cycleEnd, targetDuration) : cycleEnd;
+      t = nextT;
+      pushGraphPoint(points, t, dmg, `${modeLabel} cycle ${cycleIndex}`);
+      cycleIndex += 1;
+    }
+  } else {
+    while (shotsUsed < maxShots && t < targetDuration - 0.0001) {
+      const nextT = t + config.fireRate;
+      if (nextT > targetDuration + 0.0001) break;
+      const shotsThisCadence = infiniteAmmo
+        ? config.damageEvents
+        : Math.min(config.damageEvents, maxShots - shotsUsed);
+      if (shotsThisCadence <= 0) break;
+      t = nextT;
+      cadenceIndex += 1;
+      shotsUsed += shotsThisCadence;
+      const cadenceDamage = config.damagePerShot * shotsThisCadence;
+      dmg += cadenceDamage;
+      const eventText = shotsThisCadence === 1 ? "shot" : `${shotsThisCadence} shots`;
+      pushGraphPoint(points, t, dmg, `${modeLabel} cadence ${cadenceIndex}: ${eventText} (${formatRangedNumber(cadenceDamage)})`);
+    }
+  }
+
+  if (infiniteAmmo) {
+    if (t < RANGED_GRAPH_DURATION_SECONDS - 0.0001) {
+      pushGraphPoint(points, RANGED_GRAPH_DURATION_SECONDS, dmg, "5s marker");
+      t = RANGED_GRAPH_DURATION_SECONDS;
+    }
+  } else if (t > 0 && t < 1 - 0.0001) {
+    pushGraphPoint(points, 1, dmg, "empty before 1s");
+    t = 1;
+  }
+
+  if (points.length <= 1 || t <= 0) return null;
+  return {
+    id: `ranged:${weapon.id}:${mode}:${infiniteAmmo ? "infinite" : "ammo"}`,
+    kind: "ranged",
+    sourceId: weapon.id,
+    label: `${weapon.name} - ${modeLabel}${infiniteAmmo ? " 5s" : " Ammo"}`,
+    icon: weapon.icon,
+    color,
+    pattern: mode,
+    points,
+    totals: {
+      damage: dmg,
+      time: t,
+      dps: t > 0 ? dmg / t : 0,
+    },
+  };
+}
+
 function buildGraphSeries(state) {
   const series = [];
   // Clans
   for (const clanId of CLAN_GRAPH_ORDER) {
     const sel = state.clans[clanId];
     if (!sel || !sel.enabled) continue;
-    const s = buildClanSeries(clanId, sel.mode);
+    const s = buildClanSeries(clanId, sel.mode, !!sel.loop);
     if (s) series.push(s);
   }
   // Weapons
@@ -2512,20 +3707,48 @@ function buildGraphSeries(state) {
     const s = buildWeaponSeries(w, sel.mode, color, !!sel.loop);
     if (s) series.push(s);
   });
+  // Ranged weapons
+  RANGED_WEAPONS.forEach((w, idx) => {
+    const sel = state.ranged[w.id];
+    if (!sel || !sel.enabled) return;
+    const color = getRangedGraphColor(idx);
+    const mode = sel.mode === "dual" ? "dual" : "single";
+    const s = buildRangedSeries(w, mode, color, !!sel.loop);
+    if (s) series.push(s);
+  });
   return series;
 }
 
 // ── Graph state ─────────────────────────────────────────────
 const GRAPH_STATE = {
   displayMode: "cumulative",
+  sections: {
+    clans: true,
+    melee: true,
+    ranged: true,
+  },
   clans: {},
   weapons: {},
+  ranged: {},
 };
 
 function initGraphState() {
+  if (!GRAPH_STATE.sections) GRAPH_STATE.sections = { clans: true, melee: true, ranged: true };
+  for (const key of ["clans", "melee", "ranged"]) {
+    if (typeof GRAPH_STATE.sections[key] !== "boolean") GRAPH_STATE.sections[key] = true;
+  }
   for (const clanId of CLAN_GRAPH_ORDER) {
+    const existing = GRAPH_STATE.clans[clanId];
+    const oldLoopMode = existing && existing.mode === "loop";
+    const oldSingleMode = existing && existing.mode === "single";
     if (!GRAPH_STATE.clans[clanId]) {
-      GRAPH_STATE.clans[clanId] = { enabled: false, mode: "single" };
+      GRAPH_STATE.clans[clanId] = { enabled: false, mode: "L", loop: false };
+    } else if (oldLoopMode || oldSingleMode) {
+      GRAPH_STATE.clans[clanId].mode = "O";
+      GRAPH_STATE.clans[clanId].loop = oldLoopMode;
+    } else {
+      if (!["L", "H", "O"].includes(GRAPH_STATE.clans[clanId].mode)) GRAPH_STATE.clans[clanId].mode = "L";
+      if (typeof GRAPH_STATE.clans[clanId].loop !== "boolean") GRAPH_STATE.clans[clanId].loop = false;
     }
   }
   for (const w of getGraphableWeapons()) {
@@ -2535,12 +3758,22 @@ function initGraphState() {
       GRAPH_STATE.weapons[w.id].loop = false;
     }
   }
+  for (const w of RANGED_WEAPONS) {
+    if (!GRAPH_STATE.ranged[w.id]) {
+      GRAPH_STATE.ranged[w.id] = { enabled: false, mode: "single", loop: false };
+    } else {
+      if (!["single", "dual"].includes(GRAPH_STATE.ranged[w.id].mode)) GRAPH_STATE.ranged[w.id].mode = "single";
+      if (typeof GRAPH_STATE.ranged[w.id].loop !== "boolean") GRAPH_STATE.ranged[w.id].loop = false;
+      if (typeof GRAPH_STATE.ranged[w.id].enabled !== "boolean") GRAPH_STATE.ranged[w.id].enabled = false;
+    }
+  }
   // Sensible default selection on first open: a quick comparison.
   const anyEnabled =
     Object.values(GRAPH_STATE.clans).some(c => c.enabled) ||
-    Object.values(GRAPH_STATE.weapons).some(w => w.enabled);
+    Object.values(GRAPH_STATE.weapons).some(w => w.enabled) ||
+    Object.values(GRAPH_STATE.ranged).some(w => w.enabled);
   if (!anyEnabled) {
-    if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "loop"; }
+    if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "L"; GRAPH_STATE.clans.brujah.loop = false; }
     if (GRAPH_STATE.weapons.bat) { GRAPH_STATE.weapons.bat.enabled = true; }
     if (GRAPH_STATE.weapons.knife) { GRAPH_STATE.weapons.knife.enabled = true; }
   }
@@ -2575,7 +3808,7 @@ function renderGraphSvg(series, displayMode) {
   const plotH = H - M.top - M.bottom;
 
   if (series.length === 0) {
-    return `<div class="combat-graph__empty">Enable a clan combo or melee weapon on the left to start the comparison.</div>`;
+    return `<div class="combat-graph__empty">Enable a clan profile, melee weapon, or ranged weapon on the left to start the comparison.</div>`;
   }
 
   const renderSeries = series.map((s) => ({
@@ -2664,7 +3897,7 @@ function renderGraphLegend(series) {
   for (const s of series) {
     h += `<button type="button" class="combat-graph__legend-item" data-series-id="${s.id}" title="Click to remove from graph">`;
     h += `<span class="combat-graph__legend-swatch" style="background:${s.color};"></span>`;
-    if (s.kind === "clan" && s.icon) {
+    if (s.icon) {
       h += `<img class="combat-graph__legend-icon" src="${s.icon}" alt="${s.label} icon">`;
     }
     h += `<span class="combat-graph__legend-label">${s.label}</span>`;
@@ -2680,13 +3913,109 @@ function renderGraphLegend(series) {
 }
 
 // ── Filter panel ─────────────────────────────────────────────
+function getGraphSectionStates(key) {
+  if (key === "clans") {
+    return CLAN_GRAPH_ORDER.map(id => GRAPH_STATE.clans[id]).filter(Boolean);
+  }
+  if (key === "melee") {
+    return getGraphableWeapons().map(w => GRAPH_STATE.weapons[w.id]).filter(Boolean);
+  }
+  if (key === "ranged") {
+    return RANGED_WEAPONS.map(w => GRAPH_STATE.ranged[w.id]).filter(Boolean);
+  }
+  return [];
+}
+
+function getGraphSectionLoopStates(key) {
+  if (key !== "melee") return getGraphSectionStates(key);
+  return getGraphableWeapons()
+    .map(w => GRAPH_STATE.weapons[w.id])
+    .filter(state => state && state.mode !== "S");
+}
+
+function getGraphSectionCommonMode(key) {
+  const states = getGraphSectionStates(key);
+  if (!states.length) return "";
+  const firstMode = states[0].mode;
+  return states.every(state => state.mode === firstMode) ? firstMode : "";
+}
+
+function renderGraphSectionControls(key, modes, title) {
+  const states = getGraphSectionStates(key);
+  const loopStates = getGraphSectionLoopStates(key);
+  const allEnabled = states.length > 0 && states.every(state => state.enabled);
+  const someEnabled = states.some(state => state.enabled);
+  const allLoop = loopStates.length > 0 && loopStates.every(state => state.loop);
+  const someLoop = loopStates.some(state => state.loop);
+  const commonMode = getGraphSectionCommonMode(key);
+  let html = `<div class="combat-graph__section-tools" aria-label="${title} bulk controls">`;
+  html += `<label class="combat-graph__section-check ${someEnabled && !allEnabled ? "is-mixed" : ""}" title="Toggle every ${title.toLowerCase()} item">`;
+  html += `<input type="checkbox" data-graph-section-enable="${key}" ${allEnabled ? "checked" : ""}>All</label>`;
+  html += `<div class="combat-graph__radio-group combat-graph__radio-group--section" role="radiogroup" aria-label="${title} bulk mode">`;
+  modes.forEach(mode => {
+    const active = commonMode === mode.value;
+    html += `<label class="combat-graph__radio ${active ? "is-active" : ""}"><input type="radio" name="graph-section-mode-${key}" data-graph-section-mode="${key}" value="${mode.value}" ${active ? "checked" : ""}>${mode.label}</label>`;
+  });
+  html += `</div>`;
+  html += `<label class="combat-graph__section-check ${someLoop && !allLoop ? "is-mixed" : ""}" title="Set loop for this section">`;
+  html += `<input type="checkbox" data-graph-section-loop="${key}" ${allLoop ? "checked" : ""}>Loop</label>`;
+  html += `</div>`;
+  return html;
+}
+
+function setGraphSectionEnabled(key, enabled) {
+  getGraphSectionStates(key).forEach(state => {
+    state.enabled = enabled;
+  });
+}
+
+function setGraphSectionMode(key, mode) {
+  if (key === "clans") {
+    for (const state of getGraphSectionStates("clans")) {
+      state.mode = ["L", "H", "O"].includes(mode) ? mode : "L";
+    }
+  } else if (key === "melee") {
+    for (const w of getGraphableWeapons()) {
+      const state = GRAPH_STATE.weapons[w.id];
+      if (!state) continue;
+      state.mode = weaponHasMode(w, mode) ? mode : "L";
+      if (state.mode === "S") state.loop = false;
+    }
+  } else if (key === "ranged") {
+    for (const state of getGraphSectionStates("ranged")) {
+      state.mode = mode === "dual" ? "dual" : "single";
+    }
+  }
+}
+
+function setGraphSectionLoop(key, loop) {
+  if (key === "melee") {
+    for (const state of getGraphSectionLoopStates("melee")) {
+      state.loop = loop;
+    }
+    return;
+  }
+  getGraphSectionStates(key).forEach(state => {
+    state.loop = loop;
+  });
+}
+
+function renderGraphFilterSection(key, title, bodyHtml) {
+  const expanded = GRAPH_STATE.sections[key] !== false;
+  return `<section class="combat-graph__filter-section ${expanded ? "" : "is-collapsed"}" data-graph-section="${key}">
+    <button type="button" class="combat-graph__filter-heading" data-graph-section-toggle="${key}" aria-expanded="${expanded}" aria-controls="combat-graph-section-${key}">
+      <span class="combat-graph__filter-heading-text">${title}</span>
+      <span class="combat-graph__filter-heading-icon" aria-hidden="true">${expanded ? "-" : "+"}</span>
+    </button>
+    <div class="combat-graph__filter-section-body" id="combat-graph-section-${key}" ${expanded ? "" : "hidden"}>${bodyHtml}</div>
+  </section>`;
+}
+
 function renderGraphFilters() {
   let h = `<aside class="combat-graph__filters">`;
 
   // Bulk actions
   h += `<div class="combat-graph__filter-actions">`;
-  h += `<button type="button" class="combat-graph__filter-action" data-graph-action="enable-clans">Enable all clans</button>`;
-  h += `<button type="button" class="combat-graph__filter-action" data-graph-action="disable-all">Disable all</button>`;
   h += `<button type="button" class="combat-graph__filter-action" data-graph-action="reset">Reset</button>`;
   h += `<div class="combat-graph__display-toggle" role="radiogroup" aria-label="Graph display mode">`;
   h += `<label class="combat-graph__radio ${GRAPH_STATE.displayMode === "cumulative" ? "is-active" : ""}"><input type="radio" name="graph-display-mode" value="cumulative" ${GRAPH_STATE.displayMode === "cumulative" ? "checked" : ""}>Ladder</label>`;
@@ -2695,30 +4024,41 @@ function renderGraphFilters() {
   h += `</div>`;
 
   // Clans section
-  h += `<section class="combat-graph__filter-section">`;
-  h += `<h3 class="combat-graph__filter-heading">Clans</h3>`;
+  let clanBody = renderGraphSectionControls("clans", [
+    { value: "L", label: "L" },
+    { value: "H", label: "H" },
+    { value: "O", label: "OPT" },
+  ], "Clans");
   for (const clanId of CLAN_GRAPH_ORDER) {
-    const data = CLAN_COMBOS[clanId];
+    const data = getGraphClanData(clanId);
     if (!data) continue;
     const sel = GRAPH_STATE.clans[clanId];
     const color = CLAN_GRAPH_COLORS[clanId];
-    h += `<div class="combat-graph__filter-row" data-graph-clan="${clanId}">`;
-    h += `<label class="combat-graph__filter-toggle">`;
-    h += `<input type="checkbox" data-graph-clan-toggle="${clanId}" ${sel.enabled ? "checked" : ""}>`;
-    h += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
-    h += `<span class="combat-graph__filter-name">${data.name}</span>`;
-    h += `</label>`;
-    h += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${data.name} mode">`;
-    h += `<label class="combat-graph__radio ${sel.mode === "single" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="single" ${sel.mode === "single" ? "checked" : ""}>Single</label>`;
-    h += `<label class="combat-graph__radio ${sel.mode === "loop" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="loop" ${sel.mode === "loop" ? "checked" : ""}>Loop</label>`;
-    h += `</div>`;
-    h += `</div>`;
+    clanBody += `<div class="combat-graph__filter-row" data-graph-clan="${clanId}">`;
+    clanBody += `<label class="combat-graph__filter-toggle">`;
+    clanBody += `<input type="checkbox" data-graph-clan-toggle="${clanId}" ${sel.enabled ? "checked" : ""}>`;
+    clanBody += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
+    clanBody += `<span class="combat-graph__filter-name">${data.name}</span>`;
+    clanBody += `</label>`;
+    clanBody += `<div class="combat-graph__clan-controls">`;
+    clanBody += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${data.name} attack type">`;
+    clanBody += `<label class="combat-graph__radio ${sel.mode === "L" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="L" ${sel.mode === "L" ? "checked" : ""}>L</label>`;
+    clanBody += `<label class="combat-graph__radio ${sel.mode === "H" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="H" ${sel.mode === "H" ? "checked" : ""}>H</label>`;
+    clanBody += `<label class="combat-graph__radio ${sel.mode === "O" ? "is-active" : ""}"><input type="radio" name="graph-clan-mode-${clanId}" value="O" ${sel.mode === "O" ? "checked" : ""}>OPT</label>`;
+    clanBody += `</div>`;
+    clanBody += `<label class="combat-graph__weapon-loop" title="Loop repeats the selected clan chain for a longer timeline">`;
+    clanBody += `<input type="checkbox" data-graph-clan-loop="${clanId}" ${sel.loop ? "checked" : ""}>Loop</label>`;
+    clanBody += `</div>`;
+    clanBody += `</div>`;
   }
-  h += `</section>`;
+  h += renderGraphFilterSection("clans", "Clans", clanBody);
 
   // Weapons section
-  h += `<section class="combat-graph__filter-section">`;
-  h += `<h3 class="combat-graph__filter-heading">Melee Weapons</h3>`;
+  let meleeBody = renderGraphSectionControls("melee", [
+    { value: "L", label: "L" },
+    { value: "F", label: "F" },
+    { value: "S", label: "S" },
+  ], "Melee");
   const weapons = getGraphableWeapons();
   weapons.forEach((w, idx) => {
     const sel = GRAPH_STATE.weapons[w.id];
@@ -2728,24 +4068,51 @@ function renderGraphFilters() {
     const loopLocked = sel.mode === "S";
     const loopEnabled = !loopLocked && !!sel.loop;
     const variantClass = w.parentId ? " combat-graph__filter-row--variant" : "";
-    h += `<div class="combat-graph__filter-row${variantClass}" data-graph-weapon="${w.id}">`;
-    h += `<label class="combat-graph__filter-toggle">`;
-    h += `<input type="checkbox" data-graph-weapon-toggle="${w.id}" ${sel.enabled ? "checked" : ""}>`;
-    h += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
-    h += `<span class="combat-graph__filter-name">${w.name}</span>`;
-    h += `</label>`;
-    h += `<div class="combat-graph__weapon-controls">`;
-    h += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${w.name} attack type">`;
-    h += `<label class="combat-graph__radio ${sel.mode === "L" ? "is-active" : ""}"><input type="radio" name="graph-weapon-mode-${w.id}" value="L" ${sel.mode === "L" ? "checked" : ""}>L</label>`;
-    h += `<label class="combat-graph__radio ${sel.mode === "F" ? "is-active" : ""} ${hasF ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="F" ${sel.mode === "F" ? "checked" : ""} ${hasF ? "" : "disabled"}>F</label>`;
-    h += `<label class="combat-graph__radio ${sel.mode === "S" ? "is-active" : ""} ${hasS ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="S" ${sel.mode === "S" ? "checked" : ""} ${hasS ? "" : "disabled"}>S</label>`;
-    h += `</div>`;
-    h += `<label class="combat-graph__weapon-loop ${loopLocked ? "is-disabled" : ""}" title="Pseudo-loop repeats Light/Forward for a longer timeline">`;
-    h += `<input type="checkbox" data-graph-weapon-loop="${w.id}" ${loopEnabled ? "checked" : ""} ${loopLocked ? "disabled" : ""}>Loop</label>`;
-    h += `</div>`;
-    h += `</div>`;
+    meleeBody += `<div class="combat-graph__filter-row${variantClass}" data-graph-weapon="${w.id}">`;
+    meleeBody += `<label class="combat-graph__filter-toggle">`;
+    meleeBody += `<input type="checkbox" data-graph-weapon-toggle="${w.id}" ${sel.enabled ? "checked" : ""}>`;
+    meleeBody += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
+    meleeBody += `<span class="combat-graph__filter-name">${w.name}</span>`;
+    meleeBody += `</label>`;
+    meleeBody += `<div class="combat-graph__weapon-controls">`;
+    meleeBody += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${w.name} attack type">`;
+    meleeBody += `<label class="combat-graph__radio ${sel.mode === "L" ? "is-active" : ""}"><input type="radio" name="graph-weapon-mode-${w.id}" value="L" ${sel.mode === "L" ? "checked" : ""}>L</label>`;
+    meleeBody += `<label class="combat-graph__radio ${sel.mode === "F" ? "is-active" : ""} ${hasF ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="F" ${sel.mode === "F" ? "checked" : ""} ${hasF ? "" : "disabled"}>F</label>`;
+    meleeBody += `<label class="combat-graph__radio ${sel.mode === "S" ? "is-active" : ""} ${hasS ? "" : "is-disabled"}"><input type="radio" name="graph-weapon-mode-${w.id}" value="S" ${sel.mode === "S" ? "checked" : ""} ${hasS ? "" : "disabled"}>S</label>`;
+    meleeBody += `</div>`;
+    meleeBody += `<label class="combat-graph__weapon-loop ${loopLocked ? "is-disabled" : ""}" title="Pseudo-loop repeats Light/Forward for a longer timeline">`;
+    meleeBody += `<input type="checkbox" data-graph-weapon-loop="${w.id}" ${loopEnabled ? "checked" : ""} ${loopLocked ? "disabled" : ""}>Loop</label>`;
+    meleeBody += `</div>`;
+    meleeBody += `</div>`;
   });
-  h += `</section>`;
+  h += renderGraphFilterSection("melee", "Melee", meleeBody);
+
+  // Ranged section
+  let rangedBody = renderGraphSectionControls("ranged", [
+    { value: "single", label: "S" },
+    { value: "dual", label: "D" },
+  ], "Ranged");
+  RANGED_WEAPONS.forEach((w, idx) => {
+    const sel = GRAPH_STATE.ranged[w.id];
+    const color = getRangedGraphColor(idx);
+    const mode = sel.mode === "dual" ? "dual" : "single";
+    rangedBody += `<div class="combat-graph__filter-row combat-graph__filter-row--ranged" data-graph-ranged="${w.id}">`;
+    rangedBody += `<label class="combat-graph__filter-toggle">`;
+    rangedBody += `<input type="checkbox" data-graph-ranged-toggle="${w.id}" ${sel.enabled ? "checked" : ""}>`;
+    rangedBody += `<span class="combat-graph__filter-swatch" style="background:${color};"></span>`;
+    rangedBody += `<span class="combat-graph__filter-name">${w.name}</span>`;
+    rangedBody += `</label>`;
+    rangedBody += `<div class="combat-graph__weapon-controls">`;
+    rangedBody += `<div class="combat-graph__radio-group" role="radiogroup" aria-label="${w.name} firing mode">`;
+    rangedBody += `<label class="combat-graph__radio ${mode === "single" ? "is-active" : ""}" title="Single"><input type="radio" name="graph-ranged-mode-${w.id}" value="single" ${mode === "single" ? "checked" : ""}>S</label>`;
+    rangedBody += `<label class="combat-graph__radio ${mode === "dual" ? "is-active" : ""}" title="Dual"><input type="radio" name="graph-ranged-mode-${w.id}" value="dual" ${mode === "dual" ? "checked" : ""}>D</label>`;
+    rangedBody += `</div>`;
+    rangedBody += `<label class="combat-graph__weapon-loop" title="Treat ammo as infinite and graph five seconds of firing">`;
+    rangedBody += `<input type="checkbox" data-graph-ranged-loop="${w.id}" ${sel.loop ? "checked" : ""}>Loop</label>`;
+    rangedBody += `</div>`;
+    rangedBody += `</div>`;
+  });
+  h += renderGraphFilterSection("ranged", "Ranged", rangedBody);
 
   h += `</aside>`;
   return h;
@@ -2762,6 +4129,12 @@ function rerenderGraphChart() {
 }
 
 function attachGraphLegendListeners(root) {
+  const highlightLegendItem = (seriesId, active) => {
+    root.querySelectorAll(".combat-graph__legend-item").forEach(item => {
+      item.classList.toggle("is-highlighted", active && item.dataset.seriesId === seriesId);
+    });
+  };
+
   root.querySelectorAll(".combat-graph__legend-item").forEach(btn => {
     btn.addEventListener("mouseenter", () => {
       const id = btn.dataset.seriesId;
@@ -2776,22 +4149,61 @@ function attachGraphLegendListeners(root) {
     });
     btn.addEventListener("click", () => {
       const id = btn.dataset.seriesId;
-      // id is "clan:<clanId>:<mode>" or "weapon:<weaponId>:<mode>"
+      // id is "clan:<clanId>:<mode>", "weapon:<weaponId>:<mode>", or "ranged:<weaponId>:<mode>"
       const parts = id.split(":");
       if (parts[0] === "clan" && GRAPH_STATE.clans[parts[1]]) {
         GRAPH_STATE.clans[parts[1]].enabled = false;
       } else if (parts[0] === "weapon" && GRAPH_STATE.weapons[parts[1]]) {
         GRAPH_STATE.weapons[parts[1]].enabled = false;
+      } else if (parts[0] === "ranged" && GRAPH_STATE.ranged[parts[1]]) {
+        GRAPH_STATE.ranged[parts[1]].enabled = false;
       }
       // Update the matching filter checkbox in place.
-      const cb = root.querySelector(`[data-graph-clan-toggle="${parts[1]}"], [data-graph-weapon-toggle="${parts[1]}"]`);
+      const cb = root.querySelector(`[data-graph-clan-toggle="${parts[1]}"], [data-graph-weapon-toggle="${parts[1]}"], [data-graph-ranged-toggle="${parts[1]}"]`);
       if (cb) cb.checked = false;
       rerenderGraphChart();
+    });
+  });
+
+  root.querySelectorAll(".combat-graph__series-path, .combat-graph__series-point").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      highlightLegendItem(el.dataset.seriesId, true);
+    });
+    el.addEventListener("mouseleave", () => {
+      highlightLegendItem(el.dataset.seriesId, false);
     });
   });
 }
 
 function attachGraphFilterListeners(root) {
+  root.querySelectorAll("[data-graph-section-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.graphSectionToggle;
+      if (!GRAPH_STATE.sections || !(key in GRAPH_STATE.sections)) return;
+      GRAPH_STATE.sections[key] = GRAPH_STATE.sections[key] === false;
+      renderCombatGraphPage();
+    });
+  });
+  root.querySelectorAll("[data-graph-section-enable]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      setGraphSectionEnabled(cb.dataset.graphSectionEnable, cb.checked);
+      renderCombatGraphPage();
+    });
+  });
+  root.querySelectorAll("[data-graph-section-mode]").forEach(r => {
+    r.addEventListener("change", () => {
+      if (!r.checked) return;
+      setGraphSectionMode(r.dataset.graphSectionMode, r.value);
+      renderCombatGraphPage();
+    });
+  });
+  root.querySelectorAll("[data-graph-section-loop]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      setGraphSectionLoop(cb.dataset.graphSectionLoop, cb.checked);
+      renderCombatGraphPage();
+    });
+  });
+
   // Clan toggles
   root.querySelectorAll("[data-graph-clan-toggle]").forEach(cb => {
     cb.addEventListener("change", () => {
@@ -2814,6 +4226,13 @@ function attachGraphFilterListeners(root) {
         });
         rerenderGraphChart();
       }
+    });
+  });
+  root.querySelectorAll("[data-graph-clan-loop]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphClanLoop;
+      if (GRAPH_STATE.clans[id]) GRAPH_STATE.clans[id].loop = cb.checked;
+      rerenderGraphChart();
     });
   });
   // Weapon toggles
@@ -2859,28 +4278,60 @@ function attachGraphFilterListeners(root) {
       rerenderGraphChart();
     });
   });
+  // Ranged toggles
+  root.querySelectorAll("[data-graph-ranged-toggle]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphRangedToggle;
+      if (GRAPH_STATE.ranged[id]) GRAPH_STATE.ranged[id].enabled = cb.checked;
+      rerenderGraphChart();
+    });
+  });
+  root.querySelectorAll('input[type="radio"][name^="graph-ranged-mode-"]').forEach(r => {
+    r.addEventListener("change", () => {
+      const id = r.name.replace("graph-ranged-mode-", "");
+      if (GRAPH_STATE.ranged[id] && r.checked) {
+        GRAPH_STATE.ranged[id].mode = r.value === "dual" ? "dual" : "single";
+        const group = r.closest(".combat-graph__radio-group");
+        if (group) group.querySelectorAll(".combat-graph__radio").forEach(l => {
+          const inp = l.querySelector("input");
+          l.classList.toggle("is-active", !!(inp && inp.checked));
+        });
+        rerenderGraphChart();
+      }
+    });
+  });
+  root.querySelectorAll("[data-graph-ranged-loop]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.graphRangedLoop;
+      if (GRAPH_STATE.ranged[id]) GRAPH_STATE.ranged[id].loop = cb.checked;
+      rerenderGraphChart();
+    });
+  });
   // Bulk actions
   root.querySelectorAll("[data-graph-action]").forEach(btn => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.graphAction;
-      if (action === "enable-clans") {
-        for (const id of CLAN_GRAPH_ORDER) GRAPH_STATE.clans[id].enabled = true;
-      } else if (action === "disable-all") {
-        for (const id of Object.keys(GRAPH_STATE.clans)) GRAPH_STATE.clans[id].enabled = false;
-        for (const id of Object.keys(GRAPH_STATE.weapons)) GRAPH_STATE.weapons[id].enabled = false;
-      } else if (action === "reset") {
+      if (action === "reset") {
         for (const id of Object.keys(GRAPH_STATE.clans)) {
           GRAPH_STATE.clans[id].enabled = false;
-          GRAPH_STATE.clans[id].mode = "single";
+          GRAPH_STATE.clans[id].mode = "L";
+          GRAPH_STATE.clans[id].loop = false;
         }
         for (const id of Object.keys(GRAPH_STATE.weapons)) {
           GRAPH_STATE.weapons[id].enabled = false;
           GRAPH_STATE.weapons[id].mode = "L";
           GRAPH_STATE.weapons[id].loop = false;
         }
-        if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "loop"; }
+        for (const id of Object.keys(GRAPH_STATE.ranged)) {
+          GRAPH_STATE.ranged[id].enabled = false;
+          GRAPH_STATE.ranged[id].mode = "single";
+          GRAPH_STATE.ranged[id].loop = false;
+        }
+        if (GRAPH_STATE.clans.brujah) { GRAPH_STATE.clans.brujah.enabled = true; GRAPH_STATE.clans.brujah.mode = "L"; GRAPH_STATE.clans.brujah.loop = false; }
         if (GRAPH_STATE.weapons.bat) GRAPH_STATE.weapons.bat.enabled = true;
         if (GRAPH_STATE.weapons.knife) GRAPH_STATE.weapons.knife.enabled = true;
+      } else {
+        return;
       }
       // Re-render the whole panel since checkbox + radio state changed broadly.
       renderCombatGraphPage();
@@ -2909,12 +4360,13 @@ function renderCombatGraphPage() {
 
   let h = `<div class="combos-header combat-graph__header">`;
   h += `<h2 class="combos-header__title">Combat Graph</h2>`;
-  h += `<p class="combos-header__sub">Compare clan combos and melee weapon attacks side-by-side as cumulative damage over time. Each curve uses the same timing math as the Clan and Melee tabs.</p>`;
+  h += `<p class="combos-header__sub">Compare clan light, heavy, and optimal chains alongside melee and ranged weapon attacks as cumulative damage over time. Each curve uses the same timing math as the Clan, Melee, and Ranged tabs.</p>`;
   h += `<ul class="combos-header__primer">`;
-  h += `<li><strong class="combos-header__primer-label">X-axis:</strong> elapsed time in seconds (each step lands at its windup + combo-delay).</li>`;
+  h += `<li><strong class="combos-header__primer-label">X-axis:</strong> elapsed time in seconds; each hit or shot lands at its modeled cadence.</li>`;
   h += `<li><strong class="combos-header__primer-label">Y-axis:</strong> cumulative damage by default, or DPS when the display toggle is set to DPS.</li>`;
   h += `<li><strong class="combos-header__primer-label">Steeper line</strong> = higher DPS. Curves that travel further along X without stalling sustain better.</li>`;
-  h += `<li><strong class="combos-header__primer-label">Loop mode</strong> repeats the optimal cycle ${LOOP_GRAPH_CYCLES}× for clans, and melee rows can use pseudo-loop for Light/Forward timelines.</li>`;
+  h += `<li><strong class="combos-header__primer-label">Clan modes:</strong> choose Light, Heavy, or Optimal; Loop repeats the selected chain ${LOOP_GRAPH_CYCLES}x.</li>`;
+  h += `<li><strong class="combos-header__primer-label">Ranged modes:</strong> choose Single or Dual; Loop treats ammo as infinite for ${RANGED_GRAPH_DURATION_SECONDS}s.</li>`;
   h += `</ul>`;
   h += `</div>`;
 
