@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>VTMB2 Skill Calculator</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=1.21.2">
+  <link rel="stylesheet" href="css/styles.css?v=1.22.0">
 </head>
 <body>
   <!-- Set mobile/tablet body classes synchronously before any render, so is-mobile is on the body
@@ -45,7 +45,7 @@
         </div>
       </div>
       <button class="mobile-drawer__item" id="mobile-about-btn">About</button>
-      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.21 Changelog</button>
+      <button class="mobile-drawer__item" id="mobile-changelog-btn">v1.22 Changelog</button>
       <a class="mobile-drawer__item mobile-drawer__item--patch" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-summer-update" target="_blank" rel="noopener">Summer Update <span class="mobile-drawer__build">23416145</span> &#x2197;</a>
       <button class="mobile-drawer__item" id="mobile-mods-btn">Mods</button>
       <div class="mobile-drawer__divider"></div>
@@ -95,7 +95,7 @@
     <!-- Header -->
     <header class="header">
       <button class="header__about-btn" id="about-open-btn" aria-label="About">About</button>
-      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.21</button>
+      <button class="header__changelog-btn" id="changelog-open-btn" aria-label="Changelog">v1.22</button>
       <a class="header__patch-btn" href="https://www.paradoxinteractive.com/games/vampire-the-masquerade-bloodlines-2/news/bloodlines-2-dd-summer-update" target="_blank" rel="noopener" title="Game version tested against">Summer Update <span class="header__patch-build">23416145</span></a>
       <button class="header__mods-btn" id="mods-open-btn" aria-label="Mods">Mods</button>
       <!-- Universal layout toggle — always visible, fixed top-right (lives inside header semantically) -->
@@ -873,14 +873,20 @@
       <button class="modal-card__close" id="changelog-close-btn" aria-label="Close">&times;</button>
       <div class="modal-card__title-row">
         <h2 class="modal-card__title" id="changelog-modal-title">Changelog</h2>
-        <span class="modal-card__version">v1.21</span>
+        <span class="modal-card__version">v1.22</span>
       </div>
       <div class="modal-card__body">
         <div class="modal-card__changelog modal-card__changelog--flat">
           <details class="changelog__entry" open>
             <summary class="changelog__summary">
-              <span class="changelog__version">v1.21</span>
+              <span class="changelog__version">v1.22</span>
               <span class="changelog__label">Current</span>
+            </summary>
+            <p class="changelog__desc"><strong>Console Cheat Commands</strong> &mdash; added the new mod to the Mods sheet with a Nexus link and a route-only command reference at <code>?at=phyre.console</code>. The reference renders <code>Ref/COMMANDS.md</code> as searchable in-site tables using embedded Markdown data, so it works even where browser Markdown fetching is blocked.</p>
+          </details>
+          <details class="changelog__entry">
+            <summary class="changelog__summary">
+              <span class="changelog__version">v1.21</span>
             </summary>
             <p class="changelog__desc"><strong>Enemies page overhaul</strong> &mdash; added a searchable main Enemies tab with regular/boss subtabs, source filters, faction/species tags, HP/stun/detection data, special attacks, disarm fallback weapon lozenges, clickable drops, pocket reward links, and enemy weapon/source popouts. <strong>Ranged weapon release polish</strong> &mdash; refined the Phyre Ranged table with sortable headings, source popouts, single/dual mode data, ammo-limited DPS, total damage, crossbow explosive notes, and graph persistence. <strong>Ysabella and pickups</strong> &mdash; refreshed Ysabella combat/link data and added Resonance Blood Packs with enemy drop links back to Pickups.</p>
           </details>
@@ -1027,20 +1033,20 @@
     </div>
   </div>
 
-  <script src="js/data.js?v=1.21.2"></script>
-  <script src="js/app.js?v=1.21.2"></script>
-  <script src="js/outfits.js?v=1.21.2"></script>
-  <script src="js/fabien.js?v=1.21.2"></script>
-  <script src="js/benny.js?v=1.21.2"></script>
-  <script src="js/ysabella.js?v=1.21.2"></script>
-  <script src="js/combos.js?v=1.21.2"></script>
-  <script src="js/pickups.js?v=1.21.2"></script>
-  <script src="js/commands-data.js?v=1.21.2"></script>
-  <script src="js/commands.js?v=1.21.2"></script>
-  <script src="js/collectibles.js?v=1.21.2"></script>
-  <script src="js/extras.js?v=1.21.2"></script>
-  <script src="js/map.js?v=1.21.2"></script>
-  <script src="js/tierlist.js?v=1.21.2"></script>
-  <script src="js/showClanDescription.js?v=1.21.2"></script>
+  <script src="js/data.js?v=1.22.0"></script>
+  <script src="js/app.js?v=1.22.0"></script>
+  <script src="js/outfits.js?v=1.22.0"></script>
+  <script src="js/fabien.js?v=1.22.0"></script>
+  <script src="js/benny.js?v=1.22.0"></script>
+  <script src="js/ysabella.js?v=1.22.0"></script>
+  <script src="js/combos.js?v=1.22.0"></script>
+  <script src="js/pickups.js?v=1.22.0"></script>
+  <script src="js/commands-data.js?v=1.22.0"></script>
+  <script src="js/commands.js?v=1.22.0"></script>
+  <script src="js/collectibles.js?v=1.22.0"></script>
+  <script src="js/extras.js?v=1.22.0"></script>
+  <script src="js/map.js?v=1.22.0"></script>
+  <script src="js/tierlist.js?v=1.22.0"></script>
+  <script src="js/showClanDescription.js?v=1.22.0"></script>
 </body>
 </html>
