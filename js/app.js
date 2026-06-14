@@ -179,6 +179,10 @@ function getCurrentPos() {
   const page = primary.dataset.tab;
   let pos = page;
   if (page === "phyre") {
+    const consolePage = document.getElementById("subpage-console");
+    if (consolePage && !consolePage.classList.contains("hidden")) {
+      return "phyre.console";
+    }
     const secondary = document.querySelector(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab.active");
     if (secondary) {
       const secondaryCrumb = secondary.dataset.subtab === "combos" ? "combat" : secondary.dataset.subtab;
@@ -233,6 +237,14 @@ function applyPersistedPosition(pos) {
   if (pageEl) pageEl.classList.remove("hidden");
 
   if (page === "phyre" && normalizedSub) {
+    if (normalizedSub === "console") {
+      document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+      const consolePage = document.getElementById("subpage-console");
+      if (consolePage) consolePage.classList.remove("hidden");
+      if (typeof renderConsoleCommandsPage === "function") renderConsoleCommandsPage();
+      return;
+    }
     const secondaryTab = document.querySelector(`.tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab[data-subtab="${normalizedSub}"]`);
     if (secondaryTab) {
       document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
@@ -739,6 +751,7 @@ function bindTabs() {
           if (activeSecondary.dataset.subtab === "skilltree" && typeof setActiveSkilltreeSubtab === "function") setActiveSkilltreeSubtab("abilities");
           if (activeSecondary.dataset.subtab === "pickups" && typeof renderPickupsPage === "function") renderPickupsPage();
           if (activeSecondary.dataset.subtab === "enemies" && typeof renderEnemiesPage === "function") renderEnemiesPage();
+          if (activeSecondary.dataset.subtab === "console" && typeof renderConsoleCommandsPage === "function") renderConsoleCommandsPage();
           if (activeSecondary.dataset.subtab === "map" && typeof renderMapPage === "function") renderMapPage();
           if (activeSecondary.dataset.subtab === "tierlist" && typeof initTierList === "function") initTierList();
         }
@@ -783,6 +796,9 @@ function bindTabs() {
       }
       if (tab.dataset.subtab === "enemies" && typeof renderEnemiesPage === "function") {
         renderEnemiesPage();
+      }
+      if (tab.dataset.subtab === "console" && typeof renderConsoleCommandsPage === "function") {
+        renderConsoleCommandsPage();
       }
       if (tab.dataset.subtab === "tierlist" && typeof initTierList === "function") {
         initTierList();
@@ -1345,6 +1361,30 @@ function bindToggles() {
     if (typeof updateMobileChrome === "function") updateMobileChrome();
   }
 
+  function gotoConsoleCommands() {
+    const modal = document.getElementById("mods-modal");
+    if (modal) modal.classList.add("hidden");
+
+    document.querySelectorAll(".tab-bar--primary .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#app > .page").forEach(p => p.classList.add("hidden"));
+    const phyreTab = document.querySelector('.tab-bar--primary .tab-bar__tab[data-tab="phyre"]');
+    if (phyreTab) phyreTab.classList.add("active");
+    const phyrePage = document.getElementById("page-phyre");
+    if (phyrePage) phyrePage.classList.remove("hidden");
+
+    document.querySelectorAll(".tab-bar--secondary:not(.tab-bar--fabien):not(.tab-bar--benny):not(.tab-bar--ysabelle) .tab-bar__tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("#page-phyre > .subpage").forEach(p => p.classList.add("hidden"));
+    const consolePage = document.getElementById("subpage-console");
+    if (consolePage) consolePage.classList.remove("hidden");
+
+    if (typeof renderConsoleCommandsPage === "function") renderConsoleCommandsPage();
+    const url = new URL(window.location.href);
+    url.searchParams.set(POS_PARAM, "phyre.console");
+    history.replaceState(null, "", url.toString());
+    persistState();
+    if (typeof updateMobileChrome === "function") updateMobileChrome();
+  }
+
   const corrosiveToggle = document.getElementById("toggle-corrosive-shield");
   const corrosiveEffects = document.getElementById("corrosive-shield-effects");
   const corrosiveGoto = document.getElementById("goto-corrosive-shield");
@@ -1392,6 +1432,14 @@ function bindToggles() {
     if (masqManipulationGotoCloud) masqManipulationGotoCloud.addEventListener("click", () => gotoModAbility("ventrue", "affect"));
     if (masqManipulationGotoCloudImpact) masqManipulationGotoCloudImpact.addEventListener("click", () => gotoModAbility("ventrue", "affect"));
     if (masqManipulationGotoDetail) masqManipulationGotoDetail.addEventListener("click", () => gotoModSpecialDetail("masquedMind"));
+  }
+
+  const consoleCommandsGoto = document.getElementById("goto-console-commands");
+  if (consoleCommandsGoto) {
+    consoleCommandsGoto.addEventListener("click", (e) => {
+      e.preventDefault();
+      gotoConsoleCommands();
+    });
   }
 
   const havenToggle = document.getElementById("toggle-haven");

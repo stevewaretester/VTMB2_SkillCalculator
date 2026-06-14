@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>VTMB2 Skill Calculator</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=1.21.0">
+  <link rel="stylesheet" href="css/styles.css?v=1.21.2">
 </head>
 <body>
   <!-- Set mobile/tablet body classes synchronously before any render, so is-mobile is on the body
@@ -353,6 +353,11 @@
     <div class="subpage hidden" id="subpage-enemies">
       <!-- Populated by JS -->
     </div><!-- /subpage-enemies -->
+
+    <!-- Sub-page: Console Cheat Commands -->
+    <div class="subpage hidden" id="subpage-console">
+      <!-- Populated by JS -->
+    </div><!-- /subpage-console -->
 
     <!-- Sub-page: Pickups -->
     <div class="subpage hidden" id="subpage-pickups">
@@ -791,6 +796,10 @@
       <section class="modal-card__section modal-card__section--related">
         <h3 class="modal-card__section-heading">Related Mods</h3>
         <ul class="mod-list mod-list--links">
+          <li class="mod-list__item mod-list__item--related-action">
+            <a href="https://www.nexusmods.com/vtmbloodlines2/mods/176?published=1" target="_blank" rel="noopener">Console Cheat Commands</a>
+            <a class="mod-list__effect-link mod-list__reference-link" id="goto-console-commands" href="?at=phyre.console">Command reference</a>
+          </li>
           <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/158" target="_blank" rel="noopener">Obvious HUD Toggle</a></li>
           <li class="mod-list__item"><a href="https://www.nexusmods.com/vtmbloodlines2/mods/159" target="_blank" rel="noopener">Obvious Clan Completion Sync</a></li>
         </ul>
@@ -1018,18 +1027,20 @@
     </div>
   </div>
 
-  <script src="js/data.js?v=1.21.0"></script>
-  <script src="js/app.js?v=1.21.0"></script>
-  <script src="js/outfits.js?v=1.21.0"></script>
-  <script src="js/fabien.js?v=1.21.0"></script>
-  <script src="js/benny.js?v=1.21.0"></script>
-  <script src="js/ysabella.js?v=1.21.0"></script>
-  <script src="js/combos.js?v=1.21.0"></script>
-  <script src="js/pickups.js?v=1.21.0"></script>
-  <script src="js/collectibles.js?v=1.21.0"></script>
-  <script src="js/extras.js?v=1.21.0"></script>
-  <script src="js/map.js?v=1.21.0"></script>
-  <script src="js/tierlist.js?v=1.21.0"></script>
-  <script src="js/showClanDescription.js?v=1.21.0"></script>
+  <script src="js/data.js?v=1.21.2"></script>
+  <script src="js/app.js?v=1.21.2"></script>
+  <script src="js/outfits.js?v=1.21.2"></script>
+  <script src="js/fabien.js?v=1.21.2"></script>
+  <script src="js/benny.js?v=1.21.2"></script>
+  <script src="js/ysabella.js?v=1.21.2"></script>
+  <script src="js/combos.js?v=1.21.2"></script>
+  <script src="js/pickups.js?v=1.21.2"></script>
+  <script src="js/commands-data.js?v=1.21.2"></script>
+  <script src="js/commands.js?v=1.21.2"></script>
+  <script src="js/collectibles.js?v=1.21.2"></script>
+  <script src="js/extras.js?v=1.21.2"></script>
+  <script src="js/map.js?v=1.21.2"></script>
+  <script src="js/tierlist.js?v=1.21.2"></script>
+  <script src="js/showClanDescription.js?v=1.21.2"></script>
 </body>
 </html>
